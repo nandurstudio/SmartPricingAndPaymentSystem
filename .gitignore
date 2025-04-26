@@ -1,33 +1,44 @@
-# Direktori vendor (Composer dependencies)
-vendor/
-
-# Direktori cache dan log
-writable/cache/
-writable/debugbar/
-writable/logs/
-writable/session/
-writable/tmp/
-
-# File environment
+# Ignore environment file (berisi konfigurasi sensitif)
 .env
-env
 
-# Direktori build (jika ada)
-build/
+# Ignore system-generated files
+/system
 
-# File upload (opsional, jika tidak ingin menyimpan di repo)
-public/uploads/
-public/storage/
+# Ignore user-specific files
+application/config/*.php  # Konfigurasi yang sudah ada di repo
+application/cache/
+application/logs/
 
-# File IDE & sistem operasi
+# Ignore Composer's vendor directory
+/vendor/
+
+# Ignore .env files (untuk konfigurasi sensitif)
+.env.local
+.env.production
+.env.testing
+
+# Ignore IDE/project specific files
+/.idea/
+/.vscode/
+
+# Ignore MacOS specific files
 .DS_Store
-Thumbs.db
-.idea/
-.vscode/
-node_modules/
 
-# File Composer & NPM yang bisa di-generate ulang
-composer.lock
-package-lock.json
-npm-debug.log
-yarn.lock
+# Ignore Windows specific files
+Thumbs.db
+
+# Ignore PHPUnit configuration file (jika ada)
+phpunit.xml
+
+# Ignore build and deployment directories
+/build/
+dist/
+
+# Ignore temporary files
+*.log
+*.bak
+*.swp
+
+# Ignore Email.php yang berisi konfigurasi sensitif
+/app/Config/Email.php
+/writable/session

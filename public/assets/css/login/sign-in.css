@@ -1,0 +1,65 @@
+html,
+body {
+  height: 100%;
+}
+
+.logo {
+  display: flex;
+  justify-content: center; /* Mengatur logo ke tengah secara horizontal */
+  align-items: center; /* Mengatur logo ke tengah secara vertikal */
+  margin-bottom: 20px; /* Menambahkan jarak bawah antara logo dan form */
+}
+
+.logo img {
+  max-width: 100%; /* Menjaga ukuran logo tetap proporsional */
+  height: auto;
+}
+
+.form-signin {
+  /* max-width: 330px; */
+  padding: 1rem;
+}
+
+.form-signin .form-floating:focus-within {
+  z-index: 2;
+}
+
+.form-signin input[type="email"],
+.form-signin input[type="text"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-signin input[type="password"] {
+  margin-bottom: -1px; /* atau margin-bottom: -1px jika diperlukan */
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.form-floating {
+  position: relative;
+}
+
+/* Register */
+p.text-center {
+  font-size: 0.9rem; /* Menyesuaikan ukuran font */
+  color: #6c757d; /* Warna teks */
+}
+
+p.text-center a {
+  text-decoration: none; /* Hilangkan underline */
+  color: #007bff; /* Warna link */
+}
+
+p.text-center a:hover {
+  text-decoration: underline; /* Tambahkan garis bawah saat hover */
+}

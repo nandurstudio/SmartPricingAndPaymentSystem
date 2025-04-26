@@ -1,6 +1,10 @@
-<IfModule authz_core_module>
-	Require all denied
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+
+	# Redirect ke folder public jika tidak mengakses folder public secara langsung
+	RewriteCond %{REQUEST_URI} !^/public/
+	RewriteRule ^(.*)$ /public/$1 [L]
 </IfModule>
-<IfModule !authz_core_module>
-	Deny from all
-</IfModule>
+
+# Nonaktifkan Directory Listing
+Options -Indexes

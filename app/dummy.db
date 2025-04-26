@@ -1,0 +1,2056 @@
+-- mIndicators untuk Blending Operator dengan sistem baru
+INSERT IGNORE INTO
+    mIndicators (
+        txtIndicator,
+        intCompetencyID,
+        txtGUID
+    )
+SELECT 'Mampu menjelaskan prinsip kerja mesin Dumping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Dumping'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Dumping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Dumping'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Dumping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Dumping'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Dumping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Dumping'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Mixer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Mixer'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Mixer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Mixer'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Mixer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Mixer'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Mixer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Mixer'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Dumping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Dumping'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Dumping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Dumping'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Mixer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Mixer'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Mixer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Mixer'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Wet Cleaning (TWC) pada mesin Dumping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Dumping'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Dry Cleaning (TDC)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Dumping'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Bintang (*)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Dumping'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Kres (#)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Dumping'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan kuas pada mesin Dumping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Dumping'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Wet Cleaning (TWC) pada mesin Mixer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Mixer'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Dry Cleaning (TDC) pada mesin Mixer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Mixer'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Bintang (*) pada mesin Mixer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Mixer'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Kres (#) pada mesin Mixer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Mixer'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan kuas pada mesin Mixer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Mixer'
+UNION ALL
+SELECT 'Mampu menjelaskan end to end proses produksi secara teknis dan administrasi', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Production Business Process Knowledge'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Mixing Station Bin', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Mixing Station Bin'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Mixing Station Bin', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Mixing Station Bin'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Mixing Station Bin', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Mixing Station Bin'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Mixing Station Bin', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Mixing Station Bin'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Forklift', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Forklift'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Forklift', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Forklift'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Forklift', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Forklift'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Forklift', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Forklift'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Hand pallet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Hand pallet'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Hand pallet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Hand pallet'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Hand pallet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Hand pallet'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Hand pallet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Hand pallet'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Mixing Station Bin', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Mixing Station Bin'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Mixing Station Bin', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Mixing Station Bin'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Forklift', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Forklift'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Forklift', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Forklift'
+UNION ALL
+SELECT 'Mampu melakukan pengisian daya (ganti baterai maupun charger) pada mesin Forklift', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Forklift'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Hand pallet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Hand pallet'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Hand pallet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Hand pallet'
+UNION ALL
+SELECT 'Mampu melakukan pengisian daya (ganti baterai maupun charger) pada mesin Hand pallet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Hand pallet'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Wet Cleaning (TWC) dengan metode CIP (Cleaning in Process)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Mixing Station Bin'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Dry Cleaning (TDC) dengan metode CIP (Cleaning in Process)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Mixing Station Bin'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Bintang (*)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Mixing Station Bin'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan kuas pada mesin Bin', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Mixing Station Bin'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Filling Sachet Wolf', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Sachet Wolf'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Filling Sachet Wolf', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Sachet Wolf'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Filling Sachet Wolf', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Sachet Wolf'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Filling Sachet Wolf', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Sachet Wolf'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Filling Sachet Solpack', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Sachet Solpack'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Filling Sachet Solpack', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Sachet Solpack'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Filling Sachet Solpack', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Sachet Solpack'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Filling Sachet Solpack', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Sachet Solpack'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Filling Pouch Wifa', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Pouch Wifa'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Filling Pouch Wifa', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Pouch Wifa'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Filling Pouch Wifa', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Pouch Wifa'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Filling Pouch Wifa', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Pouch Wifa'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Filling Canning Anglegear 320MK', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Canning Anglegear 320MK'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Filling Canning Anglegear 320MK', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Canning Anglegear 320MK'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Filling Canning Anglegear 320MK', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Canning Anglegear 320MK'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Filling Canning Anglegear 320MK', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Filling Canning Anglegear 320MK'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Printer Sachet Lebringer Jet 3Up', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Sachet Lebringer Jet 3Up'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Printer Sachet Lebringer Jet 3Up', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Sachet Lebringer Jet 3Up'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Printer Sachet Lebringer Jet 3Up', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Sachet Lebringer Jet 3Up'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Printer Sachet Lebringer Jet 3Up', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Sachet Lebringer Jet 3Up'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Printer Sachet Smart Date X40', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Sachet Smart Date X40'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Printer Sachet Smart Date X40', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Sachet Smart Date X40'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Printer Sachet Smart Date X40', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Sachet Smart Date X40'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Printer Sachet Smart Date X40', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Sachet Smart Date X40'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Printer Pouch Lebringer Jet 3Up', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Pouch Lebringer Jet 3Up'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Printer Pouch Lebringer Jet 3Up', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Pouch Lebringer Jet 3Up'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Printer Pouch Lebringer Jet 3Up', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Pouch Lebringer Jet 3Up'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Printer Pouch Lebringer Jet 3Up', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Pouch Lebringer Jet 3Up'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Printer Canning Video Jet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Canning Video Jet'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Printer Canning Video Jet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Canning Video Jet'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Printer Canning Video Jet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Canning Video Jet'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Printer Canning Video Jet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Printer Canning Video Jet'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Checkweigher Sachet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Checkweigher Sachet'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Checkweigher Sachet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Checkweigher Sachet'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Checkweigher Sachet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Checkweigher Sachet'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Checkweigher Sachet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Checkweigher Sachet'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Gassing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Gassing'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Gassing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Gassing'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Gassing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Gassing'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Gassing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Gassing'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Seamer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Seamer'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Seamer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Seamer'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Seamer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Seamer'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Seamer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Seamer'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Filling Sachet Wolf', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Filling Sachet Wolf'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Filling Sachet Wolf', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Filling Sachet Wolf'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Filling Sachet Solpack', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Filling Sachet Solpack'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Filling Sachet Solpack', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Filling Sachet Solpack'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Filling Pouch Wifa', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Filling Pouch Wifa'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Filling Pouch Wifa', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Filling Pouch Wifa'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan Filling Canning Anglegear 320MK', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Filling Canning Anglegear 320MK'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Filling Canning Anglegear 320MK', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Filling Canning Anglegear 320MK'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Printer Sachet Lebringer Jet 3Up', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Printer Sachet Lebringer Jet 3Up'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Printer Sachet Lebringer Jet 3Up', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Printer Sachet Lebringer Jet 3Up'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Printer Sachet Smart Date X40', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Printer Sachet Smart Date X40'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Printer Sachet Smart Date X40', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Printer Sachet Smart Date X40'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Printer Pouch Lebringer Jet 3Up', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Printer Pouch Lebringer Jet 3Up'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Printer Pouch Lebringer Jet 3Up', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Printer Pouch Lebringer Jet 3Up'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Canning Video Jet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Printer Canning Video Jet'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Canning Video Jet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Printer Canning Video Jet'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Checkweigher Sachet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Checkweigher Sachet'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Checkweigher Sachet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Checkweigher Sachet'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Automation canning', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Automation canning'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Wet Cleaning (TWC) pada mesin Filling Sachet Wolf', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Sachet Wolf'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Dry Cleaning (TDC) pada mesin Filling Sachet Wolf', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Sachet Wolf'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Bintang (*) pada mesin Filling Sachet Wolf', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Sachet Wolf'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Kres (#) pada mesin Filling Sachet Wolf', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Sachet Wolf'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan kuas pada mesin Filling Sachet Wolf', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Sachet Wolf'
+UNION ALL
+SELECT 'Mampu melakukan ganti Auger pada mesin Filling Sachet Wolf', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Sachet Wolf'
+UNION ALL
+SELECT 'Mampu melakukan pergantian poly roll pada mesin Filling Sachet Wolf', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Sachet Wolf'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Wet Cleaning (TWC) pada mesin Filling Sachet Solpack', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Sachet Solpack'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Dry Cleaning (TDC) pada mesin Filling Sachet Solpack', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Sachet Solpack'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Bintang (*) pada mesin Filling Sachet Solpack', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Sachet Solpack'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Kres (#) pada mesin Filling Sachet Solpack', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Sachet Solpack'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan kuas pada mesin Filling Sachet Solpack', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Sachet Solpack'
+UNION ALL
+SELECT 'Mampu melakukan pergantian poly roll pada mesin Filling Sachet Solpack', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Sachet Solpack'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Wet Cleaning (TWC) pada mesin Filling Pouch Wifa', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Pouch Wifa'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Dry Cleaning (TDC) pada mesin Filling Pouch Wifa', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Pouch Wifa'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Bintang (*) pada mesin Filling Pouch Wifa', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Pouch Wifa'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Kres (#) pada mesin Filling Pouch Wifa', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Pouch Wifa'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan kuas pada mesin Filling Pouch Wifa', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Pouch Wifa'
+UNION ALL
+SELECT 'Mampu melakukan pergantian Pouch pada mesin Filling Pouch Wifa', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Pouch Wifa'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Wet Cleaning (TWC) pada mesin Filling Canning Anglegear', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Canning Anglegear 320MK'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Dry Cleaning (TDC) pada mesin Filling Canning Anglegear', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Canning Anglegear 320MK'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Bintang (*) pada mesin Filling Canning Anglegear', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Canning Anglegear 320MK'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Kres (#) pada mesin Filling Canning Anglegear', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Canning Anglegear 320MK'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan kuas pada mesin Filling Canning Anglegear', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Filling Canning Anglegear 320MK'
+UNION ALL
+SELECT 'Mampu melakukan penggantian kode pada mesin Printer Sachet Lebringer Jet 3Up', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Printer Sachet Lebringer Jet 3Up'
+UNION ALL
+SELECT 'Mampu melakukan penggantian kode pada mesin Printer Sachet Smart Date X40', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Printer Sachet Smart Date X40'
+UNION ALL
+SELECT 'Mampu melakukan penggantian kode pada mesin Printer Pouch Lebringer Jet 3Up', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Printer Pouch Lebringer Jet 3Up'
+UNION ALL
+SELECT 'Mampu melakukan penggantian kode pada mesin Printer Canning Video Jet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Printer Canning Video Jet'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada Checkweigher Sachet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Checkweigher Sachet'
+UNION ALL
+SELECT 'Menjelaskan end to end proses produksi secara teknis dan administrasi', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Production Business Process Knowledge'
+UNION ALL
+SELECT 'Mampu menjelaskan jenis & ukuran poly roll untuk setiap produk', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Packaging Material (poly roll) Knowledge'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Conveyor Incline', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Incline'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Conveyor Incline', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Incline'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Conveyor Incline', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Incline'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Conveyor Incline', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Incline'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Automation canning', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Automation canning'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Automation canning', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Automation canning'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Automation canning', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Automation canning'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Automation canning', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Automation canning'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Metal Catcher', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Metal Catcher'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Metal Catcher', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Metal Catcher'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Metal Catcher', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Metal Catcher'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Metal Catcher', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Metal Catcher'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Conveyor Sachet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Sachet'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Conveyor Sachet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Sachet'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Conveyor Sachet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Sachet'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Conveyor Sachet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Sachet'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Conveyor Pouch', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Pouch'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Conveyor Pouch', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Pouch'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Conveyor Pouch', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Pouch'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Conveyor Pouch', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Pouch'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Conveyor Canning', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Canning'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Conveyor Canning', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Canning'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Conveyor Canning', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Canning'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Conveyor Canning', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Canning'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Conveyor Incline', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Conveyor Incline'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Conveyor Incline', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Conveyor Incline'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Metal Catcher', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Metal Catcher'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Metal Catcher', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Metal Catcher'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Conveyor Sachet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Conveyor Sachet'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Conveyor Sachet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Conveyor Sachet'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Conveyor Pouch', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Conveyor Pouch'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Conveyor Pouch', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Conveyor Pouch'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Conveyor Canning', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Conveyor Canning'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Conveyor Canning', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Conveyor Canning'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Wet Cleaning (TWC) pada Metal Chatcher', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Metal Catcher'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Dry Cleaning (TDC)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Metal Catcher'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Bintang (*)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Metal Catcher'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Kres (#)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Metal Catcher'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan kuas pada mesin Metal Chatcher', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Change Over Metal Catcher'
+UNION ALL
+SELECT 'Mampu melakukan buka dus sesuai dengan parameter yang ditentukan', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Packing Manual'
+UNION ALL
+SELECT 'Mampu memasukkan sachet', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Packing Manual'
+UNION ALL
+SELECT 'Mampu memasukkan sendok', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Packing Manual'
+UNION ALL
+SELECT 'Mampu melipat flap atas', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Packing Manual'
+UNION ALL
+SELECT 'Mampu melipat flap bawah', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Packing Manual'
+UNION ALL
+SELECT 'Mampu memasukkan dus kedalam box', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Packing Manual'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Cartoner Dienst', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cartoner Dienst'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Cartoner Dienst', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cartoner Dienst'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Spooner', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cartoner Dienst'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Spooner', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cartoner Dienst'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Cartoner Sigma', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cartoner Sigma'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Cartoner Sigma', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cartoner Sigma'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Spooner', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cartoner Sigma'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Spooner', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cartoner Sigma'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Cartoner Kosky', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cartoner Kosky'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Cartoner Kosky', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cartoner Kosky'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Spooner', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cartoner Kosky'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Spooner', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cartoner Kosky'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Cartoner Langen', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cartoner Langen'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Cartoner Langen', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cartoner Langen'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Auto Zee', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Auto Zee'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Auto Zee', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Auto Zee'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Inkjet doos', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Inkjet doos'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Inkjet doos', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Inkjet doos'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin X-ray', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate X-ray'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin X-ray', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate X-ray'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Casepacker', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Casepacker'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Casepacker', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Casepacker'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Checkweigher Box', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Checkweigher Box'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Checkweigher Box', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Checkweigher Box'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Inkjet box', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Inkjet box'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Inkjet box', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Inkjet box'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Glueing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Glueing'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Glueing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Glueing'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Carton sealer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Carton sealer'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Carton sealer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Carton sealer'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin Cartoner Dienst', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Cartoner Dienst'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin Cartoner Sigma', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Cartoner Sigma'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin Cartoner Kosky', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Cartoner Kosky'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin Casepacker', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Casepacker'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin Checkweigher Box', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Checkweigher Box'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin Inkjet box', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Inkjet box'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin Glueing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Glueing'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin Carton sealer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Carton sealer'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Labeling', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Labeling'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Labeling', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Labeling'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Labeling', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Labeling'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Labeling', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Labeling'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Mesin Lid', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Mesin Lid'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Mesin Lid', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Mesin Lid'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Mesin Lid', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Mesin Lid'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Mesin Lid', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Mesin Lid'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Cobot', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cobot'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Cobot', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cobot'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Cobot', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cobot'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Cobot', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cobot'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Cartoner Sigma', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Sigma'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Cartoner Sigma', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Sigma'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Cartoner Sigma', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Sigma'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Cartoner Sigma', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Sigma'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Conveyor Packing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Packing'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Conveyor Packing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Packing'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Conveyor Packing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Packing'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Conveyor Packing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Conveyor Packing'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Cartoner Langen', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Langen'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Cartoner Langen', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Langen'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Cartoner Langen', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Langen'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Cartoner Langen', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Langen'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Auto Zee', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Auto Zee'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Auto Zee', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Auto Zee'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Auto Zee', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Auto Zee'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Auto Zee', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Auto Zee'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Bag Automation', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Bag Automation'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Bag Automation', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Bag Automation'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Bag Automation', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Bag Automation'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Bag Automation', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Bag Automation'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Inkjet doos', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Inkjet doos'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Inkjet doos', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Inkjet doos'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Inkjet doos', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Inkjet doos'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Inkjet doos', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Inkjet doos'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin X-ray', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge X-ray'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin X-ray', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge X-ray'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin X-ray', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge X-ray'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin X-ray', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge X-ray'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Casepacker', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Casepacker'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Casepacker', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Casepacker'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Casepacker', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Casepacker'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Casepacker', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Casepacker'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Checkweigher Box', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Checkweigher Box'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Checkweigher Box', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Checkweigher Box'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Checkweigher Box', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Checkweigher Box'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Checkweigher Box', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Checkweigher Box'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Inkjet box', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Inkjet box'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Inkjet box', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Inkjet box'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Inkjet box', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Inkjet box'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Inkjet box', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Inkjet box'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Glueing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Glueing'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Glueing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Glueing'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Glueing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Glueing'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Glueing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Glueing'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Carton sealer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Carton sealer'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Carton sealer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Carton sealer'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Carton sealer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Carton sealer'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Carton sealer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Carton sealer'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Hopper', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Hopper'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Hopper', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Hopper'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Hopper', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Hopper'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Hopper', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Hopper'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Rotary Valve', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Rotary Valve'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Rotary Valve', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Rotary Valve'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Rotary Valve', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Rotary Valve'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Rotary Valve', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Rotary Valve'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Round Siever', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Round Siever'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Round Siever', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Round Siever'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Round Siever', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Round Siever'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Round Siever', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Round Siever'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Rotary Siever', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Rotary Siever'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Rotary Siever', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Rotary Siever'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Rotary Siever', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Rotary Siever'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Rotary Siever', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Rotary Siever'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Labeling', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Labeling'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Labeling', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Labeling'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Mesin Lid', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Mesin Lid'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Mesin Lid', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Mesin Lid'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Cobot', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cobot'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Cobot', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Cobot'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Conveyor Packing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Conveyor Packing'
+UNION ALL
+SELECT 'Mampu melakukan setting speed mesin Conveyor Packing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Conveyor Packing'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Bag Automation', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Bag Automation'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Bag Automation', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Bag Automation'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin Labeling', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Labeling'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin Mesin Lid', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Mesin Lid'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin Cobot', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Cobot'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin Conveyor Packing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Conveyor Packing'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Wet Cleaning (TWC) pada mesin Hopper', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Hopper'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Dry Cleaning (TDC)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Hopper'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Bintang (*)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Hopper'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Kres (#)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Hopper'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan kuas pada mesin Dumping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Hopper'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Wet Cleaning (TWC) pada mesin Rotary Valve', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Rotary Valve'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Dry Cleaning (TDC)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Rotary Valve'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Bintang (*)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Rotary Valve'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Kres (#)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Rotary Valve'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan kuas pada mesin Dumping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Rotary Valve'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Wet Cleaning (TWC) pada mesin Round Siever', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Round Siever'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Dry Cleaning (TDC)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Round Siever'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Bintang (*)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Round Siever'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Kres (#)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Round Siever'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan kuas pada mesin Dumping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Round Siever'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Wet Cleaning (TWC) pada mesin Rotary Siever', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Rotary Siever'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Total Dry Cleaning (TDC)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Rotary Siever'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Bintang (*)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Rotary Siever'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan metode Flushing Kres (#)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Rotary Siever'
+UNION ALL
+SELECT 'Mampu melakukan pembersihan menggunakan kuas pada mesin Dumping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Rotary Siever'
+UNION ALL
+SELECT 'Mampu mengidentifikasi kondisi apabila terdapat part failure pada mesin', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Troubleshooting'
+UNION ALL
+SELECT 'Mampu mengidentifikasi kondisi apabila terdapat material failure', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Troubleshooting'
+UNION ALL
+SELECT 'Mampu membuka dan mengencangkan baut', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Technical Skills (Basic Maintenance Skills)'
+UNION ALL
+SELECT 'Mampu menggunakan kunci torsi', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Technical Skills (Basic Maintenance Skills)'
+UNION ALL
+SELECT 'Mampu mengidentifikasi failure pada baut', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Technical Skills (Basic Maintenance Skills)'
+UNION ALL
+SELECT 'Mampu melakukan greasing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Technical Skills (Basic Maintenance Skills)'
+UNION ALL
+SELECT 'Mampu melakukan oiling', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Technical Skills (Basic Maintenance Skills)'
+UNION ALL
+SELECT 'Mengidentifikasi kebocoran pada valve, solenoid, actuator, hose menggunakan media angin terkompresi', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Technical Skills (Basic Maintenance Skills)'
+UNION ALL
+SELECT 'Mengidentifikasi failure pada valve, solenoid, actuator, hose menggunakan media angin terkompresi', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Technical Skills (Basic Maintenance Skills)'
+UNION ALL
+SELECT 'Mengidentifikasi kebocoran pada valve, solenoid, actuator, hose, pump menggunakan media oli terkompresi', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Technical Skills (Basic Maintenance Skills)'
+UNION ALL
+SELECT 'Mengidentifikasi failure pada valve, solenoid, actuator, hose, pump menggunakan media oli terkompresi', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Technical Skills (Basic Maintenance Skills)'
+UNION ALL
+SELECT 'Mengidentifikasi failure pada belt, chain, gear', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Technical Skills (Basic Maintenance Skills)'
+UNION ALL
+SELECT 'Mampu mengukur tegangan, arus, hambatan listrik menggunakan multimeter', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Technical Skills (Basic Maintenance Skills)'
+UNION ALL
+SELECT 'Mampu mengencangkan kabel listrik yang kendor', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Technical Skills (Basic Maintenance Skills)'
+UNION ALL
+SELECT 'Mampu menjelaskan konsep TPM - AM step 1-5', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'TPM - Autonomous Maintenance'
+UNION ALL
+SELECT 'Mampu mengaplikasikan prinsip-prinsip TPM AM di area kerja (lolos audit TPM AM Step 1-5)', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'TPM - Autonomous Maintenance'
+UNION ALL
+SELECT 'Mengetahui efek ketidaksesuaian parameter terhadap defect produk', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'FMEA (Failure Mode and Effects Analysis)'
+UNION ALL
+SELECT 'Melakukan tindakan preventif untuk mencegah munculnya produk defect', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'FMEA (Failure Mode and Effects Analysis)'
+UNION ALL
+SELECT 'Mampu mengidentifikasi fenomena problem', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'P-M (Physical - Mechanism) Analysis'
+UNION ALL
+SELECT 'Mampu mengidentifikasi besaran fisika yang tidak sesuai pada flow proses mesin', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'P-M (Physical - Mechanism) Analysis'
+UNION ALL
+SELECT 'Mampu menjelaskan mekanisme mesin', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'P-M (Physical - Mechanism) Analysis'
+UNION ALL
+SELECT 'Mampu melakukan penanggulangan dari root cause problem', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'P-M (Physical - Mechanism) Analysis'
+UNION ALL
+SELECT 'Mampu melakukan draining dan cleaning filter tank', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Periodic Maintenance'
+UNION ALL
+SELECT 'Mampu melakukan penggantian filter glueing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Periodic Maintenance'
+UNION ALL
+SELECT 'Mampu melakukan pelumasan cartoning', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Periodic Maintenance'
+UNION ALL
+SELECT 'Mampu melakukan pelumasan case packer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Periodic Maintenance'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Cartoner Dienst', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Dienst'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Cartoner Dienst', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Dienst'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Cartoner Dienst', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Dienst'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Cartoner Dienst', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Dienst'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Cartoner Kosky', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Kosky'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Cartoner Kosky', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Kosky'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Cartoner Kosky', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Kosky'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Cartoner Kosky', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Cartoner Kosky'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin Cartoner Langen', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Cartoner Langen'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin Auto Zee', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Auto Zee'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin Inkjet doos', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover Inkjet doos'
+UNION ALL
+SELECT 'Mampu melakukan penggantian format pada mesin X-ray', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Changeover X-ray'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Palletizing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Paletizing'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Palletizing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Paletizing'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Palletizing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Paletizing'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Palletizing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Paletizing'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Wraping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Wraping'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Wraping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Wraping'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Wraping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Wraping'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Wraping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Wraping'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Counter Balance', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Counter Balance'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Counter Balance', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Counter Balance'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Counter Balance', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Counter Balance'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Counter Balance', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Counter Balance'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Counter Balance', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Counter Balance'
+UNION ALL
+SELECT 'Mampu melakukan pengisian daya (ganti baterai maupun charger) pada mesin Counter Balance', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Counter Balance'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Stacker', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Stacker'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Stacker', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Stacker'
+UNION ALL
+SELECT 'Mampu melakukan pengisian daya (ganti baterai maupun charger) pada mesin Stacker', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Stacker'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Hand mover', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Hand mover'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Hand mover', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Hand mover'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Hand mover', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Hand mover'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Hand mover', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Hand mover'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Stacker', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Stacker'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Stacker', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Stacker'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Stacker', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Stacker'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Stacker', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Stacker'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Hand mover', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Hand mover'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Paletizing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Paletizing'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Paletizing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Paletizing'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Wraping', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Wraping'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Counter Balance', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Counter Balance'
+UNION ALL
+SELECT 'Mampu menjelaskan prinsip kerja mesin Clincher', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Clincher'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi bahaya yang terjadi pada mesin Clincher', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Clincher'
+UNION ALL
+SELECT 'Mampu menjelaskan potensi defect yang terjadi pada mesin Clincher', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Clincher'
+UNION ALL
+SELECT 'Mampu menjelaskan cara pembersihan mesin Clincher', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Basic Knowledge Clincher'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Gassing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Gassing'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Gassing', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Gassing'
+UNION ALL
+SELECT 'Mampu mengaktifkan dan menonaktifkan mesin Seamer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Seamer'
+UNION ALL
+SELECT 'Mampu melakukan setting parameter mesin Seamer', c.intCompetencyID, UUID()
+FROM mCompetencies c
+WHERE
+    c.txtCompetency = 'Operate Seamer';

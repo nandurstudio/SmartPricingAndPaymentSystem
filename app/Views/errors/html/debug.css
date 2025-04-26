@@ -41,7 +41,6 @@ p.lead {
 .header {
     background: var(--light-bg-color);
     color: var(--dark-text-color);
-    margin-top: 2.17rem;
 }
 .header .container {
     padding: 1rem;
@@ -66,13 +65,10 @@ p.lead {
 }
 
 .environment {
-    background: var(--brand-primary-color);
-    color: var(--main-bg-color);
+    background: var(--dark-bg-color);
+    color: var(--light-text-color);
     text-align: center;
-    padding: calc(4px + 0.2083vw);
-    width: 100%;
-    margin-top: -2.14rem;
-    position: fixed;
+    padding: 0.2rem;
 }
 
 .source {
