@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Models\RoleMenuAccessModel;
 use App\Models\MenuModel; // Model untuk menu
-use App\Models\RoleModel; // Model untuk role
+use App\Models\MRoleModel; // Model untuk role
 
 class RoleMenuAccessController extends BaseController
 {
@@ -16,7 +16,7 @@ class RoleMenuAccessController extends BaseController
     {
         $this->roleMenuAccessModel = new RoleMenuAccessModel();
         $this->menuModel = new MenuModel();
-        $this->roleModel = new RoleModel();
+        $this->roleModel = new MRoleModel();
     }
 
     // INDEX - Menampilkan daftar user
@@ -35,7 +35,7 @@ class RoleMenuAccessController extends BaseController
         $menus = $menusModel->getMenusByRole($roleID);  // Memanggil method dari MenusModel
 
         // Ambil data lines dari model
-        $rolesModel = new RoleModel();
+        $rolesModel = new MRoleModel();
         $roles = $rolesModel->findAll();
 
         // Ambil data lines dari model

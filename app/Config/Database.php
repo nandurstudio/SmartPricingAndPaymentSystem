@@ -24,31 +24,45 @@ class Database extends Config
      *
      * @var array<string, mixed>
      */
-    public array $default = [
-        'DSN'          => '',                  // Dibiarkan kosong kecuali ingin menggunakan Data Source Name (opsional)
-        'hostname'     => 'localhost',          // Host MySQL (default: localhost di Laragon)
-        'username'     => 'root',               // Username default untuk MySQL di Laragon
-        'password'     => '',                   // Password kosong (sesuai default Laragon)
-        'database'     => 'ecompetency_db',     // Nama database yang kamu buat di phpMyAdmin
-        'DBDriver'     => 'MySQLi',             // Driver yang digunakan untuk MySQL
-        'DBPrefix'     => '',                   // Prefiks tabel (opsional, biasanya dibiarkan kosong)
-        'pConnect'     => false,                // Persistent connection (false untuk koneksi normal)
-        'DBDebug'      => true,                 // Debugging aktif (ubah menjadi false di production)
-        'charset'      => 'utf8mb4',            // Charset yang mendukung karakter unicode
-        'DBCollat'     => 'utf8mb4_general_ci', // Collation untuk mendukung berbagai karakter
-        'swapPre'      => '',                   // Digunakan untuk mengganti prefix (tidak perlu diubah)
-        'encrypt'      => false,                // Enkripsi koneksi ke MySQL (false untuk lokal)
-        'compress'     => false,                // Kompresi koneksi (false untuk lokal)
-        'strictOn'     => false,                // Strict mode (opsional, false biasanya cukup)
-        'failover'     => [],                   // Digunakan untuk failover ke database lain (tidak perlu diubah)
-        'port'         => 3306,                 // Port MySQL (default: 3306)
-        'numberNative' => false,                // Opsi tambahan yang biasanya tidak perlu diubah
-        'dateFormat'   => [                     // Format tanggal default
-            'date'     => 'Y-m-d',
-            'datetime' => 'Y-m-d H:i:s',
-            'time'     => 'H:i:s',
-        ],
-    ];
+    public array $default;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->default = [
+            'DSN'          => '',
+            'hostname'     => env('DB_HOSTNAME', 'localhost'),
+            'username'     => env('DB_USERNAME', 'root'),
+            'password'     => env('DB_PASSWORD', ''),
+            'database'     => env('DB_DATABASE', 'db_smartpricingandpaymentsystem'),
+            'DBDriver'     => env('DB_DRIVER', 'MySQLi'),
+            'DBPrefix'     => '',
+            'pConnect'     => false,
+            'DBDebug'      => (ENVIRONMENT !== 'production'),
+            'charset'      => 'utf8mb4',
+            'DBCollat'     => 'utf8mb4_general_ci',
+            'swapPre'      => '',
+            'encrypt'      => false,
+            'compress'     => false,
+            'strictOn'     => false,
+            'failover'     => [],
+            'port'         => env('DB_PORT', 3306),
+            'numberNative' => false,
+            'dateFormat'   => [
+                'date'     => 'Y-m-d',
+                'datetime' => 'Y-m-d H:i:s',
+                'time'     => 'H:i:s',
+            ],
+        ];
+
+        // Ensure that we always set the database group to 'tests' if
+        // we are currently running an automated test suite, so that
+        // we don't overwrite live data on accident.
+        if (ENVIRONMENT === 'testing') {
+            $this->defaultGroup = 'tests';
+        }
+    }
 
     //    /**
     //     * Sample database connection for SQLite3.
@@ -186,16 +200,4 @@ class Database extends Config
             'time'     => 'H:i:s',
         ],
     ];
-
-    public function __construct()
-    {
-        parent::__construct();
-
-        // Ensure that we always set the database group to 'tests' if
-        // we are currently running an automated test suite, so that
-        // we don't overwrite live data on accident.
-        if (ENVIRONMENT === 'testing') {
-            $this->defaultGroup = 'tests';
-        }
-    }
 }

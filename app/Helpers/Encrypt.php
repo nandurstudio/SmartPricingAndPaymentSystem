@@ -4,26 +4,24 @@ namespace App\Helpers;
 
 class Encrypt
 {
-    private static $encryptionKey = '3c0mp3t3ncy1234'; // Kunci enkripsi
+    // Ini bisa dipakai untuk data lain, bukan untuk password
+    private static $encryptionKey = '3c0mp3t3ncy1234'; // Contoh key, jangan hardcode di production
 
-    // Fungsi untuk enkripsi password
-    public static function encryptPassword($password)
+    public static function encryptPassword($data)
     {
-        $cipher = "aes-256-cbc"; // Algoritma AES 256-bit
+        $cipher = "aes-256-cbc";
         $ivLength = openssl_cipher_iv_length($cipher);
         $iv = openssl_random_pseudo_bytes($ivLength);
-        $encryptedPassword = openssl_encrypt($password, $cipher, self::$encryptionKey, 0, $iv);
+        $encrypted = openssl_encrypt($data, $cipher, self::$encryptionKey, 0, $iv);
 
-        // Kembalikan hasil enkripsi bersama IV
-        return base64_encode($encryptedPassword . '::' . $iv);
+        return base64_encode($encrypted . '::' . $iv);
     }
 
-    // Fungsi untuk dekripsi password
-    public static function decryptPassword($encryptedPassword)
+    public static function decryptPassword($encryptedData)
     {
-        $cipher = "aes-256-cbc"; // Algoritma yang sama untuk dekripsi
-        list($encryptedData, $iv) = explode('::', base64_decode($encryptedPassword), 2);
+        $cipher = "aes-256-cbc";
+        list($encrypted, $iv) = explode('::', base64_decode($encryptedData), 2);
 
-        return openssl_decrypt($encryptedData, $cipher, self::$encryptionKey, 0, $iv);
+        return openssl_decrypt($encrypted, $cipher, self::$encryptionKey, 0, $iv);
     }
 }

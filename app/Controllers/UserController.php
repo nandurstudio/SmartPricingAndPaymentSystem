@@ -2,8 +2,8 @@
 
 namespace App\Controllers;
 
-use App\Models\UserModel;
-use App\Models\RoleModel;
+use App\Models\MUserModel;
+use App\Models\MRoleModel;
 use App\Models\JobTitleModel;
 use App\Models\LineModel;
 use App\Models\DepartmentModel;
@@ -17,7 +17,7 @@ class UserController extends Controller
 
     public function __construct()
     {
-        $this->userModel = new UserModel();
+        $this->userModel = new MUserModel();
     }
 
     public function index()
@@ -43,7 +43,7 @@ class UserController extends Controller
         $pager = $this->userModel->pager;
 
         // Fetch Role names for each user
-        $roleModel = new RoleModel();
+        $roleModel = new MRoleModel();
         foreach ($users as &$user) {
             $user['txtRoleName'] = $roleModel->find($user['intRoleID'])['txtRoleName'];
         }
@@ -63,7 +63,7 @@ class UserController extends Controller
     public function getUsers()
     {
         try {
-            $model = new UserModel();
+            $model = new MUserModel();
 
             // Ambil parameter dari request
             $draw = (int)$this->request->getVar('draw');
@@ -114,28 +114,16 @@ class UserController extends Controller
         $menus = $menusModel->getMenusByRole($roleID);
         
         // Fetching roles, job titles, supervisors, lines, and departments for the form
-        $roleModel = new RoleModel();
+        $roleModel = new MRoleModel();
         $roles = $roleModel->findAll();
 
-        $jobTitleModel = new JobTitleModel();
-        $jobTitles = $jobTitleModel->findAll();
-
-        $userModel = new UserModel();
+        $userModel = new MUserModel();
         $supervisors = $userModel->findAll();  // Get all users as supervisors
-
-        $lineModel = new LineModel();
-        $lines = $lineModel->findAll();
-
-        $departmentModel = new DepartmentModel();
-        $departments = $departmentModel->findAll();
 
         return view('user/create', [
             'menus' => $menus,
             'roles' => $roles,
-            'jobTitles' => $jobTitles,
             'supervisors' => $supervisors,
-            'lines' => $lines,
-            'departments' => $departments,
             'pageTitle' => 'Create User',
             'pageSubTitle' => 'Add a new user to the system',
             'cardTitle' => 'Create User',
@@ -208,7 +196,7 @@ class UserController extends Controller
 
         if ($user) {
             // Ambil role dan supervisor berdasarkan ID
-            $roleModel = new RoleModel(); // Misalnya ada model untuk role
+            $roleModel = new MRoleModel(); // Misalnya ada model untuk role
             $role = $roleModel->find($user['intRoleID']); // Ambil nama role berdasarkan ID
 
             $supervisorName = $this->userModel->find($user['intSupervisorID']); // Ambil supervisor jika ada
@@ -240,20 +228,11 @@ class UserController extends Controller
         $menus = $menusModel->getMenusByRole($roleID);
 
         // Fetch the required data for dropdowns
-        $roleModel = new RoleModel();
+        $roleModel = new MRoleModel();
         $roles = $roleModel->findAll();
 
-        $jobTitleModel = new JobTitleModel();
-        $jobTitles = $jobTitleModel->findAll();
-
-        $userModel = new UserModel();
+        $userModel = new MUserModel();
         $supervisors = $userModel->findAll();  // Get all users as supervisors
-
-        $lineModel = new LineModel();
-        $lines = $lineModel->findAll();
-
-        $departmentModel = new DepartmentModel();
-        $departments = $departmentModel->findAll();
 
         $user = $userModel->find($id);
 
@@ -262,10 +241,7 @@ class UserController extends Controller
                 'menus' => $menus,
                 'user' => $user,
                 'roles' => $roles,
-                'jobTitles' => $jobTitles,
                 'supervisors' => $supervisors,
-                'lines' => $lines,
-                'departments' => $departments,
                 'pageTitle' => 'Edit User',
                 'pageSubTitle' => 'Edit data user dan informasi',
                 'cardTitle' => 'Edit User',

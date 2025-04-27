@@ -94,10 +94,6 @@
       display: block !important;
     }
   </style>
-
-
-  <!-- Custom styles for this template -->
-  <link rel="stylesheet" href="<?php echo base_url('assets/css/login/sign-in.css'); ?>">
 </head>
 
 <body class="d-flex align-items-center py-4 bg-body-tertiary">
@@ -174,36 +170,37 @@
       <div class="col-md-10 mx-auto col-lg-5">
         <div class="form-signin p-4 p-md-5 border rounded-3 bg-body-tertiary">
           <form action="<?php echo base_url('/auth/login'); ?>" method="post" onsubmit="logLoginAttempt()">
+            <?= csrf_field() ?>
             <div class="logo">
               <img class="mb-4" src="<?php echo base_url('assets/brand/bootstrap-logo.svg'); ?>" alt="" width="72" height="57">
             </div>
             <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
 
             <div class="form-floating">
-              <input type="text" class="form-control" id="floatingInput" name="empID" placeholder="Employee ID" required>
-              <label for="floatingInput">Employee ID</label>
+              <input type="email" class="form-control" id="txtEmail" name="txtEmail" placeholder="Email" required>
+              <label for="txtEmail">Email address</label>
             </div>
 
             <div class="form-floating">
-              <input type="password" class="form-control" id="password" name="txtPassword" placeholder="Password" required>
-              <label for="password">Password</label>
+              <input type="password" class="form-control" id="txtPassword" name="txtPassword" placeholder="Password" required>
+              <label for="txtPassword">Password</label>
               <span id="toggle-password" class="eye-icon" style="cursor: pointer;">
                 <i class="bi bi-eye-slash"></i> <!-- Bootstrap Icon -->
               </span>
             </div>
 
             <div class="form-check text-start my-3">
-              <input class="form-check-input" type="checkbox" value="remember-me" id="flexCheckDefault">
-              <label class="form-check-label" for="flexCheckDefault">
+              <input class="form-check-input" type="checkbox" value="remember-me" id="remember_me">
+              <label class="form-check-label" for="remember_me">
                 Remember me
               </label>
             </div>
             <button class="btn btn-primary w-100 py-2" type="submit">Sign in</button>
             <p class="mt-3 text-center">
-              <a href="/auth/forgot_password">Forgot your password?</a>
+              <a href="<?= base_url('auth/forgot_password'); ?>">Forgot your password?</a>
             </p>
             <p class="mt-3 text-center">
-              Don't have an account? <a href="/register">Register here</a>
+              Don't have an account? <a href="<?= base_url('register'); ?>">Register here</a>
             </p>
 
             <p class="mt-5 mb-3 text-body-secondary">&copy; 2024–2024</p>
@@ -222,7 +219,7 @@
 
           <script>
             function logLoginAttempt() {
-              console.log("Attempting to login with Employee ID: " + document.getElementById('floatingInput').value);
+              console.log("Attempting to login with Email: " + document.getElementById('txtEmail').value);
             }
           </script>
         </div>

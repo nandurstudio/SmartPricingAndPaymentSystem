@@ -17,8 +17,7 @@ class App extends BaseConfig
      * E.g., http://example.com/
      */
     // public string $baseURL = 'http://localhost:8080/'; bawaan dari CI
-    // public $baseURL = 'http://localhost/ecompetency/'; // saran dari ChatGPT
-    public $baseURL = 'http://ecompetency.test/';
+    public $baseURL = 'http://smartpricingandpaymentsystem.localhost.com/';
 
     /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.

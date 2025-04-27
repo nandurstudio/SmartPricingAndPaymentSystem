@@ -1,3 +1,7 @@
+## Important Notes
+
+Jangan lupa tambahkan .env file di folder local
+
 # CodeIgniter 4 Framework
 
 ## What is CodeIgniter?

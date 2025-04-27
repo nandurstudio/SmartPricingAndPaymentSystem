@@ -7,7 +7,9 @@ use Config\Services;
 $routes = Services::routes();
 
 // Default route
-$routes->get('/', 'Home::auto_suggest', ['filter' => 'auth']);
+// Menambahkan route untuk halaman default (landing) setelah login
+$routes->get('/', 'Auth::landingPage', ['filter' => 'auth']);
+$routes->get('landing', 'Auth::landingPage', ['filter' => 'auth']);  // Pastikan ada route ini
 
 // Route untuk login
 $routes->get('login', 'Auth::index');  // Menampilkan halaman login

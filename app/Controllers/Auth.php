@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\UserModel;
+use App\Models\MUserModel;
 use App\Helpers\Encrypt;
 use CodeIgniter\I18n\Time;
 
@@ -11,25 +11,27 @@ class Auth extends BaseController
     public function index()
     {
         // Cek cookie untuk Remember Me
-        $empID = get_cookie('empID');
+        $email = get_cookie('email');
         $password = get_cookie('password');
 
         // Jika cookie Remember Me ditemukan, coba login otomatis
-        if ($empID && $password) {
-            $userModel = new UserModel();
-            $user = $userModel->verifyLogin($empID, $password);
+        if ($email && $password) {
+            $userModel = new MUserModel();
+            $user = $userModel->verifyLoginByEmail($email, $password);
 
             // Jika validasi berhasil, set session dan redirect ke Home
             if ($user) {
                 session()->set([
                     'isLoggedIn' => true,
                     'userID' => $user['intUserID'],
-                    'departmentID' => $user['intDepartmentID'],
+                    'roleID' => $user['intRoleID'],
                     'userName' => $user['txtUserName'],
                     'userFullName' => $user['txtFullName'],
                     'userEmail' => $user['txtEmail'],
-                    'userNick' => $user['txtNick'], // Menambahkan txtNick ke sesi
-                    'roleID' => $user['roleID'] // Menambahkan RoleID ke session
+                    'bitActive' => $user['bitActive'], // bitActive untuk status aktif user
+                    'lastLogin' => $user['dtmLastLogin'], // Menambahkan waktu login terakhir
+                    'joinDate' => $user['dtmJoinDate'], // Menambahkan tanggal bergabung
+                    'photo' => $user['txtPhoto'], // Menambahkan foto user
                 ]);
 
                 // Pengguna langsung diarahkan ke Home
@@ -43,50 +45,65 @@ class Auth extends BaseController
 
     public function login()
     {
-        // Ambil input dari form login
-        $empID = $this->request->getPost('txtEmpID');
-        $password = $this->request->getPost('txtPassword');
-        $rememberMe = $this->request->getPost('remember_me'); // Checkbox Remember Me
+        log_message('debug', 'Email input: ' . $this->request->getPost('txtEmail'));
+        log_message('debug', 'Password input: ' . $this->request->getPost('txtPassword'));
+        log_message('debug', 'Remember Me input: ' . $this->request->getPost('remember_me'));
 
-        // Verifikasi login menggunakan model
-        $userModel = new UserModel();
-        $user = $userModel->verifyLogin($empID, $password);
+        $email = $this->request->getPost('txtEmail');
+        $password = $this->request->getPost('txtPassword');
+        $rememberMe = $this->request->getPost('remember_me');
+
+        if (empty($email) || empty($password)) {
+            return redirect()->back()->with('error', 'Email and Password are required');
+        }
+
+        $userModel = new \App\Models\MUserModel();
+        $user = $userModel->verifyLoginByEmail($email, $password);
 
         if ($user) {
-            // Update dtmLastLogin untuk user yang berhasil login
             if ($userModel->updateLastLogin($user['intUserID'])) {
-                // Set session untuk menyimpan data login
                 session()->set([
                     'isLoggedIn' => true,
                     'userID' => $user['intUserID'],
-                    'departmentID' => $user['intDepartmentID'],
+                    'roleID' => $user['intRoleID'],
                     'userName' => $user['txtUserName'],
                     'userFullName' => $user['txtFullName'],
                     'userEmail' => $user['txtEmail'],
-                    'userNick' => $user['txtNick'], // Menambahkan txtNick ke sesi
-                    'roleID' => $user['intRoleID'] // Menyimpan roleID ke sesi
+                    'bitActive' => $user['bitActive'],
+                    'lastLogin' => $user['dtmLastLogin'],
+                    'joinDate' => $user['dtmJoinDate'],
+                    'photo' => $user['txtPhoto'],
                 ]);
 
-                // Jika Remember Me dicentang, simpan data login dalam cookie selama 30 hari
                 if ($rememberMe) {
-                    set_cookie('empID', $empID, 30 * 86400);  // 30 hari
-                    set_cookie('password', $password, 30 * 86400);  // 30 hari
+                    set_cookie('email', $email, 30 * 86400);
+                    set_cookie('password', $password, 30 * 86400);
                 } else {
-                    // Jika Remember Me tidak dicentang, hapus cookie yang mungkin ada
-                    delete_cookie('empID');
+                    delete_cookie('email');
                     delete_cookie('password');
                 }
-
-                // Redirect ke Home setelah login berhasil
-                return redirect()->to('/')->with('success', 'Login successful');
+                return redirect()->to('/landing'); // Redirect ke halaman landing setelah login
             } else {
-                // Jika gagal mengupdate last login, kembalikan pesan error
                 return redirect()->back()->withInput()->with('error', 'Failed to update last login time.');
             }
         } else {
-            // Jika login gagal, kembalikan pesan error
             return redirect()->back()->withInput()->with('error', 'Invalid credentials');
         }
+    }
+
+
+    // Menampilkan halaman landing setelah login
+    // Halaman landing setelah login
+    public function landingPage()
+    {
+        // Pastikan pengguna sudah login
+        if (!session()->has('userID')) {
+            // Jika belum login, arahkan ke halaman login
+            return redirect()->to('/login');
+        }
+
+        // Tampilkan halaman landing setelah login
+        return view('landing'); // Pastikan Anda memiliki view 'landing.php'
     }
 
     public function logout()
@@ -112,7 +129,7 @@ class Auth extends BaseController
             return redirect()->back()->with('error', 'Email is required');
         }
 
-        $userModel = new UserModel();
+        $userModel = new MUserModel();
 
         // Verifikasi apakah email ada di database
         $user = $userModel->where('txtEmail', $email)->first();
@@ -148,7 +165,7 @@ class Auth extends BaseController
     public function resetPassword($token)
     {
         // Cek apakah token valid
-        $userModel = new UserModel();
+        $userModel = new MUserModel();
         $user = $userModel->where('reset_token', $token)->first();
 
         // Pastikan token ditemukan dan tidak kadaluarsa
@@ -165,13 +182,13 @@ class Auth extends BaseController
         $txtPassword = $this->request->getPost('txtPassword');
 
         // Validasi token dan update password di database
-        $userModel = new UserModel();
+        $userModel = new MUserModel();
         $user = $userModel->where('reset_token', $token)->first();
 
         // Pastikan token valid
         if ($user && !$this->isTokenExpired($user['token_created_at'])) {
             // Hash password sebelum menyimpannya
-            $hashedPassword = Encrypt::encryptPassword($txtPassword); // Pastikan Anda memiliki metode enkripsi
+            $hashedPassword = password_hash($txtPassword, PASSWORD_DEFAULT);
             $userModel->update($user['intUserID'], [
                 'txtPassword' => $hashedPassword,
                 'reset_token' => null, // Bersihkan token setelah digunakan
@@ -196,7 +213,7 @@ class Auth extends BaseController
     {
         $emailService = \Config\Services::email();
 
-        $emailService->setFrom('shp.digitalisasi@gmail.com', 'Developer E-Competency');
+        $emailService->setFrom('founder@nandurstudio.com', 'Developer Kelompok 5');
         $emailService->setTo($email);
         $emailService->setSubject('Reset Password');
 

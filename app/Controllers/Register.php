@@ -2,15 +2,15 @@
 
 namespace App\Controllers;
 
-use App\Models\UserModel;
-use App\Models\RoleModel;
+use App\Models\MUserModel;
+use App\Models\MRoleModel;
 
 class Register extends BaseController
 {
     public function index()
     {
         // Ambil data role untuk ditampilkan di dropdown
-        $roleModel = new RoleModel();
+        $roleModel = new MRoleModel();
         $roles = $roleModel->findAll();
 
         // Mengembalikan view pendaftaran
@@ -26,7 +26,6 @@ class Register extends BaseController
         $rules = [
             'txtFullName' => 'required',
             'txtNick' => 'required|alpha_numeric|min_length[3]|max_length[3]|strtoupper',
-            'txtEmpID' => 'required|is_unique[mUser.txtEmpID]',
             'txtUserName' => 'required',
             'txtEmail' => 'required|valid_email',
             'txtPassword' => 'required|min_length[8]',
@@ -42,22 +41,27 @@ class Register extends BaseController
             'txtUserName' => $this->request->getPost('txtUserName'),
             'txtFullName' => $this->request->getPost('txtFullName'),
             'txtNick' => strtoupper($this->request->getPost('txtNick')),
-            'txtEmpID' => $this->request->getPost('txtEmpID'),
-            'intDepartmentID' => $this->request->getPost(['intDepartmentID']),
             'txtEmail' => $this->request->getPost('txtEmail'),
-            'bitActive' => $this->request->getPost('bitActive') ? 1 : 0,
+            'bitActive' => $this->request->getPost('bitActive') ? 1 : 0, // 1 untuk aktif, 0 untuk tidak aktif
             'txtPassword' => \App\Helpers\Encrypt::encryptPassword($this->request->getPost('txtPassword')),
             'intRoleID' => $this->request->getPost('intRoleID'),
-            'dtmLastLogin' => null,
-            'txtInsertedBy' => 'system',
-            'dtmInsertedDate' => date('Y-m-d H:i:s'),
-            'txtUpdatedBy' => 'system',
-            'dtmUpdatedDate' => date('Y-m-d H:i:s'),
-            'txtGUID' => bin2hex(random_bytes(16))
+            'dtmLastLogin' => null, // Login pertama kali
+            'txtCreatedBy' => 'system', // Pengguna yang membuat akun
+            'dtmCreatedDate' => date('Y-m-d H:i:s'), // Waktu pembuatan akun
+            'txtUpdatedBy' => 'system', // Pengguna yang terakhir mengupdate
+            'dtmUpdatedDate' => date('Y-m-d H:i:s'), // Waktu terakhir update
+            'txtGUID' => bin2hex(random_bytes(16)), // UUID
+            'reset_token' => null, // Token reset password (jika ada)
+            'token_created_at' => null, // Waktu pembuatan token reset (jika ada)
+            'txtPhoto' => null, // Foto pengguna (jika ada)
+            'dtmJoinDate' => date('Y-m-d H:i:s'), // Tanggal bergabung
+            'bitOnlineStatus' => 0, // Status online, 0 jika offline
+            'google_auth_token' => null // Token Google Auth (jika ada)
         ];
 
-        $model = new UserModel();
+        $model = new MUserModel();
 
+        // Menyisipkan data ke dalam database
         if (!$model->insert($data)) {
             return redirect()->back()->withInput()->with('error', 'Failed to create user. Please try again.');
         }

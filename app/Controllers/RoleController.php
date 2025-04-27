@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\RoleModel;
+use App\Models\MRoleModel;
 use CodeIgniter\Controller;
 
 class RoleController extends Controller
@@ -11,7 +11,7 @@ class RoleController extends Controller
 
     public function __construct()
     {
-        $this->roleModel = new RoleModel();
+        $this->roleModel = new MRoleModel();
     }
 
     public function index()

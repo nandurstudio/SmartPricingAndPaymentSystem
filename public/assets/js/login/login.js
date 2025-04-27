@@ -1,29 +1,27 @@
 $(document).ready(function () {
     // Fungsi untuk toggle show/hide password
     function togglePassword() {
-        var passwordInput = $("#password");
+        var passwordInput = $("#txtPassword");
         var toggleIcon = $("#toggle-password i");
 
         if (passwordInput.attr("type") === "password") {
-            // Ubah input password menjadi text
             passwordInput.attr("type", "text");
             passwordInput.css({
                 'border-top-left-radius': '0',
                 'border-top-right-radius': '0',
                 'border-bottom-left-radius': 'var(--bs-border-radius)',
                 'border-bottom-right-radius': 'var(--bs-border-radius)',
-                'margin-bottom': '-1px'  // Tetapkan margin-bottom tetap -1px
+                'margin-bottom': '-1px'
             });
             toggleIcon.removeClass("bi-eye-slash").addClass("bi-eye");
         } else {
-            // Ubah input text kembali menjadi password
             passwordInput.attr("type", "password");
             passwordInput.css({
                 'border-top-left-radius': '0',
                 'border-top-right-radius': '0',
                 'border-bottom-left-radius': 'var(--bs-border-radius)',
                 'border-bottom-right-radius': 'var(--bs-border-radius)',
-                'margin-bottom': '-1px'  // Tetapkan margin-bottom tetap -1px
+                'margin-bottom': '-1px'
             });
             toggleIcon.removeClass("bi-eye").addClass("bi-eye-slash");
         }
@@ -36,29 +34,44 @@ $(document).ready(function () {
     $("form").on("submit", function (e) {
         e.preventDefault(); // Prevent default form submission
 
-        var empID = $("#floatingInput").val();
-        var password = $("#password").val();
+        var email = $("#txtEmail").val().trim();
+        var password = $("#txtPassword").val().trim();
+        var rememberMe = $("#remember_me").is(":checked"); // Cek apakah checkbox remember me dicentang
 
         // Validate empty fields
-        if (empID === "" || password === "") {
-            alert("EmpID or Password cannot be empty");
+        if (email === "" || password === "") {
+            alert("Email or Password cannot be empty");
             return;
         }
 
         // Send login data via AJAX
         $.ajax({
-            url: '/login',  // Pastikan ini sesuai dengan route
+            url: '/login',  // Pastikan ini sesuai dengan route controller
             type: 'POST',
             data: {
-                txtEmpID: empID,
-                txtPassword: password
+                txtEmail: email,
+                txtPassword: password,
+                remember_me: rememberMe ? 1 : 0  // Kirimkan 1 jika dicentang, 0 jika tidak
             },
             success: function (response) {
-                window.location.href = '/';  // Redirect ke halaman sukses
-                console.log("success");
+                // Redirect to home page on success
+                window.location.href = '/';
+                console.log("Login success");
             },
             error: function (xhr, status, error) {
-                alert(error + "\nLogin failed, please try again.");
+                // Cek status code untuk error spesifik
+                var errorMessage = "Login failed, please try again.";
+
+                if (xhr.status === 401) {
+                    errorMessage = "Unauthorized: Incorrect email or password.";
+                } else if (xhr.status === 500) {
+                    errorMessage = "Server error: Please try again later.";
+                } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+
+                alert(errorMessage);
+                console.error("Login failed:", error);
             }
         });
     });
