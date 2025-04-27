@@ -34,7 +34,8 @@ CREATE TABLE `m_user` (
     `txtGUID` VARCHAR(50) NOT NULL DEFAULT(UUID()),
     `reset_token` VARCHAR(100) NULL DEFAULT NULL,
     `token_created_at` DATETIME NULL DEFAULT NULL,
-    `txtPhoto` VARCHAR(255) NULL DEFAULT 'default.jpg',
+    `google_auth_token` VARCHAR(255) NULL DEFAULT NULL;
+    `txtPhoto` TEXT NULL DEFAULT 'default.jpg',
     `dtmJoinDate` DATETIME NULL DEFAULT NULL,
     PRIMARY KEY (`intUserID`),
     FOREIGN KEY (`intRoleID`) REFERENCES `m_role` (`intRoleID`)

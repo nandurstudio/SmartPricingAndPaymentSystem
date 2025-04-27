@@ -11,6 +11,9 @@ $routes = Services::routes();
 $routes->get('/', 'Auth::landingPage', ['filter' => 'auth']);
 $routes->get('landing', 'Auth::landingPage', ['filter' => 'auth']);  // Pastikan ada route ini
 
+$routes->get('/auth/googleLogin', 'Auth::googleLogin');
+$routes->get('/auth/google/callback', 'Auth::googleCallback');
+
 // Route untuk login
 $routes->get('login', 'Auth::index');  // Menampilkan halaman login
 $routes->post('login', 'Auth::login');  // Mengirim data login

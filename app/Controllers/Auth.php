@@ -3,11 +3,26 @@
 namespace App\Controllers;
 
 use App\Models\MUserModel;
-use App\Helpers\Encrypt;
 use CodeIgniter\I18n\Time;
+use Google_Client;
+use Google\Service\Oauth2;
 
 class Auth extends BaseController
 {
+    private $googleClient;
+
+    public function __construct()
+    {
+        $this->googleClient = new Google_Client();
+        $this->googleClient->setClientId(getenv('google.client_id'));
+        $this->googleClient->setClientSecret(getenv('google.client_secret'));
+        $this->googleClient->setRedirectUri(getenv('google.redirect_uri'));
+
+        // Menambahkan scope 'email' dan 'profile'
+        $this->googleClient->addScope('email');
+        $this->googleClient->addScope('profile');
+    }
+
     public function index()
     {
         // Cek cookie untuk Remember Me
@@ -41,6 +56,106 @@ class Auth extends BaseController
 
         // Jika tidak ada Remember Me, tampilkan halaman login
         return view('login', ['validation' => \Config\Services::validation()]);
+    }
+
+    // Method untuk login dengan Google
+    public function googleLogin()
+    {
+        $authUrl = $this->googleClient->createAuthUrl();
+        return redirect()->to($authUrl); // Redirect ke halaman login Google
+    }
+
+    // Callback dari Google setelah login
+    public function googleCallback()
+    {
+        $code = $this->request->getGet('code');
+
+        if ($code) {
+            // Mendapatkan token akses dengan kode otorisasi
+            $token = $this->googleClient->fetchAccessTokenWithAuthCode($code);
+
+            if (isset($token['access_token'])) {
+                $this->googleClient->setAccessToken($token['access_token']);
+
+                // Mengambil data profil pengguna dari Google
+                $oauth = new Oauth2($this->googleClient);
+                $googleUser = $oauth->userinfo->get();  // Ambil data profil pengguna
+                log_message('debug', 'Google User Data: ' . print_r($googleUser, true));
+
+                // Model pengguna
+                $userModel = new \App\Models\MUserModel();
+
+                // Membentuk fullName dari Google jika tidak kosong
+                $fullName = trim(($googleUser->givenName ?? '') . ' ' . ($googleUser->familyName ?? ''));
+                if (empty($fullName)) {
+                    $fullName = $googleUser->email;
+                }
+
+                // Mengambil txtUserName dari alamat email sebelum @
+                $emailParts = explode('@', $googleUser->email);
+                $userName = $emailParts[0]; // Bagian sebelum @
+
+                // Cek apakah pengguna sudah ada berdasarkan email
+                $existingUser = $userModel->where('txtEmail', $googleUser->email)->first();
+
+                // Mengambil foto dalam resolusi HD
+                $profilePictureUrl = $googleUser->picture;
+                $profilePictureUrlHD = str_replace("=s96-c", "", $profilePictureUrl); // Hapus parameter ukuran (misalnya s96)
+
+                if (!$existingUser) {
+                    // Jika pengguna belum terdaftar, buat data pengguna baru
+                    $newUserData = [
+                        'txtEmail' => $googleUser->email,
+                        'txtUserName' => $userName, // Menggunakan bagian email sebelum @ sebagai username
+                        'txtFullName' => $fullName,
+                        'txtPhoto' => $profilePictureUrlHD, // Simpan foto dalam resolusi HD
+                        'bitActive' => 1,
+                        'dtmJoinDate' => date('Y-m-d H:i:s'),
+                        'dtmLastLogin' => date('Y-m-d H:i:s'),
+                        'google_auth_token' => $googleUser->id,
+                    ];
+
+                    // Insert data pengguna baru
+                    $userModel->insert($newUserData);
+                    // Ambil data pengguna yang baru ditambahkan
+                    $user = $userModel->where('txtEmail', $googleUser->email)->first();
+                } else {
+                    // Jika pengguna sudah ada, update data pengguna
+                    $updatedData = [
+                        'txtUserName' => $userName, // Update username
+                        'txtFullName' => $fullName, // Update fullname
+                        'txtPhoto' => $profilePictureUrlHD, // Update photo jika perlu dengan foto HD
+                        'dtmLastLogin' => date('Y-m-d H:i:s'), // Update last login
+                    ];
+
+                    // Update data pengguna yang sudah ada
+                    $userModel->update($existingUser['intUserID'], $updatedData);
+                    // Ambil data pengguna yang sudah diperbarui
+                    $user = $userModel->where('txtEmail', $googleUser->email)->first();
+                }
+
+                // Set session login setelah berhasil
+                session()->set([
+                    'isLoggedIn' => true,
+                    'userID' => $user['intUserID'],
+                    'roleID' => $user['intRoleID'] ?? 2, // Default role misalnya 2 (user biasa)
+                    'userName' => $user['txtUserName'],
+                    'userFullName' => $fullName, // Pastikan fullName disimpan di session
+                    'userEmail' => $user['txtEmail'],
+                    'bitActive' => $user['bitActive'],
+                    'lastLogin' => $user['dtmLastLogin'],
+                    'joinDate' => $user['dtmJoinDate'],
+                    'photo' => $profilePictureUrlHD, // Foto dengan resolusi lebih tinggi
+                ]);
+
+                // Redirect ke halaman landing setelah berhasil login
+                return redirect()->to('/landing');
+            } else {
+                return redirect()->to('/auth')->with('error', 'Failed to get access token');
+            }
+        } else {
+            return redirect()->to('/auth')->with('error', 'Invalid request');
+        }
     }
 
     public function login()

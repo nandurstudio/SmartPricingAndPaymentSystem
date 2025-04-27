@@ -66,6 +66,37 @@ class MUserModel extends Model
         return password_hash($plainPassword, PASSWORD_BCRYPT);
     }
 
+    public function insertNewUserFromGoogle($googleUser)
+    {
+        $newUser = [
+            'txtEmail'          => $googleUser->email,
+            'txtUserName'       => !empty($googleUser->givenName) ? $googleUser->givenName : (!empty($googleUser->name) ? $googleUser->name : 'user_' . time()),
+            'txtFullName'       => $googleUser->name ?? '',
+            'txtPhoto'          => $googleUser->picture ?? null,
+            'bitActive'         => 1,
+            'dtmJoinDate'       => date('Y-m-d H:i:s'),
+            'dtmLastLogin'      => date('Y-m-d H:i:s'),
+            'google_auth_token' => $googleUser->id ?? null,
+            'txtCreatedBy'      => 'google_oauth',
+            'dtmCreatedDate'    => date('Y-m-d H:i:s'),
+            'txtGUID'           => uniqid(),
+            'intRoleID'         => 2, // Optional: role default user
+        ];
+
+        $existingUser = $this->where('txtEmail', $googleUser->email)->first();
+
+        if (!$existingUser) {
+            if ($this->insert($newUser)) {
+                return $this->where('txtEmail', $googleUser->email)->first();
+            } else {
+                throw new \RuntimeException('Gagal menambahkan pengguna baru dari Google.');
+            }
+        } else {
+            return $existingUser;
+        }
+    }
+
+    // Fungsi untuk mendapatkan daftar pengguna
     public function getUsers($start, $length, $searchValue, $orderBy, $orderDirection)
     {
         // Query untuk mengambil data pengguna

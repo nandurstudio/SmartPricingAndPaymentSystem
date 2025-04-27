@@ -196,6 +196,9 @@
               </label>
             </div>
             <button class="btn btn-primary w-100 py-2" type="submit">Sign in</button>
+            <button class="btn btn-danger w-100 py-2 mt-3" type="button" onclick="window.location='<?php echo base_url('/auth/googleLogin'); ?>'">
+              <i class="bi bi-google"></i> Sign in with Google
+            </button>
             <p class="mt-3 text-center">
               <a href="<?= base_url('auth/forgot_password'); ?>">Forgot your password?</a>
             </p>

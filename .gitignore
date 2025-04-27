@@ -42,3 +42,4 @@ dist/
 # Ignore Email.php yang berisi konfigurasi sensitif
 /app/Config/Email.php
 /writable/session
+/writable/debugbar

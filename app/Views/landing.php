@@ -12,11 +12,13 @@
     <div class="container mt-5">
         <?php if (session()->has('userID')): ?>
             <div class="alert alert-success">
-                <h1>Selamat Datang, <?= session()->get('userFullName') ?>!</h1>
-                <p>Email Anda: <?= session()->get('userEmail') ?></p>
-                <p>Peran Anda: <?= session()->get('roleID') ?></p>
-                <p>Waktu Bergabung: <?= session()->get('joinDate') ?></p>
-                <p>Terakhir Login: <?= session()->get('lastLogin') ?></p>
+                <h1>Selamat Datang, <?= esc(session()->get('userFullName')) ?>!</h1>
+                <p>Email Anda: <?= esc(session()->get('userEmail')) ?></p>
+                <p>Peran Anda: <?= esc(session()->get('roleID')) ?></p>
+                <p>Waktu Bergabung: <?= esc(session()->get('joinDate')) ?></p>
+                <p>Terakhir Login: <?= esc(session()->get('lastLogin')) ?></p>
+                <p>Google Auth Token: <?= esc(session()->get('googleAuthToken')) ?></p> <!-- Menampilkan token auth dari Google -->
+                <img src="<?= esc(session()->get('photo')) ?>" alt="User Photo" class="img-fluid rounded-circle" width="100" height="100">
             </div>
             <a href="<?= site_url('/logout') ?>" class="btn btn-danger">Logout</a>
         <?php else: ?>
