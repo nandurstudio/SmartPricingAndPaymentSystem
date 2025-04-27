@@ -56,8 +56,10 @@ class MUserModel extends Model
             ];
         }
 
+        // Jika login gagal, simpan flash message
+        session()->setFlashdata('login_error', 'Email atau password salah.');
         log_message('debug', 'Login failed. Email input: ' . var_export($email, true));
-        return false;
+        return false; // Jika password salah atau user tidak ditemukan
     }
 
     // Fungsi untuk hash password sebelum disimpan (saat registrasi atau update)

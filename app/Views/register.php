@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
     <link rel="stylesheet" href="<?php echo base_url('assets/css/bootstrap/bootstrap.min.css'); ?>">
+    <link rel="stylesheet" href="<?php echo base_url('assets/css/bootstrap/bootstrap-icons/font/bootstrap-icons.css'); ?>">
+    <link rel="stylesheet" href="<?php echo base_url('assets/npm/@docsearch/css@3.css'); ?>">
 </head>
 
 <body class="text-center">
@@ -75,96 +77,65 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
+                <?php if (session()->getFlashdata('success')): ?>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <?= session()->getFlashdata('success'); ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (session()->getFlashdata('error')): ?>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <?= session()->getFlashdata('error'); ?>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <?php endif; ?>
+
                 <main class="form-signin w-100 m-auto">
                     <form method="post" action="/register/createUser">
                         <div class="modal-body p-5 pt-0">
-                            <!-- Full Name -->
-                            <div class="form-floating mb-3">
-                                <input type="text" name="txtFullName" class="form-control" id="fullName" placeholder="Full Name" required minlength="3" maxlength="50">
-                                <label for="fullName">Full Name</label>
-                                <div class="invalid-feedback">
-                                    Full Name is required and should be between 3-50 characters.
-                                </div>
-                            </div>
-
-                            <!-- Nickname -->
-                            <div class="form-floating mb-3">
-                                <input type="text" name="txtNick" class="form-control <?= isset($validation) && $validation->hasError('txtNick') ? 'is-invalid' : '' ?>" id="nick" placeholder="Nick" value="<?= set_value('txtNick') ?>" maxlength="3">
-                                <label for="nick">Nickname (max 3 characters)</label>
-                                <?php if (isset($validation) && $validation->hasError('txtNick')): ?>
-                                    <div class="invalid-feedback">
-                                        <?= $validation->getError('txtNick') ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-
-                            <!-- Employee ID -->
-                            <div class="form-floating mb-3">
-                                <input type="text" name="txtEmpID" class="form-control" id="empID" placeholder="Employee ID" required pattern="[a-zA-Z0-9]+" minlength="5" maxlength="10">
-                                <label for="empID">Employee ID</label>
-                                <div class="invalid-feedback">
-                                    Employee ID is required and should be a numeric value with 5-10 digits.
-                                </div>
-                            </div>
-
                             <!-- Username -->
                             <div class="form-floating mb-3">
-                                <input type="text" name="txtUserName" class="form-control" id="username" placeholder="Username" required minlength="4" maxlength="20">
+                                <input type="text" name="txtUserName" class="form-control" id="username" placeholder="Username" required minlength="4" maxlength="50" value="<?= old('txtUserName') ?>">
                                 <label for="username">Username</label>
-                                <div class="invalid-feedback">
-                                    Username is required and should be between 4-20 characters.
-                                </div>
                             </div>
 
-                            <!-- Email (optional) -->
+                            <!-- Full Name -->
                             <div class="form-floating mb-3">
-                                <input type="email" name="txtEmail" class="form-control rounded-3" id="email" placeholder="name@kalbenutritionals.com" required>
+                                <input type="text" name="txtFullName" class="form-control" id="fullName" placeholder="Full Name" required minlength="3" maxlength="100" value="<?= old('txtFullName') ?>">
+                                <label for="fullName">Full Name</label>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="form-floating mb-3">
+                                <input type="email" name="txtEmail" class="form-control" id="email" placeholder="Email" required maxlength="100" value="<?= old('txtEmail') ?>">
                                 <label for="email">Email address</label>
-                                <div class="invalid-feedback">
-                                    Please provide a valid email address.
-                                </div>
                             </div>
 
                             <!-- Password -->
                             <div class="form-floating mb-3">
-                                <input type="password" name="txtPassword" class="form-control rounded-3" id="password" placeholder="Password" required minlength="6">
+                                <input type="password" name="txtPassword" class="form-control" id="password" placeholder="Password" required minlength="6" maxlength="255">
                                 <label for="password">Password</label>
-                                <div class="invalid-feedback">
-                                    Password is required and must be at least 6 characters long.
-                                </div>
                             </div>
 
-                            <!-- Role -->
-                            <div class="form-floating mb-3">
-                                <select name="intRoleID" class="form-control <?= isset($validation) && $validation->hasError('intRoleID') ? 'is-invalid' : '' ?>" id="role" required>
-                                    <option value="">Pilih Role</option>
-                                    <?php foreach ($roles as $role): ?>
-                                        <option value="<?= $role['intRoleID']; ?>" <?= set_select('intRoleID', $role['intRoleID']); ?>><?= $role['txtRoleName']; ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <label for="role">Role</label>
-                                <?php if (isset($validation) && $validation->hasError('intRoleID')): ?>
-                                    <div class="invalid-feedback">
-                                        <?= $validation->getError('intRoleID') ?>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
+                            <!-- Photo (default value) -->
+                            <input type="hidden" name="txtPhoto" value="default.png">
 
-                            <!-- Active -->
-                            <div class="form-check mb-3 text-start">
-                                <input class="form-check-input" type="checkbox" name="bitActive" id="active" value="1" checked>
-                                <label class="form-check-label" for="active">
-                                    Active
-                                </label>
-                            </div>
+                            <!-- Role (optional, default value 5 kalau hidden) -->
+                            <input type="hidden" name="intRoleID" value="5">
 
-                            <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary" type="submit">Sign up</button>
+                            <!-- Active (hidden & default active) -->
+                            <input type="hidden" name="bitActive" value="1">
+
+                            <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary d-flex justify-content-center align-items-center" type="submit" id="submitBtn">
+                                <span id="btnText">Sign up</span>
+                                <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                            </button>
+
                             <small class="text-body-secondary">By clicking Sign up, you agree to the terms of use.</small>
 
-                            <!-- Sign up with Microsoft -->
-                            <button class="w-100 py-2 mb-2 btn btn-outline-primary rounded-3" type="button" onclick="window.location.href='https://login.microsoftonline.com'">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" alt="Microsoft Logo" width="20" height="20" class="me-1">
-                                Sign up with Microsoft
+                            <button class="btn btn-danger w-100 py-2 mt-3" type="button" id="googleBtn" onclick="window.location='<?php echo base_url('/auth/googleLogin'); ?>'">
+                                <i class="bi bi-google"></i> Sign up with Google
                             </button>
                         </div>
                     </form>
@@ -179,6 +150,9 @@
         </div>
     </div>
 
+    <script src="<?php echo base_url('assets/js/jquery/jquery.min.js'); ?>"></script>
+    <script src="<?php echo base_url('assets/js/register/register.js'); ?>"></script>
+    <script src="<?php echo base_url('assets/js/bootstrap/bootstrap.bundle.min.js'); ?>"></script>
 </body>
 
 </html>

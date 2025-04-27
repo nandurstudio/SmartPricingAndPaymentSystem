@@ -4,9 +4,6 @@ namespace App\Controllers;
 
 use App\Models\MUserModel;
 use App\Models\MRoleModel;
-use App\Models\JobTitleModel;
-use App\Models\LineModel;
-use App\Models\DepartmentModel;
 use App\Models\MenuModel;
 use App\Helpers\Encrypt;
 use CodeIgniter\Controller;

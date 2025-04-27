@@ -16,6 +16,7 @@ application/logs/
 .env.local
 .env.production
 .env.testing
+.env.development
 
 # Ignore IDE/project specific files
 /.idea/
@@ -38,8 +39,18 @@ dist/
 *.log
 *.bak
 *.swp
+*.tmp
 
 # Ignore Email.php yang berisi konfigurasi sensitif
 /app/Config/Email.php
 /writable/session
 /writable/debugbar
+
+# Ignore cache folder CI4
+/writable/cache/
+
+# Ignore tests folder (jika ada)
+tests/
+
+# Ignore composer.lock jika diperlukan
+composer.lock

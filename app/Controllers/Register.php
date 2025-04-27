@@ -3,69 +3,53 @@
 namespace App\Controllers;
 
 use App\Models\MUserModel;
-use App\Models\MRoleModel;
 
 class Register extends BaseController
 {
+    protected $userModel;
+
+    public function __construct()
+    {
+        $this->userModel = new MUserModel();
+    }
+
     public function index()
     {
-        // Ambil data role untuk ditampilkan di dropdown
-        $roleModel = new MRoleModel();
-        $roles = $roleModel->findAll();
-
-        // Mengembalikan view pendaftaran
-        return view('register', [
-            'roles' => $roles,
-            'validation' => \Config\Services::validation()
-        ]);
+        return view('register'); // Tampilkan halaman register
     }
 
     public function createUser()
     {
-        // Aturan validasi input
+        $validation = \Config\Services::validation();
+
         $rules = [
-            'txtFullName' => 'required',
-            'txtNick' => 'required|alpha_numeric|min_length[3]|max_length[3]|strtoupper',
-            'txtUserName' => 'required',
-            'txtEmail' => 'required|valid_email',
-            'txtPassword' => 'required|min_length[8]',
-            'intRoleID' => 'required|integer',
+            'txtUserName' => 'required|min_length[4]|max_length[50]',
+            'txtFullName' => 'required|min_length[3]|max_length[100]',
+            'txtEmail'    => 'required|valid_email|max_length[100]|is_unique[m_user.txtEmail]',
+            'txtPassword' => 'required|min_length[6]|max_length[255]',
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
 
-        // Persiapan data untuk insert
         $data = [
             'txtUserName' => $this->request->getPost('txtUserName'),
             'txtFullName' => $this->request->getPost('txtFullName'),
-            'txtNick' => strtoupper($this->request->getPost('txtNick')),
-            'txtEmail' => $this->request->getPost('txtEmail'),
-            'bitActive' => $this->request->getPost('bitActive') ? 1 : 0, // 1 untuk aktif, 0 untuk tidak aktif
-            'txtPassword' => \App\Helpers\Encrypt::encryptPassword($this->request->getPost('txtPassword')),
-            'intRoleID' => $this->request->getPost('intRoleID'),
-            'dtmLastLogin' => null, // Login pertama kali
-            'txtCreatedBy' => 'system', // Pengguna yang membuat akun
-            'dtmCreatedDate' => date('Y-m-d H:i:s'), // Waktu pembuatan akun
-            'txtUpdatedBy' => 'system', // Pengguna yang terakhir mengupdate
-            'dtmUpdatedDate' => date('Y-m-d H:i:s'), // Waktu terakhir update
-            'txtGUID' => bin2hex(random_bytes(16)), // UUID
-            'reset_token' => null, // Token reset password (jika ada)
-            'token_created_at' => null, // Waktu pembuatan token reset (jika ada)
-            'txtPhoto' => null, // Foto pengguna (jika ada)
-            'dtmJoinDate' => date('Y-m-d H:i:s'), // Tanggal bergabung
-            'bitOnlineStatus' => 0, // Status online, 0 jika offline
-            'google_auth_token' => null // Token Google Auth (jika ada)
+            'txtEmail'    => $this->request->getPost('txtEmail'),
+            'txtPassword' => $this->userModel->hashPassword($this->request->getPost('txtPassword')),
+            'intRoleID'   => $this->request->getPost('intRoleID') ?? 5,
+            'bitActive'   => $this->request->getPost('bitActive') ? 1 : 0,
+            'txtCreatedBy' => 'register_form',
+            'txtGUID'     => uniqid(),
+            'txtPhoto'    => 'default.png', // Set default photo
+            'dtmJoinDate' => date('Y-m-d H:i:s'),
         ];
 
-        $model = new MUserModel();
-
-        // Menyisipkan data ke dalam database
-        if (!$model->insert($data)) {
-            return redirect()->back()->withInput()->with('error', 'Failed to create user. Please try again.');
+        if ($this->userModel->insert($data)) {
+            return redirect()->to('/login')->with('success', 'Registrasi berhasil! Silakan login.');
+        } else {
+            return redirect()->back()->withInput()->with('error', 'Registrasi gagal. Silakan coba lagi.');
         }
-
-        return redirect()->to('/users')->with('success', 'User created successfully');
     }
 }

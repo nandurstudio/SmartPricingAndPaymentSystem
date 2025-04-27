@@ -169,7 +169,7 @@ class Auth extends BaseController
         $rememberMe = $this->request->getPost('remember_me');
 
         if (empty($email) || empty($password)) {
-            return redirect()->back()->with('error', 'Email and Password are required');
+            return redirect()->back()->with('error', 'Email and Password are required')->withInput();
         }
 
         $userModel = new \App\Models\MUserModel();
@@ -177,6 +177,7 @@ class Auth extends BaseController
 
         if ($user) {
             if ($userModel->updateLastLogin($user['intUserID'])) {
+                // Set session
                 session()->set([
                     'isLoggedIn' => true,
                     'userID' => $user['intUserID'],
@@ -190,6 +191,8 @@ class Auth extends BaseController
                     'photo' => $user['txtPhoto'],
                 ]);
 
+                log_message('debug', 'Session set for user: ' . $user['txtUserName']);
+
                 if ($rememberMe) {
                     set_cookie('email', $email, 30 * 86400);
                     set_cookie('password', $password, 30 * 86400);
@@ -197,18 +200,17 @@ class Auth extends BaseController
                     delete_cookie('email');
                     delete_cookie('password');
                 }
+
                 return redirect()->to('/landing'); // Redirect ke halaman landing setelah login
             } else {
                 return redirect()->back()->withInput()->with('error', 'Failed to update last login time.');
             }
         } else {
-            return redirect()->back()->withInput()->with('error', 'Invalid credentials');
+            return redirect()->back()->withInput()->with('error', 'Invalid email or password');
         }
     }
 
-
     // Menampilkan halaman landing setelah login
-    // Halaman landing setelah login
     public function landingPage()
     {
         // Pastikan pengguna sudah login

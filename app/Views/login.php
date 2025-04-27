@@ -9,7 +9,7 @@
   <meta name="description" content="">
   <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
   <meta name="generator" content="Hugo 0.122.0">
-  <title>Signin E-Competency</title>
+  <title>Signin Smart Pricing and Payment System</title>
 
   <link rel="stylesheet" href="<?php echo base_url('assets/css/bootstrap/bootstrap.min.css'); ?>">
   <link rel="stylesheet" href="<?php echo base_url('assets/css/bootstrap/bootstrap-icons/font/bootstrap-icons.css'); ?>">
@@ -165,7 +165,7 @@
     <div class="row align-items-center g-lg-5 py-5">
       <div class="col-lg-7 text-center text-lg-start">
         <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3">Welcome</h1>
-        <p class="col-lg-10 fs-4">to E-Competency Auto Suggest System.</p>
+        <p class="col-lg-10 fs-4">to Smart Pricing and Payment System.</p>
       </div>
       <div class="col-md-10 mx-auto col-lg-5">
         <div class="form-signin p-4 p-md-5 border rounded-3 bg-body-tertiary">
@@ -206,7 +206,7 @@
               Don't have an account? <a href="<?= base_url('register'); ?>">Register here</a>
             </p>
 
-            <p class="mt-5 mb-3 text-body-secondary">&copy; 2024–2024</p>
+            <p class="mt-5 mb-3 text-body-secondary">&copy; 2025 Kelompok 5</p>
           </form>
           <?php if (session()->getFlashdata('error')): ?>
             <div class="alert alert-danger">
@@ -229,7 +229,6 @@
       </div>
     </div>
   </main>
-
 
   <script src="<?php echo base_url('assets/js/jquery/jquery.min.js'); ?>"></script>
   <script src="<?php echo base_url('assets/js/login/login.js'); ?>"></script>
