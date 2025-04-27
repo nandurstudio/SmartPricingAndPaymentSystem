@@ -22,6 +22,9 @@ $routes->get('logout', 'Auth::logout');  // Mengeluarkan pengguna
 // Route untuk register
 $routes->get('/register', 'Register::index');  // Menampilkan halaman registrasi
 $routes->post('/register/createUser', 'Register::createUser');  // Mengirim data registrasi
+$routes->post('/register/checkUsername', 'Register::checkUsername');
+$routes->post('/register/checkEmail', 'Register::checkEmail');
+
 
 // Route untuk forgot password
 $routes->get('auth/forgot_password', 'Auth::forgotPassword');  // Menampilkan halaman lupa password

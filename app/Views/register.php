@@ -77,6 +77,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
+                <!-- Success Message -->
                 <?php if (session()->getFlashdata('success')): ?>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <?= session()->getFlashdata('success'); ?>
@@ -84,47 +85,65 @@
                     </div>
                 <?php endif; ?>
 
+                <!-- Error Message -->
                 <?php if (session()->getFlashdata('error')): ?>
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <?= session()->getFlashdata('error'); ?>
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 <?php endif; ?>
-
                 <main class="form-signin w-100 m-auto">
                     <form method="post" action="/register/createUser">
                         <div class="modal-body p-5 pt-0">
+
+                            <!-- Error messages -->
+                            <!-- Username Error -->
+                            <div id="usernameError" class="alert alert-danger" style="display: none;"></div>
+                            <!-- Email Error -->
+                            <div id="emailError" class="alert alert-danger" style="display: none;"></div>
                             <!-- Username -->
                             <div class="form-floating mb-3">
                                 <input type="text" name="txtUserName" class="form-control" id="username" placeholder="Username" required minlength="4" maxlength="50" value="<?= old('txtUserName') ?>">
                                 <label for="username">Username</label>
+                                <?php if (isset($validation) && $validation->hasError('txtUserName')): ?>
+                                    <div class="invalid-feedback d-block"><?= $validation->getError('txtUserName'); ?></div>
+                                <?php endif; ?>
                             </div>
 
                             <!-- Full Name -->
                             <div class="form-floating mb-3">
                                 <input type="text" name="txtFullName" class="form-control" id="fullName" placeholder="Full Name" required minlength="3" maxlength="100" value="<?= old('txtFullName') ?>">
                                 <label for="fullName">Full Name</label>
+                                <?php if (isset($validation) && $validation->hasError('txtFullName')): ?>
+                                    <div class="invalid-feedback d-block"><?= $validation->getError('txtFullName'); ?></div>
+                                <?php endif; ?>
                             </div>
 
                             <!-- Email -->
                             <div class="form-floating mb-3">
                                 <input type="email" name="txtEmail" class="form-control" id="email" placeholder="Email" required maxlength="100" value="<?= old('txtEmail') ?>">
                                 <label for="email">Email address</label>
+                                <?php if (isset($validation) && $validation->hasError('txtEmail')): ?>
+                                    <div class="invalid-feedback d-block"><?= $validation->getError('txtEmail'); ?></div>
+                                <?php endif; ?>
                             </div>
 
                             <!-- Password -->
                             <div class="form-floating mb-3">
                                 <input type="password" name="txtPassword" class="form-control" id="password" placeholder="Password" required minlength="6" maxlength="255">
                                 <label for="password">Password</label>
+                                <?php if (isset($validation) && $validation->hasError('txtPassword')): ?>
+                                    <div class="invalid-feedback d-block"><?= $validation->getError('txtPassword'); ?></div>
+                                <?php endif; ?>
                             </div>
 
-                            <!-- Photo (default value) -->
+                            <!-- Photo (hidden) -->
                             <input type="hidden" name="txtPhoto" value="default.png">
 
-                            <!-- Role (optional, default value 5 kalau hidden) -->
+                            <!-- Role (hidden) -->
                             <input type="hidden" name="intRoleID" value="5">
 
-                            <!-- Active (hidden & default active) -->
+                            <!-- Active (hidden, default active) -->
                             <input type="hidden" name="bitActive" value="1">
 
                             <button class="w-100 mb-2 btn btn-lg rounded-3 btn-primary d-flex justify-content-center align-items-center" type="submit" id="submitBtn">
@@ -144,7 +163,7 @@
                     <p class="mt-3">
                         Already registered? <a href="/login">Sign in here</a>
                     </p>
-                    <p class="mt-3 mb-3 text-muted">&copy; 2024</p>
+                    <p class="mt-3 mb-3 text-muted">&copy; 2025 Kelompok 5</p>
                 </main>
             </div>
         </div>
