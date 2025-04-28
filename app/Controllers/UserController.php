@@ -99,6 +99,34 @@ class UserController extends Controller
         }
     }
 
+    // Menampilkan 7 pengguna terakhir
+    public function getLastUsers()
+    {
+        // Inisialisasi model
+        $userModel = new MUserModel();
+
+        // Log untuk memastikan bahwa model sudah diinisialisasi
+        log_message('debug', 'UserModel initialized');
+
+        // Ambil 7 pengguna terakhir berdasarkan login atau registrasi
+        $users = $userModel->getUsersBasedOnLoginOrRegister(0, 7);
+
+        // Log untuk memastikan query berhasil dan data $users terisi
+        log_message('debug', 'Fetched Users: ' . print_r($users, true));
+
+        // Cek apakah data pengguna kosong
+        if (empty($users)) {
+            log_message('debug', 'No users found.');
+        } else {
+            log_message('debug', 'Users retrieved successfully.');
+        }
+
+        // Kirim data pengguna ke view dengan menggunakan array
+        return view('user/index', [
+            'users' => $users
+        ]);
+    }
+
     // CREATE - Menampilkan form tambah user
     public function create()
     {

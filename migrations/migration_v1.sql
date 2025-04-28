@@ -35,7 +35,7 @@ CREATE TABLE `m_user` (
     `reset_token` VARCHAR(100) NULL DEFAULT NULL,
     `token_created_at` DATETIME NULL DEFAULT NULL,
     `google_auth_token` VARCHAR(255) NULL DEFAULT NULL;
-    `txtPhoto` TEXT NULL DEFAULT 'default.jpg',
+    `txtPhoto` TEXT NULL DEFAULT 'default.png',
     `dtmJoinDate` DATETIME NULL DEFAULT NULL,
     PRIMARY KEY (`intUserID`),
     FOREIGN KEY (`intRoleID`) REFERENCES `m_role` (`intRoleID`)

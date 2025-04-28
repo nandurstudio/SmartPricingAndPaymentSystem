@@ -126,6 +126,30 @@ class MUserModel extends Model
         return $builder->get()->getResultArray();
     }
 
+    // Fungsi untuk mengambil data pengguna berdasarkan login atau registrasi
+    public function getUsersBasedOnLoginOrRegister($offset = 0, $limit = 7)
+    {
+        $builder = $this->db->table($this->table);
+
+        // Periksa apakah ada login yang bisa dipakai, jika tidak, ambil berdasarkan tanggal registrasi
+        $builder->select('m_user.*, m_role.txtRoleName');
+        $builder->join('m_role', 'm_user.intRoleID = m_role.intRoleID', 'left');
+
+        $builder->orderBy('m_user.dtmLastLogin', 'DESC');
+        $builder->limit($limit, $offset);
+
+        $users = $builder->get()->getResultArray();
+
+        // Jika tidak ada data login, ambil berdasarkan tanggal registrasi
+        if (empty($users)) {
+            $builder->orderBy('m_user.dtmCreatedDate', 'DESC');
+            $users = $builder->get()->getResultArray();
+        }
+
+        log_message('debug', 'Users Data: ' . print_r($users, true)); // Ini akan menulis data ke log
+        return $users;
+    }
+
     public function countAllUsers($searchValue = null)
     {
         $builder = $this->db->table('m_user');

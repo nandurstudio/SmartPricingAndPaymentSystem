@@ -220,7 +220,7 @@ class Auth extends BaseController
         }
 
         // Tampilkan halaman landing setelah login
-        return view('landing'); // Pastikan Anda memiliki view 'landing.php'
+        return view('dashboard-2'); // Pastikan Anda memiliki view 'landing.php'
     }
 
     public function logout()
