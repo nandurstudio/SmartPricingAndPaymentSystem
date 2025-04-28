@@ -33,14 +33,15 @@ $routes->get('auth/reset_password/(:any)', 'Auth::resetPassword/$1');  // Menamp
 $routes->post('auth/updatePassword', 'Auth::updatePassword');  // Memperbarui password
 
 $routes->group('user', ['filter' => 'auth'], function ($routes) {
-    $routes->get('/', 'UserController::index');                 // Daftar user
-    $routes->get('create', 'UserController::create');           // Form tambah user baru
-    $routes->post('create', 'UserController::store');           // Proses simpan user baru
-    $routes->get('view/(:num)', 'UserController::view/$1');     // Lihat detail user
-    $routes->get('update/(:num)', 'UserController::edit/$1');   // Form edit user
+    $routes->get('/', 'UserController::index');                  // Daftar user
+    $routes->get('add', 'UserController::add');               // Form tambah user baru
+    $routes->get('list', 'UserController::list');               // Halaman daftar user (seharusnya index)
+    $routes->get('edit/(:num)', 'UserController::edit/$1');       // Form edit user berdasarkan ID
     $routes->post('update/(:num)', 'UserController::update/$1'); // Proses update user
-    $routes->post('getUsers', 'UserController::getUsers'); // Endpoint untuk DataTables
-    $routes->get('getLastUsers', 'UserController::getLastUsers');
+    $routes->post('store', 'UserController::store');            // Proses simpan user baru (STORE)
+    $routes->get('view/(:num)', 'UserController::view/$1');      // Lihat detail user
+    $routes->post('getUsers', 'UserController::getUsers');       // Endpoint untuk DataTables
+    $routes->get('getLastUsers', 'UserController::getLastUsers'); // Ambil user terakhir
 });
 
 $routes->group('role', ['filter' => 'auth'], function ($routes) {

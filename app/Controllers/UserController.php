@@ -57,6 +57,18 @@ class UserController extends Controller
         ]);
     }
 
+    // UserController.php
+    public function list()
+    {
+        $userModel = new \App\Models\MUserModel();
+
+        // Mengambil semua pengguna dengan role mereka
+        $data['users'] = $userModel->getUsersWithRole();
+
+        return view('user/list', $data);
+    }
+
+
     public function getUsers()
     {
         try {
@@ -127,83 +139,23 @@ class UserController extends Controller
         ]);
     }
 
-    // CREATE - Menampilkan form tambah user
-    public function create()
+    // Menampilkan form untuk menambah user
+    public function add()
     {
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
         }
 
-        $roleID = session()->get('roleID');
-        $menusModel = new MenuModel();
-        $menus = $menusModel->getMenusByRole($roleID);
-        
-        // Fetching roles, job titles, supervisors, lines, and departments for the form
+        // Ambil semua role yang tersedia
         $roleModel = new MRoleModel();
-        $roles = $roleModel->findAll();
+        $roles = $roleModel->findAll();  // Ambil semua role
 
-        $userModel = new MUserModel();
-        $supervisors = $userModel->findAll();  // Get all users as supervisors
-
-        return view('user/create', [
-            'menus' => $menus,
-            'roles' => $roles,
-            'supervisors' => $supervisors,
-            'pageTitle' => 'Create User',
-            'pageSubTitle' => 'Add a new user to the system',
-            'cardTitle' => 'Create User',
-            'icon' => 'user-plus'
-        ]);
-    }
-
-    // STORE - Proses penyimpanan user baru
-    public function store()
-    {
-        // Validasi form
-        $validationRules = [
-            'txtUserName'     => 'required|min_length[3]|max_length[50]',
-            'txtFullName'     => 'required|min_length[3]|max_length[100]',
-            'txtEmail'        => 'required|valid_email|is_unique[users.txtEmail]',
-            'txtPassword'     => 'required|min_length[8]',
-            'intRoleID'       => 'required|integer',
-            'intJobTitleID'   => 'required|integer',
-            'intSupervisorID' => 'permit_empty|integer',
-            'intLineID'       => 'required|integer',
-            'intDepartmentID' => 'required|integer',
-            'dtmJoinDate'     => 'required|valid_date[Y-m-d H:i:s]',
-            'bitActive'       => 'permit_empty|in_list[0,1]',
-        ];
-
-        if (!$this->validate($validationRules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        // Ambil data input form
+        // Data yang akan dikirim ke view
         $data = [
-            'intRoleID'       => $this->request->getPost('intRoleID'),
-            'intJobTitleID'   => $this->request->getPost('intJobTitleID'),
-            'intSupervisorID' => $this->request->getPost('intSupervisorID'),
-            'intLineID'       => $this->request->getPost('intLineID'),
-            'intDepartmentID' => $this->request->getPost('intDepartmentID'),
-            'txtUserName'     => $this->request->getPost('txtUserName'),
-            'txtFullName'     => $this->request->getPost('txtFullName'),
-            'txtNick'         => $this->request->getPost('txtNick', FILTER_SANITIZE_STRING) ?: 'DUM',  // Default value
-            'txtEmpID'        => $this->request->getPost('txtEmpID'),
-            'txtEmail'        => $this->request->getPost('txtEmail', FILTER_SANITIZE_EMAIL) ?: 'dummy@email.com', // Default value
-            'txtPassword'     => Encrypt::encryptPassword($this->request->getPost('txtPassword')),
-            'bitActive'       => $this->request->getPost('bitActive', FILTER_VALIDATE_BOOLEAN) ?: 1, // Default 1
-            'txtInsertedBy'   => session()->get('userID'),
-            'txtGUID'         => uniqid(),
-            'txtPhoto'        => $this->request->getPost('txtPhoto') ?? 'default.jpg',
-            'dtmJoinDate'     => $this->request->getPost('dtmJoinDate') ?: date('Y-m-d H:i:s'), // Default current date
+            'roles' => $roles,  // Semua role yang tersedia
         ];
 
-        // Insert the new user data into the database
-        if ($this->userModel->insert($data)) {
-            return redirect()->to('/user')->with('success', 'User created successfully');
-        } else {
-            return redirect()->back()->withInput()->with('errors', $this->userModel->errors());
-        }
+        return view('user/add', $data); // Pastikan path view sesuai dengan struktur project
     }
 
     // SHOW - Menampilkan detail user berdasarkan ID
@@ -241,100 +193,206 @@ class UserController extends Controller
         }
     }
 
-    // EDIT - Menampilkan form edit user
-    public function edit($id = null)
+    // Memproses penambahan user
+    public function store()
     {
-        if (!session()->get('isLoggedIn')) {
-            return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
+        // Validasi input
+        $validationRules = [
+            'intRoleID' => [
+                'label' => 'Role',
+                'rules' => 'required|integer',
+            ],
+            'txtUserName' => [
+                'label' => 'Username',
+                'rules' => 'required|max_length[50]|is_unique[m_user.txtUserName]',
+            ],
+            'txtFullName' => [
+                'label' => 'Full Name',
+                'rules' => 'required|max_length[100]',
+            ],
+            'txtEmail' => [
+                'label' => 'Email',
+                'rules' => 'required|valid_email|is_unique[m_user.txtEmail]',
+            ],
+            'txtPassword' => [
+                'label' => 'Password',
+                'rules' => 'required|min_length[6]',
+            ],
+            'bitActive' => [
+                'label' => 'Active Status',
+                'rules' => 'required|in_list[0,1]',
+            ],
+            'txtPhoto' => [
+                'label' => 'Photo',
+                'rules' => 'permit_empty|is_image[txtPhoto]|max_size[txtPhoto,2048]',
+            ],
+        ];
+
+        if (!$this->validate($validationRules)) {
+            // Log validasi gagal
+            log_message('error', 'Validation failed: ' . print_r($this->validator->getErrors(), true));
+            return redirect()->to('/user/add')->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $roleID = session()->get('roleID');
-        $menusModel = new MenuModel();
-        $menus = $menusModel->getMenusByRole($roleID);
+        // Ambil data input form
+        $data = [
+            'txtUserName'   => $this->request->getPost('txtUserName'),
+            'txtFullName'   => $this->request->getPost('txtFullName'),
+            'txtEmail'      => $this->request->getPost('txtEmail'),
+            'intRoleID'     => $this->request->getPost('intRoleID'),
+            'bitActive'     => $this->request->getPost('bitActive'),
+            'txtPassword'   => password_hash($this->request->getPost('txtPassword'), PASSWORD_DEFAULT),
+            'txtCreatedBy'  => session()->get('userName'), // isi otomatis
+            'dtmCreatedDate' => date('Y-m-d H:i:s'),        // isi otomatis
+            'dtmJoinDate'    => date('Y-m-d H:i:s'),        // isi otomatis join date sama dengan created date
+        ];
 
-        // Fetch the required data for dropdowns
-        $roleModel = new MRoleModel();
-        $roles = $roleModel->findAll();
+        // Hash password
+        $data['txtPassword'] = password_hash($this->request->getPost('txtPassword'), PASSWORD_DEFAULT);
 
-        $userModel = new MUserModel();
-        $supervisors = $userModel->findAll();  // Get all users as supervisors
+        // Log data yang akan ditambahkan
+        log_message('debug', 'Data to insert: ' . print_r($data, true));
 
-        $user = $userModel->find($id);
-
-        if ($user) {
-            return view('user/update', [
-                'menus' => $menus,
-                'user' => $user,
-                'roles' => $roles,
-                'supervisors' => $supervisors,
-                'pageTitle' => 'Edit User',
-                'pageSubTitle' => 'Edit data user dan informasi',
-                'cardTitle' => 'Edit User',
-                'icon' => 'edit'
-            ]);
-        } else {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("User with ID $id not found");
-        }
-    }
-
-    // UPDATE - Proses update data user
-    public function update($id = null)
-    {
-        $user = $this->userModel->find($id); // Ambil data user lama
+        // Proses upload foto jika ada
         $photo = $this->request->getFile('txtPhoto');
-        $newName = $user['txtPhoto']; // Default tetap pakai foto lama
-
         if ($photo && $photo->isValid() && !$photo->hasMoved()) {
-            // Path foto lama
-            $oldPhotoPath = FCPATH . 'uploads/photos/' . $user['txtPhoto'];
-
-            // Ambil NIK (txtEmpID) dan generate nama file baru
-            $nik = $user['txtEmpID'];
-            $datePrefix = date('dmy_His'); // Format tanggal dan waktu: ddmmyy_hhmmss
-            $newName = $nik . '_' . $datePrefix . '.' . $photo->getExtension(); // Nama file baru
-
-            // Pindahkan foto baru ke folder uploads
-            $photo->move(FCPATH . 'uploads/photos', $newName);
-
-            // Hapus foto lama jika ada dan bukan default
-            if (!empty($user['txtPhoto']) && file_exists($oldPhotoPath) && $user['txtPhoto'] !== 'default.jpg') {
-                unlink($oldPhotoPath); // Hapus file lama
+            if (in_array($photo->getMimeType(), ['image/jpeg', 'image/png', 'image/gif'])) {
+                $newName = $photo->getRandomName();
+                $photo->move(ROOTPATH . 'public/uploads/photos', $newName);
+                $data['txtPhoto'] = $newName;
+            } else {
+                log_message('error', 'Invalid file type: ' . $photo->getMimeType());
+                session()->setFlashdata('error', 'The uploaded file must be an image (jpg/png/gif).');
+                return redirect()->to('/user/add')->withInput();
             }
         }
 
-        $data = [
-            'intRoleID'       => $this->request->getVar('intRoleID'),
-            'intJobTitleID'   => $this->request->getVar('intJobTitleID'),
-            'intSupervisorID' => $this->request->getVar('intSupervisorID'),
-            'intLineID'       => $this->request->getVar('intLineID'),
-            'intDepartmentID' => $this->request->getVar('intDepartmentID'),
-            'txtUserName'     => $this->request->getVar('txtUserName'),
-            'txtFullName'     => $this->request->getVar('txtFullName'),
-            'txtNick'         => $this->request->getVar('txtNick'),
-            'txtEmpID'        => $this->request->getVar('txtEmpID'),
-            'txtEmail'        => $this->request->getVar('txtEmail'),
-            'txtUpdatedBy'    => session()->get('userID'),
-            'bitActive'       => $this->request->getVar('bitActive') ? 1 : 0, // Handle bitActive checkbox
-            'txtPhoto'        => $newName, // Simpan nama file baru
-        ];
-
-        // Handle join date (ensure correct format)
-        $joinDate = $this->request->getVar('dtmJoinDate');
-        if ($joinDate) {
-            $data['dtmJoinDate'] = date('Y-m-d H:i:s', strtotime($joinDate)); // Format to 'YYYY-MM-DD HH:MM:SS'
+        // Insert data user baru
+        if (!$this->userModel->insert($data)) {
+            log_message('error', 'Failed to insert user. Data: ' . print_r($data, true));
+            session()->setFlashdata('error', 'Failed to add user.');
+            return redirect()->to('/user/add');
         }
 
-        // Handle password update jika ada
-        $password = $this->request->getVar('txtPassword');
+        session()->setFlashdata('success', 'User added successfully!');
+        return redirect()->to('/user/list');
+    }
+
+
+    // Menampilkan form edit user
+    public function edit($userID)
+    {
+        $user = $this->userModel->find($userID);
+
+        if (!$user) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('User not found');
+        }
+
+        // Ambil role berdasarkan ID
+        $roleModel = new MRoleModel();
+        $role = $roleModel->find($user['intRoleID']); // Ambil role spesifik user
+
+        // Ambil semua role yang tersedia
+        $roles = $roleModel->findAll();  // Ambil semua role
+
+        // Data yang akan dikirim ke view
+        $data = [
+            'user' => $user,
+            'role' => $role,   // Role saat ini yang dimiliki user
+            'roles' => $roles, // Semua role yang tersedia
+        ];
+
+        return view('user/edit', $data); // Pastikan path view sesuai dengan struktur project
+    }
+
+    // Memproses update user
+    public function update($id = null)
+    {
+        $user = $this->userModel->find($id);
+
+        if (!$user) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('User not found');
+        }
+
+        // Validasi input
+        $validationRules = [
+            'intRoleID' => [
+                'label' => 'Role',
+                'rules' => 'required|integer',
+            ],
+            'txtUserName' => [
+                'label' => 'Username',
+                'rules' => 'required|max_length[50]',
+            ],
+            'txtFullName' => [
+                'label' => 'Full Name',
+                'rules' => 'required|max_length[100]',
+            ],
+            'txtEmail' => [
+                'label' => 'Email',
+                'rules' => 'required|valid_email',
+            ],
+            'txtPassword' => [
+                'label' => 'Password',
+                'rules' => 'permit_empty|min_length[6]',
+            ],
+            'bitActive' => [
+                'label' => 'Active Status',
+                'rules' => 'required|in_list[0,1]',
+            ],
+            'txtPhoto' => [
+                'label' => 'Photo',
+                'rules' => 'permit_empty|is_image[txtPhoto]|max_size[txtPhoto,2048]',
+            ],
+        ];
+
+        if (!$this->validate($validationRules)) {
+            // Log validasi gagal
+            log_message('error', 'Validation failed: ' . print_r($this->validator->getErrors(), true));
+            return redirect()->to('/user/edit/' . $id)->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        // Ambil data input form
+        $data = [
+            'txtUserName'   => $this->request->getPost('txtUserName'),
+            'txtFullName'   => $this->request->getPost('txtFullName'),
+            'txtEmail'      => $this->request->getPost('txtEmail'),
+            'bitActive' => $this->request->getPost('bitActive'),
+            'intRoleID'     => $this->request->getPost('intRoleID'),
+            'txtUpdatedBy'  => session()->get('userName'),
+            'dtmUpdatedDate' => date('Y-m-d H:i:s'),
+        ];
+
+        // Log data yang akan diupdate
+        log_message('debug', 'Data to update: ' . print_r($data, true));
+
+        // Update password jika diisi
+        $password = $this->request->getPost('txtPassword');
         if (!empty($password)) {
             $data['txtPassword'] = password_hash($password, PASSWORD_DEFAULT);
         }
 
-        // Update user data
-        if ($this->userModel->update($id, $data)) {
-            return redirect()->to('/user')->with('success', 'User updated successfully');
-        } else {
-            return redirect()->back()->withInput()->with('errors', $this->userModel->errors());
+        $photo = $this->request->getFile('txtPhoto');
+        if ($photo && $photo->isValid() && !$photo->hasMoved()) {
+            if (in_array($photo->getMimeType(), ['image/jpeg', 'image/png', 'image/gif'])) {
+                $newName = $photo->getRandomName();
+                $photo->move(ROOTPATH . 'public/uploads/photos', $newName);
+                $data['txtPhoto'] = $newName;
+            } else {
+                log_message('error', 'Invalid file type: ' . $photo->getMimeType());
+                session()->setFlashdata('error', 'The uploaded file must be an image (jpg/png/gif).');
+                return redirect()->to('/user/edit/' . $id)->withInput();
+            }
         }
+
+        // Update data user
+        if (!$this->userModel->update($id, $data)) {
+            log_message('error', 'Failed to update user. Data: ' . print_r($data, true));
+            session()->setFlashdata('error', 'Failed to update user.');
+            return redirect()->to('/user/edit/' . $id);
+        }
+
+        session()->setFlashdata('success', 'User updated successfully!');
+        return redirect()->to('/user/list');
     }
 }

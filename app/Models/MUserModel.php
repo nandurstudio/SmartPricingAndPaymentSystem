@@ -191,4 +191,16 @@ class MUserModel extends Model
             throw new \Exception("User ID tidak valid: $userID");
         }
     }
+
+    // MUserModel.php
+    public function getUsersWithRole()
+    {
+        // Menggunakan builder untuk mendapatkan hasil query dengan join tabel m_role
+        $builder = $this->db->table('m_user');
+        $builder->select('m_user.*, m_role.txtRoleName'); // Mengambil data dari m_user dan m_role
+        $builder->join('m_role', 'm_user.intRoleID = m_role.intRoleID', 'left'); // Join tabel m_role
+
+        // Mengambil hasilnya dan mengembalikannya sebagai array
+        return $builder->get()->getResultArray();
+    }
 }
