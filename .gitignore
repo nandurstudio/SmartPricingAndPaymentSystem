@@ -1,4 +1,6 @@
 # Ignore environment file (berisi konfigurasi sensitif)
+
+.env.*
 .env
 
 # Ignore system-generated files
@@ -9,18 +11,21 @@ application/config/*.php  # Konfigurasi yang sudah ada di repo
 application/cache/
 application/logs/
 
-# Ignore Composer's vendor directory
+# Composer
 /vendor/
 
-# Ignore .env files (untuk konfigurasi sensitif)
-.env.local
-.env.production
-.env.testing
-.env.development
+# Node
+/node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
 
 # Ignore IDE/project specific files
 /.idea/
-/.vscode/
+.vscode/
+*.sublime-workspace
+*.sublime-project
 
 # Ignore MacOS specific files
 .DS_Store
@@ -48,9 +53,14 @@ dist/
 
 # Ignore cache folder CI4
 /writable/cache/
+/storage/
 
 # Ignore tests folder (jika ada)
 tests/
 
 # Ignore composer.lock jika diperlukan
 composer.lock
+
+# Build/Assets (jika hasil build, bukan sumber)
+public/assets/vendor/simple-datatables/
+public/assets/vendor/bootstrap/

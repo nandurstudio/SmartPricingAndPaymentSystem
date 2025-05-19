@@ -70,3 +70,22 @@ $routes->group('menu', ['filter' => 'auth'], function ($routes) {
     $routes->get('edit/(:num)', 'MenuController::edit/$1');
     $routes->post('update/(:num)', 'MenuController::update/$1');
 });
+
+$routes->group('product', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'ProductController::index');
+    $routes->get('add', 'ProductController::add');
+    $routes->post('store', 'ProductController::store');
+    $routes->get('view/(:num)', 'ProductController::view/$1');
+    $routes->get('edit/(:num)', 'ProductController::edit/$1');
+    $routes->post('update/(:num)', 'ProductController::update/$1');
+    $routes->get('delete/(:num)', 'ProductController::delete/$1');
+});
+
+$routes->group('category', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'CategoryController::index');
+    $routes->get('add', 'CategoryController::add');
+    $routes->post('store', 'CategoryController::store');
+    $routes->get('edit/(:num)', 'CategoryController::edit/$1');
+    $routes->post('update/(:num)', 'CategoryController::update/$1');
+    $routes->get('delete/(:num)', 'CategoryController::delete/$1');
+});

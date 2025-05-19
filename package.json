@@ -1,0 +1,20 @@
+{
+  "name": "smartpricingandpaymentsystem",
+  "version": "1.0.0",
+  "description": "Jangan lupa tambahkan .env file di folder local",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^5.3.6",
+    "simple-datatables": "^10.0.0"
+  }
+}
