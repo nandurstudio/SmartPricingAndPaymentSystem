@@ -63,9 +63,7 @@ class Auth extends BaseController
     {
         $authUrl = $this->googleClient->createAuthUrl();
         return redirect()->to($authUrl); // Redirect ke halaman login Google
-    }
-
-    // Callback dari Google setelah login
+    }    // Callback dari Google setelah login
     public function googleCallback()
     {
         $code = $this->request->getGet('code');
@@ -110,8 +108,12 @@ class Auth extends BaseController
                         'txtFullName' => $fullName,
                         'txtPhoto' => $profilePictureUrlHD, // Simpan foto dalam resolusi HD
                         'bitActive' => 1,
+                        'intRoleID' => 5, // Default role for Customer
                         'dtmJoinDate' => date('Y-m-d H:i:s'),
                         'dtmLastLogin' => date('Y-m-d H:i:s'),
+                        'txtGUID' => uniqid('google_', true), // Generate a unique ID dengan prefix google_ untuk tracking
+                        'dtmCreatedDate' => date('Y-m-d H:i:s'),
+                        'txtCreatedBy' => 'google_auth',
                         'google_auth_token' => $googleUser->id,
                     ];
 
@@ -156,7 +158,7 @@ class Auth extends BaseController
         } else {
             return redirect()->to('/auth')->with('error', 'Invalid request');
         }
-    }
+    } // End of googleCallback method
 
     public function login()
     {

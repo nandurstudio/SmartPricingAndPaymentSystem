@@ -20,37 +20,42 @@ class Register extends BaseController
 
     public function createUser()
     {
-        $validation = \Config\Services::validation();
-
-        // Menambahkan pengecekan is_unique untuk username
+        $validation = \Config\Services::validation();        // Define validation rules including password confirmation
         $rules = [
-            'txtUserName' => 'required|min_length[4]|max_length[50]|is_unique[m_user.txtUserName]',  // Tambah pengecekan is_unique
-            'txtFullName' => 'required|min_length[3]|max_length[100]',
-            'txtEmail'    => 'required|valid_email|max_length[100]|is_unique[m_user.txtEmail]',  // Pengecekan untuk email sudah ada
-            'txtPassword' => 'required|min_length[6]|max_length[255]',
+            'txtFullName'      => 'required|min_length[3]|max_length[100]',
+            'txtUserName'      => 'required|min_length[4]|max_length[50]|is_unique[m_user.txtUserName]',
+            'txtEmail'         => 'required|valid_email|max_length[100]|is_unique[m_user.txtEmail]',
+            'txtPassword'      => 'required|min_length[6]|max_length[255]',
+            'password_confirm' => 'required|matches[txtPassword]', // Ensures this matches txtPassword
+            'terms_agreement'  => 'required', // Terms and conditions must be accepted
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
-        }
-
+            // If validation fails, return errors to the view
+            // The view's JavaScript will handle displaying these errors
+            return $this->response->setJSON(['success' => false, 'errors' => $validation->getErrors()]);
+        }        // If validation passes, proceed to create user
         $data = [
-            'txtUserName' => $this->request->getPost('txtUserName'),
-            'txtFullName' => $this->request->getPost('txtFullName'),
-            'txtEmail'    => $this->request->getPost('txtEmail'),
-            'txtPassword' => $this->userModel->hashPassword($this->request->getPost('txtPassword')),
-            'intRoleID'   => $this->request->getPost('intRoleID') ?? 5,
-            'bitActive'   => $this->request->getPost('bitActive') ? 1 : 0,
-            'txtCreatedBy' => 'register_form',
-            'txtGUID'     => uniqid(),
-            'txtPhoto'    => 'default.png', // Set default photo
-            'dtmJoinDate' => date('Y-m-d H:i:s'),
+            'txtFullName'  => $this->request->getPost('txtFullName'),
+            'txtUserName'  => $this->request->getPost('txtUserName'),
+            'txtEmail'     => $this->request->getPost('txtEmail'),
+            'txtPassword'  => $this->userModel->hashPassword($this->request->getPost('txtPassword')),
+            'intRoleID'    => 5, // Default role: Customer
+            'bitActive'    => 1, // Always active for new registrations
+            'txtCreatedBy' => 'register_form', // Or any identifier for the registration source
+            'txtGUID'      => uniqid(), // Generate a unique ID
+            'txtPhoto'     => 'default.png', // Default photo, or handle photo upload separately
+            'dtmJoinDate'  => date('Y-m-d H:i:s'), // Current timestamp
+            'dtmCreatedDate' => date('Y-m-d H:i:s'), // Current timestamp for creation
         ];
 
         if ($this->userModel->insert($data)) {
-            return redirect()->to('/login')->with('success', 'Registrasi berhasil! Silakan login.');
+            // Registration successful
+            // The view's JavaScript expects a redirect URL
+            return $this->response->setJSON(['success' => true, 'redirect' => base_url('/login'), 'message' => 'Registration successful! Please login.']);
         } else {
-            return redirect()->back()->withInput()->with('error', 'Registrasi gagal. Silakan coba lagi.');
+            // Database insertion failed
+            return $this->response->setJSON(['success' => false, 'message' => 'Registration failed. Please try again.']);
         }
     }
 

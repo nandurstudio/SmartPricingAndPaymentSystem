@@ -89,3 +89,9 @@ $routes->group('category', ['filter' => 'auth'], function ($routes) {
     $routes->post('update/(:num)', 'CategoryController::update/$1');
     $routes->get('delete/(:num)', 'CategoryController::delete/$1');
 });
+
+// Debug routes - only for administrator use
+$routes->group('debug', ['filter' => 'auth'], function ($routes) {
+    $routes->get('test-google-registration', 'DebugController::testGoogleRegistration');
+    $routes->get('check-guid-values', 'DebugController::checkGuidValues');
+});

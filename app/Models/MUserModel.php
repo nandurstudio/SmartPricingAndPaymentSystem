@@ -69,8 +69,7 @@ class MUserModel extends Model
     }
 
     public function insertNewUserFromGoogle($googleUser)
-    {
-        $newUser = [
+    {        $newUser = [
             'txtEmail'          => $googleUser->email,
             'txtUserName'       => !empty($googleUser->givenName) ? $googleUser->givenName : (!empty($googleUser->name) ? $googleUser->name : 'user_' . time()),
             'txtFullName'       => $googleUser->name ?? '',
@@ -79,10 +78,10 @@ class MUserModel extends Model
             'dtmJoinDate'       => date('Y-m-d H:i:s'),
             'dtmLastLogin'      => date('Y-m-d H:i:s'),
             'google_auth_token' => $googleUser->id ?? null,
-            'txtCreatedBy'      => 'google_oauth',
+            'txtCreatedBy'      => 'google_auth', // Changed to match Auth.php
             'dtmCreatedDate'    => date('Y-m-d H:i:s'),
-            'txtGUID'           => uniqid(),
-            'intRoleID'         => 2, // Optional: role default user
+            'txtGUID'           => uniqid('google_', true), // Using same format as Auth.php
+            'intRoleID'         => 5, // Updated to set Customer role by default
         ];
 
         $existingUser = $this->where('txtEmail', $googleUser->email)->first();
