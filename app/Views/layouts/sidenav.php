@@ -2,58 +2,79 @@
     <nav class="sidenav shadow-right sidenav-light">
         <div class="sidenav-menu">
             <div class="nav accordion" id="accordionSidenav">
-                <?php foreach ($menus as $menu): ?>
-                    <?php
-                        // Memeriksa apakah menu ini aktif
-                        $isActive = ($menu['txtMenuLink'] && current_url() == base_url($menu['txtMenuLink'])) ? 'active' : '';
-                        $hasActiveSubmenu = false; // Menandakan apakah ada submenu yang aktif
-
-                        // Jika menu ini adalah parent (tidak memiliki link), cek submenu-nya
-                        if (!$menu['txtMenuLink']) {
-                            foreach ($menus as $submenu) {
-                                if ($submenu['intParentID'] == $menu['intMenuID'] && current_url() == base_url($submenu['txtMenuLink'])) {
-                                    $hasActiveSubmenu = true;
-                                    break;
-                                }
-                            }
+                <?php 
+                $currentUrl = current_url();
+                $baseUrl = base_url();
+                
+                // Group menus by parent
+                $menuGroups = [];
+                foreach ($menus as $menu) {
+                    $parentId = $menu['intParentID'] ?? 0;
+                    $menuGroups[$parentId][] = $menu;
+                }
+                
+                // Function to check if menu or its children are active
+                function isMenuActive($menu, $menus, $currentUrl, $baseUrl) {
+                    if ($menu['txtMenuLink'] && $currentUrl == $baseUrl . $menu['txtMenuLink']) {
+                        return true;
+                    }
+                    
+                    // Check children if this is a parent menu
+                    foreach ($menus as $childMenu) {
+                        if ($childMenu['intParentID'] == $menu['intMenuID'] 
+                            && $currentUrl == $baseUrl . $childMenu['txtMenuLink']) {
+                            return true;
                         }
-                    ?>
-                    <?php if ($menu['intParentID'] == 0): ?>
-                        <?php
-                            // Menambahkan 'active' pada parent menu jika ada submenu yang aktif
-                            $parentActiveClass = $isActive || $hasActiveSubmenu ? 'active' : '';
-                        ?>
-                        <?php if ($menu['isHeading'] == 1): ?>
-                            <!-- Menu Heading -->
-                            <div class="sidenav-menu-heading"><?= $menu['txtMenuName'] ?></div>
-                        <?php else: ?>
-                            <!-- Parent Menu -->
-                            <a class="nav-link <?= $parentActiveClass; ?> <?= $menu['txtMenuLink'] ? '' : 'collapsed' ?>" 
-                               href="<?= $menu['txtMenuLink'] ?: 'javascript:void(0);' ?>"
-                               <?= $menu['txtMenuLink'] ? '' : 'data-bs-toggle="collapse" data-bs-target="#collapse' . $menu['intMenuID'] . '"' ?>
-                               aria-expanded="<?= $hasActiveSubmenu ? 'true' : 'false'; ?>" 
-                               aria-controls="collapse<?= $menu['intMenuID'] ?>">
-                                <div class="nav-link-icon"><i data-feather="<?= $menu['txtIcon'] ?>"></i></div>
-                                <?= $menu['txtMenuName'] ?>
-                                <?php if (!$menu['txtMenuLink']): ?>
-                                    <div class="sidenav-collapse-arrow"><i data-feather="chevron-down"></i></div>
-                                <?php endif; ?>
-                            </a>
-
-                            <!-- Submenu jika Parent Menu tidak memiliki link -->
-                            <?php if (!$menu['txtMenuLink']): ?>
-                                <div class="collapse <?= $hasActiveSubmenu ? 'show' : ''; ?>" id="collapse<?= $menu['intMenuID'] ?>" data-bs-parent="#accordionSidenav">
-                                    <nav class="sidenav-menu-nested nav">
-                                        <?php foreach ($menus as $submenu): ?>
-                                            <?php if ($submenu['intParentID'] == $menu['intMenuID']): ?>
-                                                <a class="nav-link <?= ($submenu['txtMenuLink'] && current_url() == base_url($submenu['txtMenuLink'])) ? 'active' : ''; ?>" href="<?= $submenu['txtMenuLink'] ?>"><?= $submenu['txtMenuName'] ?></a>
-                                            <?php endif; ?>
-                                        <?php endforeach; ?>
-                                    </nav>
-                                </div>
-                            <?php endif; ?>
+                    }
+                    return false;
+                }
+                
+                // Render main level menus
+                foreach ($menuGroups[0] ?? [] as $menu): 
+                    $isActive = isMenuActive($menu, $menus, $currentUrl, $baseUrl);
+                    $hasChildren = isset($menuGroups[$menu['intMenuID']]);
+                ?>
+                    
+                    <!-- Parent Menu Item -->
+                    <a class="nav-link <?= $isActive ? 'active' : '' ?> <?= $hasChildren ? 'collapsed' : '' ?>" 
+                       href="<?= $menu['txtMenuLink'] ? base_url($menu['txtMenuLink']) : 'javascript:void(0);' ?>"
+                       <?php if ($hasChildren): ?>
+                       data-bs-toggle="collapse" 
+                       data-bs-target="#collapse<?= $menu['intMenuID'] ?>"
+                       aria-expanded="<?= $isActive ? 'true' : 'false' ?>"
+                       <?php endif; ?>>
+                        <div class="nav-link-icon">
+                            <i data-feather="<?= $menu['txtIcon'] ?>"></i>
+                        </div>
+                        <?= $menu['txtMenuName'] ?>
+                        <?php if ($hasChildren): ?>
+                            <div class="sidenav-collapse-arrow">
+                                <i data-feather="chevron-down"></i>
+                            </div>
                         <?php endif; ?>
+                    </a>
+
+                    <!-- Submenu Items -->
+                    <?php if ($hasChildren): ?>
+                        <div class="collapse <?= $isActive ? 'show' : '' ?>" 
+                             id="collapse<?= $menu['intMenuID'] ?>" 
+                             data-bs-parent="#accordionSidenav">
+                            <nav class="sidenav-menu-nested nav">
+                                <?php foreach ($menuGroups[$menu['intMenuID']] as $submenu): 
+                                    $isSubmenuActive = $currentUrl == $baseUrl . $submenu['txtMenuLink'];
+                                ?>
+                                    <a class="nav-link <?= $isSubmenuActive ? 'active' : '' ?>" 
+                                       href="<?= base_url($submenu['txtMenuLink']) ?>">
+                                        <div class="nav-link-icon">
+                                            <i data-feather="<?= $submenu['txtIcon'] ?>"></i>
+                                        </div>
+                                        <?= $submenu['txtMenuName'] ?>
+                                    </a>
+                                <?php endforeach; ?>
+                            </nav>
+                        </div>
                     <?php endif; ?>
+                    
                 <?php endforeach; ?>
             </div>
         </div>
@@ -64,6 +85,7 @@
                 <div class="sidenav-footer-subtitle">Logged in as:</div>
                 <?php if (session()->get('isLoggedIn')): ?>
                     <div class="sidenav-footer-title"><?= esc(session()->get('userFullName')); ?></div>
+                    <small class="text-muted"><?= esc(session()->get('roleName')); ?></small>
                 <?php else: ?>
                     <div class="sidenav-footer-title">Please login first.</div>
                 <?php endif; ?>
@@ -71,3 +93,10 @@
         </div>
     </nav>
 </div>
+
+<script>
+// Initialize Feather icons
+document.addEventListener('DOMContentLoaded', function() {
+    feather.replace();
+});
+</script>

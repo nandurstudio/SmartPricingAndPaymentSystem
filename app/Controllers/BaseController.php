@@ -34,25 +34,55 @@ abstract class BaseController extends Controller
      * to all other controllers that extend BaseController.
      *
      * @var list<string>
-     */
-    protected $helpers = [];
+     */    protected $helpers = ['url', 'form', 'auth'];
 
     /**
-     * Be sure to declare properties for any property fetch you initialized.
-     * The creation of dynamic property is deprecated in PHP 8.2.
+     * Properties for storing shared data
      */
-    // protected $session;
+    protected $data = [];
+    protected $menuModel;
+    protected $session;
 
     /**
-     * @return void
+     * Constructor.
      */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
         // Do Not Edit This Line
         parent::initController($request, $response, $logger);
 
-        // Preload any models, libraries, etc, here.
+        // Initialize session
+        $this->session = \Config\Services::session();
+        
+        // Load MenuModel
+        $this->menuModel = new \App\Models\MenuModel();
+        
+        // Load menu for logged in user
+        $this->loadUserMenu();
+    }
 
-        // E.g.: $this->session = \Config\Services::session();
+    /**
+     * Load menu based on user role
+     */
+    protected function loadUserMenu()
+    {
+        if (session()->get('isLoggedIn')) {
+            $roleId = session()->get('roleId');
+            $menus = $this->menuModel->getMenusByRole($roleId);
+            
+            // Store menu in view data
+            $this->data['menus'] = $menus;
+        }
+    }
+
+    /**
+     * Load view with common data
+     */
+    protected function render(string $view, array $data = [])
+    {
+        // Merge any data provided with the menu data
+        $viewData = array_merge($this->data ?? [], $data);
+        
+        return view($view, $viewData);
     }
 }

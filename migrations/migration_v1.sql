@@ -420,11 +420,65 @@ VALUES
 (3, 'villa.owner', 'Villa Resort Owner', 'villa@example.com', '$2y$10$examplehash', 1, 'system', NOW(), 'system', NOW(), 'user_villa', 'default.png', NOW());
 
 -- Seeder data for m_menu
-INSERT INTO m_menu (txtMenuName, txtMenuLink, txtIcon, intParentID, intSortOrder, bitActive)
-VALUES
-('Dashboard', '/dashboard', 'fas fa-tachometer-alt', NULL, 1, 1),
-('Bookings', '/bookings', 'fas fa-calendar-check', NULL, 2, 1);
+INSERT INTO m_menu (txtMenuName, txtMenuLink, txtIcon, intParentID, intSortOrder, bitActive) VALUES
+-- Dashboard
+('Dashboard', '/dashboard', 'activity', NULL, 1, 1),
 
--- Seeder data for m_role_menu
-INSERT INTO m_role_menu (intRoleID, intMenuID) VALUES
-(1, 1), (1, 2), (2, 1);
+-- Master Data Management
+('Master Data', NULL, 'database', NULL, 2, 1),
+('Users', '/users', 'users', 2, 1, 1),
+('Roles', '/roles', 'shield', 2, 2, 1),
+('Service Types', '/service-types', 'grid', 2, 3, 1),
+('Categories', '/categories', 'folder', 2, 4, 1),
+
+-- Tenant Management
+('Tenant', NULL, 'home', NULL, 3, 1),
+('Tenant List', '/tenants', 'list', 7, 1, 1),
+('Tenant Services', '/tenant-services', 'briefcase', 7, 2, 1),
+
+-- Service Management
+('Services', NULL, 'package', NULL, 4, 1),
+('Service List', '/services', 'list', 10, 1, 1),
+('Schedules', '/schedules', 'calendar', 10, 2, 1),
+('Service Attributes', '/service-attributes', 'sliders', 10, 3, 1),
+
+-- Booking Management
+('Bookings', NULL, 'book-open', NULL, 5, 1),
+('Booking List', '/bookings', 'bookmark', 14, 1, 1),
+('Calendar View', '/booking-calendar', 'calendar', 14, 2, 1),
+
+-- Reports
+('Reports', NULL, 'bar-chart-2', NULL, 6, 1),
+('Booking Reports', '/reports/bookings', 'file-text', 17, 1, 1),
+('Revenue Reports', '/reports/revenue', 'dollar-sign', 17, 2, 1),
+('Usage Reports', '/reports/usage', 'trending-up', 17, 3, 1),
+
+-- Settings
+('Settings', NULL, 'settings', NULL, 7, 1),
+('System Settings', '/settings/system', 'tool', 20, 1, 1),
+('User Profile', '/settings/profile', 'user', 20, 2, 1);
+
+-- Seeder data for m_role_menu (Map menu access per role)
+INSERT INTO m_role_menu (intRoleID, intMenuID) 
+-- Administrator (Full Access)
+SELECT 1, intMenuID FROM m_menu
+UNION ALL
+-- Standard User (Limited Access)
+SELECT 2, intMenuID FROM m_menu 
+WHERE txtMenuLink IN ('/dashboard', '/bookings', '/booking-calendar', '/settings/profile')
+UNION ALL
+-- Tenant Owner (Business Access)
+SELECT 3, intMenuID FROM m_menu 
+WHERE txtMenuLink IN (
+    '/dashboard',
+    '/tenant-services',
+    '/services',
+    '/schedules',
+    '/service-attributes',
+    '/bookings',
+    '/booking-calendar',
+    '/reports/bookings',
+    '/reports/revenue',
+    '/reports/usage',
+    '/settings/profile'
+);

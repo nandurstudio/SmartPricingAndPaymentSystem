@@ -5,8 +5,7 @@ namespace App\Models;
 use CodeIgniter\Model;
 
 class MenuModel extends Model
-{
-    protected $table = 'mMenu';
+{    protected $table = 'm_menu';
     protected $primaryKey = 'intMenuID';
     protected $allowedFields = [
         'txtMenuName',
@@ -14,24 +13,16 @@ class MenuModel extends Model
         'intParentID',
         'intSortOrder',
         'txtIcon',
-        'txtDesc',
-        'bitActive',
-        'txtInsertedBy',
-        'dtmInsertedDate',
-        'txtUpdatedBy',
-        'dtmUpdatedDate',
-        'txtGUID'
-    ];
-
-    // Fungsi untuk mengambil menu berdasarkan Role ID
+        'bitActive'
+    ];    // Fungsi untuk mengambil menu berdasarkan Role ID
     public function getMenusByRole($intRoleID)
     {
-        return $this->db->table('mMenu')
-            ->select('mMenu.*, trRoleMenuAccess.bitCanView')
-            ->join('trRoleMenuAccess', 'trRoleMenuAccess.intMenuID = mMenu.intMenuID')
-            ->where('trRoleMenuAccess.intRoleID', $intRoleID)
-            ->where('trRoleMenuAccess.bitCanView', 1) // Menampilkan hanya menu yang bisa dilihat
-            ->orderBy('mMenu.intSortOrder', 'ASC')
+        return $this->db->table('m_menu')
+            ->select('m_menu.*')
+            ->join('m_role_menu', 'm_role_menu.intMenuID = m_menu.intMenuID')
+            ->where('m_role_menu.intRoleID', $intRoleID)
+            ->where('m_menu.bitActive', 1)
+            ->orderBy('m_menu.intSortOrder', 'ASC')
             ->get()
             ->getResultArray();
     }

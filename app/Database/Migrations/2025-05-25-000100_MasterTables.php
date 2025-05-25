@@ -127,22 +127,22 @@ class MasterTables extends Migration
 
         // m_menu
         $this->forge->addField([
-            'intMenuID'      => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true, 'auto_increment' => true ],
-            'txtMenuName'    => [ 'type' => 'VARCHAR', 'constraint' => 100 ],
-            'txtMenuLink'    => [ 'type' => 'VARCHAR', 'constraint' => 255 ],
-            'txtIcon'        => [ 'type' => 'VARCHAR', 'constraint' => 50, 'null' => true ],
-            'intParentID'    => [ 'type' => 'INT', 'constraint' => 10, 'null' => true ],
-            'intSortOrder'   => [ 'type' => 'INT', 'constraint' => 10, 'default' => 0 ],
-            'bitActive'      => [ 'type' => 'TINYINT', 'constraint' => 1, 'default' => 1 ],
+            'intMenuID'      => ['type' => 'INT', 'constraint' => 10, 'unsigned' => true, 'auto_increment' => true],
+            'txtMenuName'    => ['type' => 'VARCHAR', 'constraint' => 100],
+            'txtMenuLink'    => ['type' => 'VARCHAR', 'constraint' => 255, 'null' => true],
+            'txtIcon'        => ['type' => 'VARCHAR', 'constraint' => 50, 'null' => true],
+            'intParentID'    => ['type' => 'INT', 'constraint' => 10, 'unsigned' => true, 'null' => true],
+            'intSortOrder'   => ['type' => 'INT', 'constraint' => 5, 'default' => 0],
+            'bitActive'      => ['type' => 'TINYINT', 'constraint' => 1, 'default' => 1]
         ]);
         $this->forge->addKey('intMenuID', true);
-        $this->forge->createTable('m_menu');
+        $this->forge->addKey('intParentID');
 
         // m_role_menu
         $this->forge->addField([
-            'intRoleMenuID' => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true, 'auto_increment' => true ],
-            'intRoleID'     => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true ],
-            'intMenuID'     => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true ],
+            'intRoleMenuID' => ['type' => 'INT', 'constraint' => 10, 'unsigned' => true, 'auto_increment' => true],
+            'intRoleID'     => ['type' => 'INT', 'constraint' => 10, 'unsigned' => true],
+            'intMenuID'     => ['type' => 'INT', 'constraint' => 10, 'unsigned' => true]
         ]);
         $this->forge->addKey('intRoleMenuID', true);
         $this->forge->addForeignKey('intRoleID', 'm_role', 'intRoleID', 'CASCADE', 'CASCADE');
