@@ -77,9 +77,7 @@ class Autoload extends AutoloadConfig
      *
      * @var list<string>
      */
-    public $files = [];
-
-    /**
+    public $files = [];    /**
      * -------------------------------------------------------------------
      * Helpers
      * -------------------------------------------------------------------
@@ -90,5 +88,5 @@ class Autoload extends AutoloadConfig
      *
      * @var list<string>
      */
-    public $helpers = ['form', 'cookie'];
+    public $helpers = ['form', 'cookie', 'flashmessage'];
 }

@@ -32,9 +32,7 @@ class MUserModel extends Model
     // Optional: Untuk timestamps otomatis
     protected $useTimestamps = true;
     protected $createdField = 'dtmCreatedDate'; // Menyesuaikan dengan field created
-    protected $updatedField = 'dtmUpdatedDate';
-
-    // Fungsi untuk verifikasi login
+    protected $updatedField = 'dtmUpdatedDate';    // Fungsi untuk verifikasi login dengan email
     public function verifyLoginByEmail($email, $password)
     {
         $user = $this->where('txtEmail', $email)->first();
@@ -201,5 +199,37 @@ class MUserModel extends Model
 
         // Mengambil hasilnya dan mengembalikannya sebagai array
         return $builder->get()->getResultArray();
+    }
+
+    // Fungsi untuk verifikasi login dengan username atau email
+    public function verifyLoginByUsernameOrEmail($identity, $password)
+    {
+        // Coba cari dengan username
+        $user = $this->where('txtUserName', $identity)->first();
+        
+        // Jika tidak ditemukan dengan username, coba cari dengan email
+        if (!$user) {
+            $user = $this->where('txtEmail', $identity)->first();
+        }
+        
+        log_message('debug', 'User Data: ' . print_r($user, true)); // Log untuk memastikan data yang diterima
+
+        if ($user && password_verify($password, $user['txtPassword'])) {
+            log_message('debug', 'Login successful for user: {0}', [$user['txtUserName']]);
+            return [
+                'intUserID' => $user['intUserID'],
+                'txtUserName' => $user['txtUserName'],
+                'txtFullName' => $user['txtFullName'],
+                'txtEmail' => $user['txtEmail'],
+                'intRoleID' => $user['intRoleID'],
+                'bitActive' => $user['bitActive'],
+                'dtmLastLogin' => $user['dtmLastLogin'], // Menambahkan waktu login terakhir
+                'dtmJoinDate' => $user['dtmJoinDate'],   // Menambahkan tanggal bergabung
+                'txtPhoto' => $user['txtPhoto'],         // Menambahkan foto user
+            ];
+        } else {
+            log_message('debug', 'Login failed for identity: {0}', [$identity]);
+            return false;
+        }
     }
 }

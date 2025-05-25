@@ -307,7 +307,7 @@
                 // Show loading state
                 submitBtn.disabled = true;
                 btnText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating Account...';
-                btnSpinner.classList.remove('d-none');
+                // Don't use separate spinner since we already have one in the text
 
                 // Submit form via AJAX
                 const formData = new FormData(form);
@@ -369,7 +369,6 @@
                         // Reset button state
                         submitBtn.disabled = false;
                         btnText.innerHTML = '<i class="fas fa-user-plus me-2"></i>Create Account';
-                        btnSpinner.classList.add('d-none');
                     }
                 })
                 .catch(error => {
@@ -388,7 +387,6 @@
                     // Reset button state
                     submitBtn.disabled = false;
                     btnText.innerHTML = '<i class="fas fa-user-plus me-2"></i>Create Account';
-                    btnSpinner.classList.add('d-none');
                 });
             });
 

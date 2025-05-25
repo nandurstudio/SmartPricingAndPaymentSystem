@@ -187,8 +187,7 @@
   <main class="container">
     <div class="row justify-content-center">
       <div class="col-md-8 col-lg-6 col-xl-5">
-        <div class="card form-card p-4">
-          <!-- Brand Section -->
+        <div class="card form-card p-4">          <!-- Brand Section -->
           <div class="brand-section">
             <img src="<?php echo base_url('assets/brand/bootstrap-logo.svg'); ?>" alt="Logo" class="brand-logo">
             <div class="brand-text">
@@ -196,22 +195,9 @@
               <p>Sign in to your account</p>
             </div>
           </div>
-            <!-- Flash Messages -->
-          <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-              <i class="bi bi-exclamation-triangle-fill me-2"></i>
-              <?= session()->getFlashdata('error'); ?>
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-          <?php endif; ?>
           
-          <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-              <i class="bi bi-check-circle-fill me-2"></i>
-              <?= session()->getFlashdata('success'); ?>
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-          <?php endif; ?>
+          <!-- Flash Messages -->
+          <?= display_flash_messages() ?>
           
           <!-- Debugging Flash Messages -->
           <div id="debug-flash-messages" style="display: none;">
@@ -221,24 +207,44 @@
               echo !empty($flashData) ? print_r($flashData, true) : 'No flash data';
               ?>
             </p>
+            <p>Raw Session: 
+              <?php 
+              echo !empty($_SESSION) ? print_r($_SESSION, true) : 'No session data';
+              ?>
+            </p>
+          </div>          
+          <?= display_flash_messages() ?>
+          
+          <!-- Debugging Flash Messages -->
+          <div id="debug-flash-messages" style="display: none;">
+            <p>Session flashdata: 
+              <?php 
+              $flashData = session()->getFlashdata();
+              echo !empty($flashData) ? print_r($flashData, true) : 'No flash data';
+              ?>
+            </p>
+            <p>Raw Session: 
+              <?php 
+              echo !empty($_SESSION) ? print_r($_SESSION, true) : 'No session data';
+              ?>
+            </p>
           </div>          <!-- Login Form -->
           <form id="loginForm" action="<?php echo base_url('/login'); ?>" method="post">
             <?= csrf_field() ?>
-            
-            <!-- Email Field -->
+              <!-- Email or Username Field -->
             <div class="form-floating mb-3">
               <input 
-                type="email" 
+                type="text" 
                 class="form-control" 
                 id="txtEmail" 
                 name="txtEmail" 
-                placeholder="name@example.com" 
+                placeholder="Email address or Username" 
                 required 
-                autocomplete="email"
+                autocomplete="username"
                 autofocus
                 value="<?= old('txtEmail') ?>"
               >
-              <label for="txtEmail"><i class="bi bi-envelope me-2"></i>Email address</label>
+              <label for="txtEmail"><i class="bi bi-person me-2"></i>Email or Username</label>
               <div class="invalid-feedback" id="email-feedback"></div>
             </div>
             

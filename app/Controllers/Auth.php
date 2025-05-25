@@ -21,6 +21,9 @@ class Auth extends BaseController
         // Menambahkan scope 'email' dan 'profile'
         $this->googleClient->addScope('email');
         $this->googleClient->addScope('profile');
+        
+        // Load helper for consistent flash message handling
+        helper(['flashmessage']);
     }
 
     public function index()
@@ -158,14 +161,13 @@ class Auth extends BaseController
             return redirect()->to('/auth')->with('error', 'Invalid request');
         }
     } // End of googleCallback method
-    
-    public function login()
+      public function login()
     {
-        log_message('debug', 'Email input: ' . $this->request->getPost('txtEmail'));
+        log_message('debug', 'Identity input: ' . $this->request->getPost('txtEmail'));
         log_message('debug', 'Password input: ' . $this->request->getPost('txtPassword'));
         log_message('debug', 'Remember Me input: ' . $this->request->getPost('remember_me'));
 
-        $email = $this->request->getPost('txtEmail');
+        $identity = $this->request->getPost('txtEmail'); // Bisa berisi email atau username
         $password = $this->request->getPost('txtPassword');
         $rememberMe = $this->request->getPost('remember_me');
         
@@ -175,8 +177,8 @@ class Auth extends BaseController
         // Validation
         $errors = [];
         
-        if (empty($email)) {
-            $errors['fields']['email'] = 'Email is required';
+        if (empty($identity)) {
+            $errors['fields']['email'] = 'Email or Username is required';
         }
         
         if (empty($password)) {
@@ -188,12 +190,12 @@ class Auth extends BaseController
                 $errors['error'] = 'Please check your input';
                 return $this->response->setJSON($errors)->setStatusCode(422);
             } else {
-                return redirect()->back()->with('error', 'Email and Password are required')->withInput();
+                return redirect()->back()->with('error', 'Email/Username and Password are required')->withInput();
             }
         }
 
         $userModel = new \App\Models\MUserModel();
-        $user = $userModel->verifyLoginByEmail($email, $password);
+        $user = $userModel->verifyLoginByUsernameOrEmail($identity, $password);
 
         if ($user) {
             if ($userModel->updateLastLogin($user['intUserID'])) {
@@ -214,7 +216,7 @@ class Auth extends BaseController
                 log_message('debug', 'Session set for user: ' . $user['txtUserName']);
 
                 if ($rememberMe) {
-                    set_cookie('email', $email, 30 * 86400);
+                    set_cookie('email', $user['txtEmail'], 30 * 86400);
                     set_cookie('password', $password, 30 * 86400);
                 } else {
                     delete_cookie('email');
@@ -269,15 +271,21 @@ class Auth extends BaseController
     public function forgotPassword()
     {
         return view('forgot_password', ['title' => 'Forgot Password']);
-    }
-
-    public function sendResetLink()
+    }    public function sendResetLink()
     {
         $email = $this->request->getPost('email');
+        log_message('debug', 'Send reset link requested for email: ' . $email);
 
         // Validasi email
         if (empty($email)) {
-            return redirect()->back()->with('error', 'Email is required');
+            log_message('debug', 'Email is empty');
+            return redirect()->back()->with('error', 'Email address is required');
+        }
+
+        // Validasi format email
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            log_message('debug', 'Invalid email format: ' . $email);
+            return redirect()->back()->withInput()->with('error', 'Please enter a valid email address');
         }
 
         $userModel = new MUserModel();
@@ -285,82 +293,145 @@ class Auth extends BaseController
         // Verifikasi apakah email ada di database
         $user = $userModel->where('txtEmail', $email)->first();
         if (!$user) {
-            return redirect()->to('/auth/forgot_password')->withInput()->with('error', 'Email not found');
+            log_message('debug', 'Email not found in database: ' . $email);
+            
+            // For security reasons, we still show a success message
+            // This prevents email enumeration attacks
+            $_SESSION['success'] = 'If your email exists in our system, a reset link has been sent.';
+            session()->markAsFlashdata('success');
+            
+            return redirect()->to('/auth/forgot_password');
         }
 
         // Buat token reset
         $token = bin2hex(random_bytes(50));
-
-        // Debug
-        log_message('debug', 'User ID: ' . $user['intUserID']);
-        log_message('debug', 'Token to update: ' . $token);
+        log_message('debug', 'Generated reset token: ' . substr($token, 0, 10) . '...');
 
         // Update token di database
         $updateData = [
             'reset_token' => $token,
             'token_created_at' => date('Y-m-d H:i:s') // Menyimpan waktu sekarang
         ];
-        $userModel->update($user['intUserID'], $updateData); // Pastikan ini ada
+        
+        $updated = $userModel->update($user['intUserID'], $updateData);
+        log_message('debug', 'Token updated in database: ' . ($updated ? 'Yes' : 'No'));
 
         // Kirim email reset password
         $emailSent = $this->sendResetEmail($email, $token);
+        
         if ($emailSent) {
-            // Set flashdata untuk pesan sukses
-            session()->setFlashdata('success', 'A reset link has been sent to your email.');
-            return redirect()->to('/login');
+            log_message('debug', 'Reset email sent successfully to: ' . $email);
+              // Use our helper function for consistent flash messages
+            set_flash_message('success', 'A password reset link has been sent to your email. Please check your inbox.');
+            log_message('debug', 'Flash data set using helper function');
+            
+            return redirect()->to('/auth/forgot_password');
         } else {
-            return redirect()->to('/auth/forgot_password')->withInput()->with('error', 'Failed to send email');
+            log_message('error', 'Failed to send email to: ' . $email);
+            return redirect()->to('/auth/forgot_password')
+                ->withInput()
+                ->with('error', 'Failed to send email. Please try again later or contact support.');
         }
-    }
-
-    public function resetPassword($token)
+    }    public function resetPassword($token)
     {
+        log_message('debug', 'Reset password page requested with token: ' . substr($token, 0, 10) . '...');
+        
+        // Validate token format first - basic security check
+        if (empty($token) || strlen($token) < 32) {
+            log_message('warning', 'Invalid token format attempted: ' . substr($token, 0, 10) . '...');
+            return redirect()->to('/login')->with('error', 'Invalid password reset link');
+        }
+        
         // Cek apakah token valid
         $userModel = new MUserModel();
-        $user = $userModel->where('reset_token', $token)->first();
-
-        // Pastikan token ditemukan dan tidak kadaluarsa
-        if (!$user || $this->isTokenExpired($user['token_created_at'])) {
-            return redirect()->to('/login')->with('error', 'Invalid or expired token');
+        $user = $userModel->where('reset_token', $token)->first();        if (!$user) {
+            log_message('warning', 'Reset token not found in database: ' . substr($token, 0, 10) . '...');
+            set_flash_message('error', 'Invalid password reset link. Please request a new password reset.');
+            return redirect()->to('/login');
         }
 
-        return view('reset_password', ['token' => $token, 'title' => 'Reset Password']);
-    }
+        // Cek apakah token kadaluarsa
+        if ($this->isTokenExpired($user['token_created_at'])) {
+            log_message('warning', 'Expired reset token: ' . substr($token, 0, 10) . '...');
+            set_flash_message('error', 'Your password reset link has expired. Please request a new link.');
+            return redirect()->to('/auth/forgot_password');
+        }
 
-    public function updatePassword()
+        log_message('debug', 'Valid token, showing reset password form');
+        return view('reset_password', [
+            'token' => $token, 
+            'title' => 'Reset Password',
+            'email' => $user['txtEmail'], // Add email for display in the UI
+            'username' => $user['txtUserName'] // Add username for display in the UI
+        ]);
+    }public function updatePassword()
     {
         $token = $this->request->getPost('token');
-        $txtPassword = $this->request->getPost('txtPassword');
+        $txtPassword = $this->request->getPost('txtPassword');        // Log request parameters (excluding sensitive data)
+        log_message('debug', 'Update password request received with token: ' . substr($token, 0, 8) . '...');        
+        
+        // Validasi konfirmasi password
+        $confirmPassword = $this->request->getPost('confirmPassword');
+        if ($txtPassword !== $confirmPassword) {
+            set_flash_message('error', 'Password confirmation does not match.');
+            return redirect()->back()->withInput();
+        }
 
         // Validasi token dan update password di database
         $userModel = new MUserModel();
-        $user = $userModel->where('reset_token', $token)->first();
-
-        // Pastikan token valid
-        if ($user && !$this->isTokenExpired($user['token_created_at'])) {
-            // Hash password sebelum menyimpannya
-            $hashedPassword = password_hash($txtPassword, PASSWORD_DEFAULT);
-            $userModel->update($user['intUserID'], [
-                'txtPassword' => $hashedPassword,
-                'reset_token' => null, // Bersihkan token setelah digunakan
-                'token_created_at' => null // Bersihkan waktu token
-            ]);
-
-            // Simpan pesan sukses ke session dan log aktivitas
-            session()->setFlashdata('success', 'Password berhasil direset. Silakan login dengan password baru.');
-            log_message('info', 'Password reset successful for user: ' . $user['txtEmail']);
-            return redirect()->to('/login');
-        } else {
-            return redirect()->back()->with('error', 'Token tidak valid atau telah kadaluarsa.');
+        $user = $userModel->where('reset_token', $token)->first();        // Pastikan token valid        
+        if (!$user) {
+            log_message('warning', 'Invalid token used for password reset');
+            set_flash_message('error', 'Invalid password reset token. Please request a new password reset link.');
+            return redirect()->to(base_url('/login'));
         }
-    }
+        
+        if ($this->isTokenExpired($user['token_created_at'])) {
+            log_message('warning', 'Expired token used for password reset');
+            set_flash_message('error', 'Your password reset link has expired. Please request a new one.');
+            return redirect()->to(base_url('/auth/forgot_password'));
+        }
+        
+        // Token valid, proceed with password update
+        // Hash password sebelum menyimpannya
+        $hashedPassword = password_hash($txtPassword, PASSWORD_DEFAULT);
+        $updated = $userModel->update($user['intUserID'], [
+            'txtPassword' => $hashedPassword,
+            'reset_token' => null, // Bersihkan token setelah digunakan
+            'token_created_at' => null // Bersihkan waktu token
+        ]);
 
-    // Fungsi untuk memeriksa apakah token telah kadaluarsa
+        if (!$updated) {
+            set_flash_message('error', 'Failed to update password. Please try again.');
+            return redirect()->back()->withInput();
+        }
+
+        // Simpan pesan sukses ke session dan log aktivitas using our helper
+        set_flash_message('success', 'Password berhasil direset. Silakan login dengan password baru.');
+        
+        log_message('info', 'Password reset successful for user: ' . $user['txtEmail']);
+        log_message('debug', 'Flash message set using helper function');
+            
+        // Redirect ke login dengan base_url untuk memastikan path yang benar
+        return redirect()->to(base_url('/login'));
+    }    // Fungsi untuk memeriksa apakah token telah kadaluarsa
     private function isTokenExpired($tokenCreatedAt)
     {
+        if (empty($tokenCreatedAt)) {
+            log_message('debug', 'Token created date is empty, considering as expired');
+            return true;
+        }
+        
         $createdAt = new \CodeIgniter\I18n\Time($tokenCreatedAt);
-        $expiryTime = $createdAt->addHours(1); // Misalnya token berlaku selama 1 jam
-        return Time::now() > $expiryTime; // Mengembalikan true jika sudah kadaluarsa
+        $expiryTime = $createdAt->addHours(24); // Token berlaku selama 24 jam
+        $isExpired = Time::now() > $expiryTime;
+        
+        log_message('debug', 'Token created at: ' . $tokenCreatedAt);
+        log_message('debug', 'Token expires at: ' . $expiryTime->toDateTimeString());
+        log_message('debug', 'Current time: ' . Time::now()->toDateTimeString());
+        log_message('debug', 'Token expired: ' . ($isExpired ? 'Yes' : 'No'));
+        
+        return $isExpired; // Mengembalikan true jika sudah kadaluarsa
     }
 
     private function sendResetEmail($email, $token)
