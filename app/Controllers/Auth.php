@@ -334,40 +334,61 @@ class Auth extends BaseController
         $emailService->setTo($email);
         $emailService->setSubject('Reset Password');
 
-        // Membuat isi email dalam format HTML
-        $message = '
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Reset Password</title>
-        <style>
-            .button {
-                background-color: #4CAF50; /* Hijau */
-                border: none;
-                color: white;
-                padding: 15px 32px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                font-size: 16px;
-                margin: 4px 2px;
-                cursor: pointer;
-                border-radius: 5px; /* Sudut membulat */
-            }
-        </style>
-    </head>
-    <body>
-        <h2>Reset Password</h2>
-        <p>Click the button below to reset your password:</p>
-        <a href="' . base_url('auth/reset_password/' . $token) . '" class="button">Reset Password</a>
-    </body>
-    </html>
-    ';
+        // Email HTML template yang lebih modern dan responsif
+        $resetUrl = base_url('auth/reset_password/' . $token);
+        $message = <<<HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password</title>
+    <style>
+        body { background: #f8fafc; font-family: 'Segoe UI', Arial, sans-serif; color: #222; margin: 0; padding: 0; }
+        .container { max-width: 480px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); padding: 32px 24px; }
+        .logo { text-align: center; margin-bottom: 24px; }
+        .logo img { width: 64px; }
+        h2 { color: #2d3748; text-align: center; margin-bottom: 12px; }
+        p { color: #4a5568; text-align: center; }
+        .button {
+            display: block;
+            width: 100%;
+            background: #2563eb;
+            color: #fff !important;
+            text-decoration: none;
+            padding: 14px 0;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 28px 0 12px 0;
+            text-align: center;
+            transition: background 0.2s;
+        }
+        .button:hover { background: #1d4ed8; }
+        .footer { text-align: center; color: #a0aec0; font-size: 0.95em; margin-top: 32px; }
+        @media (max-width: 600px) {
+            .container { padding: 18px 6px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://cdn-icons-png.flaticon.com/512/3064/3064197.png" alt="Lock Icon">
+        </div>
+        <h2>Reset Your Password</h2>
+        <p>We received a request to reset your password.<br>
+        Click the button below to set a new password for your account.</p>
+        <a href="$resetUrl" class="button">Reset Password</a>
+        <p style="font-size:0.97em; color:#718096; margin-top:18px;">If you did not request a password reset, please ignore this email.<br>This link will expire in 1 hour.</p>
+        <div class="footer">&copy; 2025 Smart Pricing and Payment System</div>
+    </div>
+</body>
+</html>
+HTML;
 
         $emailService->setMessage($message);
-        $emailService->setMailType('html'); // Set email type menjadi HTML
+        $emailService->setMailType('html');
 
         if ($emailService->send()) {
             return true;

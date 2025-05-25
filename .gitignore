@@ -94,9 +94,6 @@ public/assets/vendor/bootstrap/
 docs/sql/
 database/reference/
 
-# Ignore migration SQL/manual files (if any left)
-migrations/*.sql
-
 # Legacy/backup SQL files
 app/Database/sql/
 

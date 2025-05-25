@@ -28,7 +28,7 @@
 
                                     <!-- Form hanya ditampilkan jika tidak ada pesan sukses -->
                                     <?php if (!session()->getFlashdata('success')) : ?>
-                                        <form action="<?= base_url('auth/sendResetLink') ?>" method="post">
+                                        <form action="<?= base_url('auth/sendResetLink') ?>" method="post" id="forgot-password-form">
                                             <?= csrf_field() ?>
                                             <div class="mb-3">
                                                 <label class="small mb-1" for="email">Email</label>
@@ -36,7 +36,10 @@
                                             </div>
                                             <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
                                                 <a class="small" href="/login">Return to login</a>
-                                                <button type="submit" class="btn btn-primary">Send Reset Link</button>
+                                                <button type="submit" class="btn btn-primary" id="submit-btn">
+                                                    <span id="submit-text">Send Reset Link</span>
+                                                    <span id="loading-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                                </button>
                                             </div>
                                         </form>
                                     <?php endif; ?>
@@ -64,6 +67,16 @@
             if (errorMessage) {
                 errorMessage.style.display = 'none';
             }
+        });
+
+        // Loading spinner saat submit
+        document.getElementById('forgot-password-form').addEventListener('submit', function() {
+            var submitBtn = document.getElementById('submit-btn');
+            var submitText = document.getElementById('submit-text');
+            var spinner = document.getElementById('loading-spinner');
+            submitBtn.disabled = true;
+            submitText.textContent = 'Sending...';
+            spinner.classList.remove('d-none');
         });
     </script>
 

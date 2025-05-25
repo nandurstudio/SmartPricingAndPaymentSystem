@@ -21,6 +21,12 @@ class MasterTables extends Migration
         $this->forge->dropTable('m_service_types', true);
         $this->forge->dropTable('m_tenants', true);
         $this->forge->dropTable('m_role', true);
+        $this->forge->dropTable('m_product', true);
+        $this->forge->dropTable('m_category', true);
+        $this->forge->dropTable('m_order', true);
+        $this->forge->dropTable('tr_transaction', true);
+        $this->forge->dropTable('tr_transactiondetail', true);
+        $this->forge->dropTable('m_productcategory', true);
 
         // m_role
         $this->forge->addField([
@@ -30,9 +36,9 @@ class MasterTables extends Migration
             'txtRoleNote' => [ 'type' => 'TEXT', 'null' => true ],
             'bitStatus' => [ 'type' => 'TINYINT', 'constraint' => 1, 'default' => 1 ],
             'txtCreatedBy' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system' ],
-            'dtmCreatedDate' => [ 'type' => 'TIMESTAMP', 'null' => true ],
+            'dtmCreatedDate' => [ 'type' => 'DATETIME', 'null' => true ],
             'txtLastUpdatedBy' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system' ],
-            'dtmLastUpdatedDate' => [ 'type' => 'TIMESTAMP', 'null' => true ],
+            'dtmLastUpdatedDate' => [ 'type' => 'DATETIME', 'null' => true ],
             'txtGUID' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => '' ],
         ]);
         $this->forge->addKey('intRoleID', true);
@@ -251,6 +257,110 @@ class MasterTables extends Migration
         ]);
         $this->forge->addKey('id', true);
         $this->forge->createTable('tr_audit_log');
+
+        // m_product
+        $this->forge->addField([
+            'intProductID' => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true, 'auto_increment' => true ],
+            'txtProductName' => [ 'type' => 'VARCHAR', 'constraint' => 255 ],
+            'txtProductDescription' => [ 'type' => 'TEXT', 'null' => true ],
+            'bitActive' => [ 'type' => 'TINYINT', 'constraint' => 1, 'default' => 1 ],
+            'txtCreatedBy' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system' ],
+            'dtmCreatedDate' => [ 'type' => 'DATETIME', 'null' => true ],
+            'txtLastUpdatedBy' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system' ],
+            'dtmLastUpdatedDate' => [ 'type' => 'DATETIME', 'null' => true ],
+            'txtGUID' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => '' ],
+            'icon' => [ 'type' => 'VARCHAR', 'constraint' => 255, 'null' => true ],
+        ]);
+        $this->forge->addKey('intProductID', true);
+        $this->forge->createTable('m_product');
+
+        // m_category
+        $this->forge->addField([
+            'intCategoryID' => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true, 'auto_increment' => true ],
+            'txtCategoryName' => [ 'type' => 'VARCHAR', 'constraint' => 100 ],
+            'txtDesc' => [ 'type' => 'TEXT', 'null' => true ],
+            'icon' => [ 'type' => 'VARCHAR', 'constraint' => 255, 'null' => true ],
+            'bitActive' => [ 'type' => 'TINYINT', 'constraint' => 1, 'default' => 1 ],
+            'service_type_id' => [ 'type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'null' => true ],
+            'tenant_id' => [ 'type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'null' => true ],
+            'txtCreatedBy' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system' ],
+            'dtmCreatedDate' => [ 'type' => 'DATETIME', 'null' => true ],
+            'txtLastUpdatedBy' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system' ],
+            'dtmLastUpdatedDate' => [ 'type' => 'DATETIME', 'null' => true ],
+            'txtGUID' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => '' ],
+        ]);
+        $this->forge->addKey('intCategoryID', true);
+        $this->forge->createTable('m_category');
+
+        // m_order
+        $this->forge->addField([
+            'intOrderID' => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true, 'auto_increment' => true ],
+            'intUserID' => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true ],
+            'txtOrderStatus' => [ 'type' => 'VARCHAR', 'constraint' => 50 ],
+            'txtPaymentStatus' => [ 'type' => 'VARCHAR', 'constraint' => 50 ],
+            'dtmOrderDate' => [ 'type' => 'DATETIME', 'null' => true ],
+            'txtCreatedBy' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system' ],
+            'dtmCreatedDate' => [ 'type' => 'DATETIME', 'null' => true ],
+            'txtLastUpdatedBy' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system' ],
+            'dtmLastUpdatedDate' => [ 'type' => 'DATETIME', 'null' => true ],
+            'txtGUID' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => '' ],
+            'tenant_id' => [ 'type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'null' => true ],
+        ]);
+        $this->forge->addKey('intOrderID', true);
+        $this->forge->addForeignKey('intUserID', 'm_user', 'intUserID', 'CASCADE', 'CASCADE');
+        $this->forge->createTable('m_order');
+
+        // tr_transaction
+        $this->forge->addField([
+            'intTransactionID' => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true, 'auto_increment' => true ],
+            'intUserID' => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true ],
+            'intProductID' => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true ],
+            'txtTransactionStatus' => [ 'type' => 'VARCHAR', 'constraint' => 50 ],
+            'bitStatus' => [ 'type' => 'TINYINT', 'constraint' => 1, 'default' => 1 ],
+            'txtCreatedBy' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system' ],
+            'dtmCreatedDate' => [ 'type' => 'DATETIME', 'null' => true ],
+            'txtLastUpdatedBy' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system' ],
+            'dtmLastUpdatedDate' => [ 'type' => 'DATETIME', 'null' => true ],
+            'txtGUID' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => '' ],
+        ]);
+        $this->forge->addKey('intTransactionID', true);
+        $this->forge->addForeignKey('intUserID', 'm_user', 'intUserID', 'CASCADE', 'CASCADE');
+        $this->forge->addForeignKey('intProductID', 'm_product', 'intProductID', 'CASCADE', 'CASCADE');
+        $this->forge->createTable('tr_transaction');
+
+        // tr_transactiondetail
+        $this->forge->addField([
+            'intTransactionDetailID' => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true, 'auto_increment' => true ],
+            'intTransactionID' => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true ],
+            'intProductID' => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true ],
+            'intQuantity' => [ 'type' => 'INT', 'constraint' => 11 ],
+            'txtSubtotal' => [ 'type' => 'DECIMAL', 'constraint' => '10,2' ],
+            'txtCreatedBy' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system' ],
+            'dtmCreatedDate' => [ 'type' => 'DATETIME', 'null' => true ],
+            'txtLastUpdatedBy' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system' ],
+            'dtmLastUpdatedDate' => [ 'type' => 'DATETIME', 'null' => true ],
+            'txtGUID' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => '' ],
+        ]);
+        $this->forge->addKey('intTransactionDetailID', true);
+        $this->forge->addForeignKey('intTransactionID', 'tr_transaction', 'intTransactionID', 'CASCADE', 'CASCADE');
+        $this->forge->addForeignKey('intProductID', 'm_product', 'intProductID', 'CASCADE', 'CASCADE');
+        $this->forge->createTable('tr_transactiondetail');
+
+        // m_productcategory
+        $this->forge->addField([
+            'intProductCategoryID' => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true, 'auto_increment' => true ],
+            'intProductID' => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true ],
+            'intCategoryID' => [ 'type' => 'INT', 'constraint' => 10, 'unsigned' => true ],
+            'txtCreatedBy' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system' ],
+            'dtmCreatedDate' => [ 'type' => 'DATETIME', 'null' => true ],
+            'txtLastUpdatedBy' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system' ],
+            'dtmLastUpdatedDate' => [ 'type' => 'DATETIME', 'null' => true ],
+            'txtGUID' => [ 'type' => 'VARCHAR', 'constraint' => 50, 'default' => '' ],
+        ]);
+        $this->forge->addKey('intProductCategoryID', true);
+        $this->forge->addForeignKey('intProductID', 'm_product', 'intProductID', 'CASCADE', 'CASCADE');
+        $this->forge->addForeignKey('intCategoryID', 'm_category', 'intCategoryID', 'CASCADE', 'CASCADE');
+        $this->forge->createTable('m_productcategory');
     }
 
     public function down()
@@ -267,5 +377,11 @@ class MasterTables extends Migration
         $this->forge->dropTable('m_service_types', true);
         $this->forge->dropTable('m_tenants', true);
         $this->forge->dropTable('m_role', true);
+        $this->forge->dropTable('m_product', true);
+        $this->forge->dropTable('m_category', true);
+        $this->forge->dropTable('m_order', true);
+        $this->forge->dropTable('tr_transaction', true);
+        $this->forge->dropTable('tr_transactiondetail', true);
+        $this->forge->dropTable('m_productcategory', true);
     }
 }
