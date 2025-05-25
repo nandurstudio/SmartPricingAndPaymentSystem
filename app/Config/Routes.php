@@ -17,6 +17,7 @@ $routes->get('/auth/google/callback', 'Auth::googleCallback');
 // Route untuk login
 $routes->get('login', 'Auth::index');  // Menampilkan halaman login
 $routes->post('login', 'Auth::login');  // Mengirim data login
+$routes->post('auth/login', 'Auth::login');  // Alternatif URL untuk login (untuk compatibility)
 $routes->get('logout', 'Auth::logout');  // Mengeluarkan pengguna
 
 // Route untuk register

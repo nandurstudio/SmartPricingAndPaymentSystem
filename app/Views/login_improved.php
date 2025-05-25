@@ -196,7 +196,8 @@
               <p>Sign in to your account</p>
             </div>
           </div>
-            <!-- Flash Messages -->
+          
+          <!-- Flash Messages -->
           <?php if (session()->getFlashdata('error')): ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
               <i class="bi bi-exclamation-triangle-fill me-2"></i>
@@ -212,17 +213,8 @@
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
           <?php endif; ?>
-          
-          <!-- Debugging Flash Messages -->
-          <div id="debug-flash-messages" style="display: none;">
-            <p>Session flashdata: 
-              <?php 
-              $flashData = session()->getFlashdata();
-              echo !empty($flashData) ? print_r($flashData, true) : 'No flash data';
-              ?>
-            </p>
-          </div>          <!-- Login Form -->
-          <form id="loginForm" action="<?php echo base_url('/login'); ?>" method="post">
+            <!-- Login Form -->
+          <form id="loginForm" action="<?php echo base_url('/auth/login'); ?>" method="post">
             <?= csrf_field() ?>
             
             <!-- Email Field -->
@@ -347,32 +339,21 @@
         
         // Form data
         const formData = $(this).serialize();
-          // Log di console untuk debugging
-        console.log("Form submission started");
-        console.log("Form action URL:", "<?php echo base_url('/login'); ?>");
         
         // AJAX request
         $.ajax({
-          url: "<?php echo base_url('/login'); ?>", // Gunakan URL yang terdaftar di Routes
+          url: "<?php echo base_url('/auth/login'); ?>",
           type: "POST",
           data: formData,
-          dataType: "json",
-          success: function(response) {
-            console.log("Login success, response:", response);
+          dataType: "json",          success: function(response) {
             // Redirect on success
             window.location.href = response.redirect || "<?php echo base_url('/landing'); ?>";
-          },          error: function(xhr, status, error) {
-            // Log error details for debugging
-            console.error("Login error:", status, error);
-            console.error("Response:", xhr.responseText);
-            console.error("Status code:", xhr.status);
-            
+          },
+          error: function(xhr) {
             // Handle errors
             let errorMessage = "Login failed. Please try again.";
             
-            if (xhr.status === 404) {
-              errorMessage = "Server error: Login endpoint not found. Please contact administrator.";
-            } else if (xhr.responseJSON && xhr.responseJSON.error) {
+            if (xhr.responseJSON && xhr.responseJSON.error) {
               errorMessage = xhr.responseJSON.error;
               
               // Field-specific errors

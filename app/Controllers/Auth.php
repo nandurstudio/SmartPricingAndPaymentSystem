@@ -154,12 +154,11 @@ class Auth extends BaseController
                 return redirect()->to('/landing');
             } else {
                 return redirect()->to('/auth')->with('error', 'Failed to get access token');
-            }
-        } else {
+            }        } else {
             return redirect()->to('/auth')->with('error', 'Invalid request');
         }
     } // End of googleCallback method
-
+    
     public function login()
     {
         log_message('debug', 'Email input: ' . $this->request->getPost('txtEmail'));
@@ -169,9 +168,28 @@ class Auth extends BaseController
         $email = $this->request->getPost('txtEmail');
         $password = $this->request->getPost('txtPassword');
         $rememberMe = $this->request->getPost('remember_me');
-
-        if (empty($email) || empty($password)) {
-            return redirect()->back()->with('error', 'Email and Password are required')->withInput();
+        
+        // Check if it's an AJAX request
+        $isAjax = $this->request->isAJAX();
+        
+        // Validation
+        $errors = [];
+        
+        if (empty($email)) {
+            $errors['fields']['email'] = 'Email is required';
+        }
+        
+        if (empty($password)) {
+            $errors['fields']['password'] = 'Password is required';
+        }
+        
+        if (!empty($errors)) {
+            if ($isAjax) {
+                $errors['error'] = 'Please check your input';
+                return $this->response->setJSON($errors)->setStatusCode(422);
+            } else {
+                return redirect()->back()->with('error', 'Email and Password are required')->withInput();
+            }
         }
 
         $userModel = new \App\Models\MUserModel();
@@ -202,13 +220,27 @@ class Auth extends BaseController
                     delete_cookie('email');
                     delete_cookie('password');
                 }
-
-                return redirect()->to('/landing'); // Redirect ke halaman landing setelah login
+                
+                if ($isAjax) {
+                    return $this->response->setJSON(['success' => true, 'redirect' => base_url('/landing')]);
+                } else {
+                    return redirect()->to('/landing'); // Redirect ke halaman landing setelah login
+                }
             } else {
-                return redirect()->back()->withInput()->with('error', 'Failed to update last login time.');
+                $error = 'Failed to update last login time.';
+                if ($isAjax) {
+                    return $this->response->setJSON(['error' => $error])->setStatusCode(500);
+                } else {
+                    return redirect()->back()->withInput()->with('error', $error);
+                }
             }
         } else {
-            return redirect()->back()->withInput()->with('error', 'Invalid email or password');
+            $error = 'Invalid email or password';
+            if ($isAjax) {
+                return $this->response->setJSON(['error' => $error])->setStatusCode(401);
+            } else {
+                return redirect()->back()->withInput()->with('error', $error);
+            }
         }
     }
 
@@ -314,7 +346,10 @@ class Auth extends BaseController
                 'token_created_at' => null // Bersihkan waktu token
             ]);
 
-            return redirect()->to('/login')->with('success', 'Password berhasil direset.');
+            // Simpan pesan sukses ke session dan log aktivitas
+            session()->setFlashdata('success', 'Password berhasil direset. Silakan login dengan password baru.');
+            log_message('info', 'Password reset successful for user: ' . $user['txtEmail']);
+            return redirect()->to('/login');
         } else {
             return redirect()->back()->with('error', 'Token tidak valid atau telah kadaluarsa.');
         }
