@@ -1,0 +1,72 @@
+/* Normalisasi icon expand/collapse DataTables Responsive dengan rotasi */
+table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before,
+table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control:before {
+    line-height: 1.5 !important;
+    font-size: 1.2em !important;
+    border-radius: 50% !important;
+    width: 1.5em !important;
+    height: 1.5em !important;
+    margin-top: 0 !important;
+    margin-right: 0.5em !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    background: transparent !important;
+    box-sizing: border-box !important;
+    font-weight: bold !important;
+    /* Optional: border for better circle look */
+    border: none !important;
+    color: #212529 !important;
+    content: "\25BC" !important; /* Unicode for solid down-pointing triangle */
+    transform: rotate(-90deg);
+    transition: transform 0.2s;
+}
+
+/* Saat terbuka (expanded), panah menghadap ke bawah (tidak di-rotate) */
+table.dataTable.dtr-inline.collapsed > tbody > tr.parent > td.dtr-control:before,
+table.dataTable.dtr-inline.collapsed > tbody > tr.parent > th.dtr-control:before {
+    content: "\25BC" !important;
+    transform: rotate(0deg);
+}
+
+/* DataTables Responsive: Prioritas kolom agar Nama dan Actions selalu terlihat di mobile */
+@media (max-width: 767.98px) {
+    /* Pastikan kolom Actions tampil setelah Nama */
+    table.dataTable.dtr-inline.collapsed > tbody > tr > td,
+    table.dataTable.dtr-inline.collapsed > tbody > tr > th {
+        /* Reset order */
+        order: initial;
+    }
+    table.dataTable.dtr-inline.collapsed > tbody > tr > td:nth-child(1),
+    table.dataTable.dtr-inline.collapsed > tbody > tr > th:nth-child(1) {
+        /* Nama */
+        order: 1;
+    }
+    table.dataTable.dtr-inline.collapsed > tbody > tr > td:last-child,
+    table.dataTable.dtr-inline.collapsed > tbody > tr > th:last-child {
+        /* Actions */
+        order: 2;
+    }
+}
+
+/* DataTables Responsive Priority (jQuery DataTables way) */
+th, td {
+    /* Default: no priority */
+}
+th[data-priority="1"], td[data-priority="1"] {
+    /* Nama */
+}
+th[data-priority="2"], td[data-priority="2"] {
+    /* Actions */
+}
+
+/* Hapus/komentari kode berikut jika ada */
+/*
+@media (max-width: 767.98px) {
+    table.dataTable.dtr-inline.collapsed > tbody > tr > td:not(:nth-child(1)):not(:last-child),
+    table.dataTable.dtr-inline.collapsed > tbody > tr > th:not(:nth-child(1)):not(:last-child) {
+        display: none !important;
+    }
+}
+*/

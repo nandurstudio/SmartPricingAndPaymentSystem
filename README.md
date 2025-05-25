@@ -2,9 +2,43 @@
 
 Jangan lupa tambahkan .env file di folder local
 
-# CodeIgniter 4 Framework
+# SmartPricingAndPaymentSystem (Multi-Tenant Booking SaaS)
 
-## What is CodeIgniter?
+## Tujuan
+Aplikasi booking multi-tenant (SaaS) berbasis CodeIgniter 4, Bootstrap 5, dan jQuery. Mendukung ratusan tenant (futsal, villa, salon, kursus, dsb.) dengan isolasi data tenant yang kuat.
+
+## Penting untuk Developer
+- **Baca instruksi pengembangan di `resources/INSTRUKSI_PENGEMBANGAN_APLIKASI_BOOKING_MULTI_TENANT.md` sebelum coding!**
+- **Selalu buat file `.env` di folder root project untuk konfigurasi lokal.**
+- **Jangan commit file sensitif, backup, atau SQL manual ke repo (lihat `.gitignore`).**
+
+## Alur Kerja Pengembangan (Singkat)
+1. Desain database & ERD: semua tabel utama wajib ada `tenant_id`.
+2. Migration & Seeder: gunakan CI4 migration di `app/Database/Migrations/` dan seeder di `app/Database/Seeds/`.
+3. Model: pastikan query utama selalu filter `tenant_id`.
+4. Controller: CRUD, proteksi data per role & tenant.
+5. View: Bootstrap 5, jQuery, form dinamis sesuai custom field per tenant.
+6. Booking & Pembayaran: integrasi Midtrans, webhook, validasi slot.
+7. Notifikasi: Email & WhatsApp.
+8. Role & Permission: owner, admin, customer, proteksi route & data.
+9. UGC: tenant bisa ajukan tipe layanan baru, admin moderasi.
+10. Dokumentasi API: Swagger/OpenAPI.
+11. Audit & Keamanan: semua perubahan penting tercatat, data antar tenant terisolasi.
+12. Multi-language & Scalability: siap scaling dan multi-bahasa.
+
+## CLI & Database Pipeline
+- Jalankan migrasi: `php spark migrate`
+- Jalankan seeder: `php spark db:seed MroleSeeder`, `php spark db:seed MultiTenantSeeder`, dst.
+- Untuk reset/init database: `php spark db setup` atau gunakan menu interaktif `php spark db:maintenance`
+- Lihat panduan lengkap di `cli-guide.md`
+
+## Struktur Penting
+- **Migration utama:** `app/Database/Migrations/`
+- **Seeder utama:** `app/Database/Seeds/`
+- **Dokumentasi & instruksi:** `resources/`
+- **SQL manual/reference:** `docs/sql/` (tidak untuk production)
+
+## Framework: CodeIgniter 4
 
 CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
 More information can be found at the [official site](https://codeigniter.com).

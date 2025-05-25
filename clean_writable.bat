@@ -1,3 +1,8 @@
+REM clean_writable.bat
+REM Hapus isi folder writable/logs, writable/cache, writable/session (kecuali index.html)
+REM HANYA UNTUK DEVELOPMENT/LOCAL! JANGAN JALANKAN DI PRODUCTION!
+REM Pastikan backup data penting sebelum menjalankan script ini.
+
 @echo off
 echo Bersihin writable/logs kecuali index.html...
 for %%F in (writable\logs\*) do (

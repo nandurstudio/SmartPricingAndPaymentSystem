@@ -64,3 +64,41 @@ composer.lock
 # Build/Assets (jika hasil build, bukan sumber)
 public/assets/vendor/simple-datatables/
 public/assets/vendor/bootstrap/
+
+# Additional ignores for multi-tenant SaaS security and privacy
+
+# Uploaded files (user data, sensitive)
+/public/uploads/
+/writable/uploads/
+
+# Database SQL dumps and raw migration files
+/app/Database/sql/
+/migrations/
+
+# Seeder files (if containing sensitive or real data)
+/app/Database/Seeds/
+
+# Extra: prevent accidental commit of local scripts
+*.sh
+*.ps1
+
+# Extra: prevent accidental commit of local dev/test files
+*.local.php
+*.local.env
+
+# Extra: prevent accidental commit of backup files
+*.bak
+*.old
+
+# Manual/reference SQL scripts (not for production, not for migration pipeline)
+docs/sql/
+database/reference/
+
+# Ignore migration SQL/manual files (if any left)
+migrations/*.sql
+
+# Legacy/backup SQL files
+app/Database/sql/
+
+# (Optional) Ignore all .sql files at root or anywhere
+*.sql

@@ -34,6 +34,6 @@ class MroleSeeder extends Seeder
         ];
 
         // Insert multiple records
-        $this->db->table('mrole')->insertBatch($data);
+        $this->db->table('m_role')->insertBatch($data);
     }
 }
