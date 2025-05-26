@@ -127,13 +127,17 @@ class MasterTables extends Migration
 
         // m_menu
         $this->forge->addField([
-            'intMenuID'      => ['type' => 'INT', 'constraint' => 10, 'unsigned' => true, 'auto_increment' => true],
-            'txtMenuName'    => ['type' => 'VARCHAR', 'constraint' => 100],
-            'txtMenuLink'    => ['type' => 'VARCHAR', 'constraint' => 255, 'null' => true],
-            'txtIcon'        => ['type' => 'VARCHAR', 'constraint' => 50, 'null' => true],
-            'intParentID'    => ['type' => 'INT', 'constraint' => 10, 'unsigned' => true, 'null' => true],
-            'intSortOrder'   => ['type' => 'INT', 'constraint' => 5, 'default' => 0],
-            'bitActive'      => ['type' => 'TINYINT', 'constraint' => 1, 'default' => 1]
+            'intMenuID' => ['type' => 'INT', 'constraint' => 10, 'unsigned' => true, 'auto_increment' => true],
+            'txtMenuName' => ['type' => 'VARCHAR', 'constraint' => 100, 'null' => false],
+            'txtMenuLink' => ['type' => 'VARCHAR', 'constraint' => 255, 'null' => true],
+            'txtIcon' => ['type' => 'VARCHAR', 'constraint' => 50, 'null' => true],
+            'intParentID' => ['type' => 'INT', 'constraint' => 10, 'unsigned' => true, 'null' => true],
+            'intSortOrder' => ['type' => 'INT', 'constraint' => 10, 'default' => 0],
+            'bitActive' => ['type' => 'TINYINT', 'constraint' => 1, 'default' => 1],
+            'txtCreatedBy' => ['type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system'],
+            'dtmCreatedDate' => ['type' => 'TIMESTAMP', 'null' => true],
+            'txtLastUpdatedBy' => ['type' => 'VARCHAR', 'constraint' => 50, 'default' => 'system'],
+            'dtmLastUpdatedDate' => ['type' => 'TIMESTAMP', 'null' => true, 'on update' => 'CURRENT_TIMESTAMP']
         ]);
         $this->forge->addKey('intMenuID', true);
         $this->forge->addKey('intParentID');
@@ -179,39 +183,46 @@ class MasterTables extends Migration
 
         // m_schedules
         $this->forge->addField([
-            'id' => [ 'type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'auto_increment' => true ],
-            'tenant_id' => [ 'type' => 'INT', 'constraint' => 11, 'unsigned' => true ],
-            'service_id' => [ 'type' => 'INT', 'constraint' => 11, 'unsigned' => true ],
-            'user_id' => [ 'type' => 'INT', 'constraint' => 11, 'unsigned' => true ],
-            'role_id' => [ 'type' => 'INT', 'constraint' => 11, 'unsigned' => true ],
-            'start_time' => [ 'type' => 'DATETIME' ],
-            'end_time' => [ 'type' => 'DATETIME' ],
-            'recurrence' => [ 'type' => 'ENUM', 'constraint' => ['none', 'daily', 'weekly', 'monthly'], 'default' => 'none' ],
-            'interval' => [ 'type' => 'INT', 'constraint' => 11, 'default' => 1 ],
-            'duration' => [ 'type' => 'INT', 'constraint' => 11, 'default' => 60 ],
-            'is_active' => [ 'type' => 'BOOLEAN', 'default' => true ],
-            'created_date' => [ 'type' => 'DATETIME', 'null' => true ],
-            'created_by' => [ 'type' => 'VARCHAR', 'constraint' => 255, 'null' => true ],
-            'updated_date' => [ 'type' => 'DATETIME', 'null' => true ],
-            'updated_by' => [ 'type' => 'VARCHAR', 'constraint' => 255, 'null' => true ],
+            'id' => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'auto_increment' => true],
+            'guid' => ['type' => 'VARCHAR', 'constraint' => 36],
+            'service_id' => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true],
+            'start_time' => ['type' => 'DATETIME', 'null' => false],
+            'end_time' => ['type' => 'DATETIME', 'null' => false],
+            'is_available' => ['type' => 'BOOLEAN', 'default' => true],
+            'max_bookings' => ['type' => 'INT', 'unsigned' => true, 'default' => 1],
+            'current_bookings' => ['type' => 'INT', 'unsigned' => true, 'default' => 0],
+            'price_override' => ['type' => 'DECIMAL', 'constraint' => '10,2', 'null' => true],
+            'notes' => ['type' => 'TEXT', 'null' => true],
+            'created_date' => ['type' => 'DATETIME', 'null' => true],
+            'created_by' => ['type' => 'VARCHAR', 'constraint' => 255, 'null' => true],
+            'updated_date' => ['type' => 'DATETIME', 'null' => true],
+            'updated_by' => ['type' => 'VARCHAR', 'constraint' => 255, 'null' => true]
         ]);
         $this->forge->addKey('id', true);
+        $this->forge->addKey('service_id');
+        $this->forge->addForeignKey('service_id', 'm_services', 'id');
         $this->forge->createTable('m_schedules');
 
         // m_service_type_attributes
         $this->forge->addField([
-            'id' => [ 'type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'auto_increment' => true ],
-            'tenant_id' => [ 'type' => 'INT', 'constraint' => 11, 'unsigned' => true ],
-            'service_type_id' => [ 'type' => 'INT', 'constraint' => 11, 'unsigned' => true ],
-            'attribute_name' => [ 'type' => 'VARCHAR', 'constraint' => 255 ],
-            'attribute_value' => [ 'type' => 'TEXT', 'null' => true ],
-            'is_active' => [ 'type' => 'BOOLEAN', 'default' => true ],
-            'created_date' => [ 'type' => 'DATETIME', 'null' => true ],
-            'created_by' => [ 'type' => 'VARCHAR', 'constraint' => 255, 'null' => true ],
-            'updated_date' => [ 'type' => 'DATETIME', 'null' => true ],
-            'updated_by' => [ 'type' => 'VARCHAR', 'constraint' => 255, 'null' => true ],
+            'id' => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true, 'auto_increment' => true],
+            'service_type_id' => ['type' => 'INT', 'constraint' => 11, 'unsigned' => true],
+            'name' => ['type' => 'VARCHAR', 'constraint' => 100],
+            'label' => ['type' => 'VARCHAR', 'constraint' => 255],
+            'type' => ['type' => 'ENUM', 'constraint' => ['text','number','boolean','select','date','time','datetime']],
+            'options' => ['type' => 'JSON', 'null' => true],
+            'is_required' => ['type' => 'BOOLEAN', 'default' => false],
+            'validation_rules' => ['type' => 'JSON', 'null' => true],
+            'default_value' => ['type' => 'VARCHAR', 'constraint' => 255, 'null' => true],
+            'sort_order' => ['type' => 'INT', 'unsigned' => true, 'default' => 0],
+            'created_date' => ['type' => 'DATETIME', 'null' => true],
+            'created_by' => ['type' => 'VARCHAR', 'constraint' => 255, 'null' => true],
+            'updated_date' => ['type' => 'DATETIME', 'null' => true],
+            'updated_by' => ['type' => 'VARCHAR', 'constraint' => 255, 'null' => true]
         ]);
         $this->forge->addKey('id', true);
+        $this->forge->addKey('service_type_id');
+        $this->forge->addForeignKey('service_type_id', 'm_service_types', 'id');
         $this->forge->createTable('m_service_type_attributes');
 
         // tr_bookings
