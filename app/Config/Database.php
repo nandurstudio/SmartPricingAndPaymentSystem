@@ -47,7 +47,7 @@ class Database extends Config
             'compress'     => false,
             'strictOn'     => false,
             'failover'     => [],
-            'port'         => env('DB_PORT', 3306),
+            'port'         => (int) env('DB_PORT', 3306),
             'numberNative' => false,
             'dateFormat'   => [
                 'date'     => 'Y-m-d',
