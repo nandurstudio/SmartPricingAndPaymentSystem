@@ -19,9 +19,8 @@
                                         <?php else: ?>
                                             Please login first. <?= esc(session()->get('userFullName')); ?>
                                         <?php endif; ?>
-                                    </h1>
-                                    <div class="page-header-subtitle">Welcome to E-Competency</div>
-                                    <div class="page-header-subtitle">Human resource isn't a thing we do, it's the thing that runs our business</div>
+                                    </h1>                                    <div class="page-header-subtitle">Welcome to Smart Booking System</div>
+                                    <div class="page-header-subtitle">Your multi-tenant booking platform for all business types</div>
                                 </div>
                             </div>
                             <div class="page-header-search mt-4">

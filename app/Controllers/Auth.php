@@ -241,9 +241,7 @@ class Auth extends BaseController
                 return redirect()->back()->withInput()->with('error', $error);
             }
         }
-    }
-
-    // Menampilkan halaman landing setelah login
+    }    // Menampilkan halaman landing setelah login
     public function landingPage()
     {
         // Pastikan pengguna sudah login
@@ -251,13 +249,19 @@ class Auth extends BaseController
             // Jika belum login, arahkan ke halaman login
             return redirect()->to('/login');
         }
+        
+        // Ambil roleID dari session dan menu berdasarkan role
+        $roleID = session()->get('roleID');
+        $menuModel = new \App\Models\MenuModel();
+        $menus = $menuModel->getMenusByRole($roleID);
 
         // Tampilkan halaman landing setelah login
         return view('dashboard-2', [
             'title' => 'Dashboard',
             'pageTitle' => 'Dashboard',
             'pageSubTitle' => 'Overview and statistics',
-            'icon' => 'activity'
+            'icon' => 'activity',
+            'menus' => $menus // Added menus for sidenav
         ]);
     }
 

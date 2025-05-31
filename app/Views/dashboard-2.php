@@ -5,40 +5,39 @@
     <h1 class="mt-4">Dashboard</h1>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item active">Dashboard</li>
-    </ol>
-    <div class="row">
+    </ol>    <div class="row">
         <div class="col-xl-3 col-md-6">
             <div class="card bg-primary text-white mb-4">
-                <div class="card-body">Products</div>
+                <div class="card-body">Services</div>
                 <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="<?= base_url('product') ?>">View Details</a>
+                    <a class="small text-white stretched-link" href="<?= base_url('service') ?>">View Details</a>
                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
             <div class="card bg-success text-white mb-4">
-                <div class="card-body">Categories</div>
+                <div class="card-body">Bookings</div>
                 <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="<?= base_url('category') ?>">View Details</a>
+                    <a class="small text-white stretched-link" href="<?= base_url('booking') ?>">View Details</a>
                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
             <div class="card bg-warning text-white mb-4">
-                <div class="card-body">Users</div>
+                <div class="card-body">Schedules</div>
                 <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="<?= base_url('user/manage') ?>">View Details</a>
+                    <a class="small text-white stretched-link" href="<?= base_url('schedule') ?>">View Details</a>
                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                 </div>
             </div>
         </div>
         <div class="col-xl-3 col-md-6">
-            <div class="card bg-danger text-white mb-4">
-                <div class="card-body">Settings</div>
+            <div class="card bg-info text-white mb-4">
+                <div class="card-body">Tenant Settings</div>
                 <div class="card-footer d-flex align-items-center justify-content-between">
-                    <a class="small text-white stretched-link" href="<?= base_url('settings') ?>">View Details</a>
+                    <a class="small text-white stretched-link" href="<?= base_url('tenant') ?>">View Details</a>
                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                 </div>
             </div>
@@ -47,9 +46,8 @@
     <div class="row">
         <div class="col-xl-6">
             <div class="card mb-4">
-                <div class="card-header">
-                    <i class="fas fa-chart-area me-1"></i>
-                    Income Overview
+                <div class="card-header">                    <i class="fas fa-chart-area me-1"></i>
+                    Booking Analytics
                 </div>
                 <div class="card-body">
                     <canvas id="myAreaChart" width="100%" height="40"></canvas>
@@ -60,7 +58,7 @@
             <div class="card mb-4">
                 <div class="card-header">
                     <i class="fas fa-chart-bar me-1"></i>
-                    Revenue Comparison
+                    Service Popularity
                 </div>
                 <div class="card-body">
                     <canvas id="myBarChart" width="100%" height="40"></canvas>
@@ -85,7 +83,7 @@ var myLineChart = new Chart(ctx, {
     data: {
         labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
         datasets: [{
-            label: "Income",
+            label: "Bookings",
             lineTension: 0.3,
             backgroundColor: "rgba(2,117,216,0.2)",
             borderColor: "rgba(2,117,216,1)",
@@ -123,9 +121,9 @@ var ctx = document.getElementById("myBarChart");
 var myLineChart = new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: ["January", "February", "March", "April", "May", "June"],
+        labels: ["Futsal", "Villa", "Salon", "Kursus", "Restaurant", "Workspace"],
         datasets: [{
-            label: "Revenue",
+            label: "Service Usage",
             backgroundColor: "rgba(2,117,216,1)",
             borderColor: "rgba(2,117,216,1)",
             data: [4215, 5312, 6251, 7841, 9821, 14984],

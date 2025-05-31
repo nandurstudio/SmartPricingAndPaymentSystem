@@ -10,6 +10,7 @@ $routes = Services::routes();
 // Menambahkan route untuk halaman default (landing) setelah login
 $routes->get('/', 'Auth::landingPage', ['filter' => 'auth']);
 $routes->get('landing', 'Auth::landingPage', ['filter' => 'auth']);  // Pastikan ada route ini
+$routes->get('dashboard', 'Auth::landingPage', ['filter' => 'auth']); // Route for /dashboard to use the same landing page
 
 $routes->get('/auth/googleLogin', 'Auth::googleLogin');
 $routes->get('/auth/google/callback', 'Auth::googleCallback');
@@ -76,6 +77,47 @@ $routes->group('product', ['filter' => 'auth'], function ($routes) {
     $routes->get('edit/(:num)', 'ProductController::edit/$1');
     $routes->post('update/(:num)', 'ProductController::update/$1');
     $routes->get('delete/(:num)', 'ProductController::delete/$1');
+});
+
+// Tenant routes
+$routes->group('tenant', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'TenantController::index');
+    $routes->get('create', 'TenantController::create');
+    $routes->post('store', 'TenantController::store');
+    $routes->get('view/(:num)', 'TenantController::view/$1');
+    $routes->get('edit/(:num)', 'TenantController::edit/$1');
+    $routes->post('update/(:num)', 'TenantController::update/$1');
+});
+
+// Service routes
+$routes->group('service', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'ServiceController::index');
+    $routes->get('create', 'ServiceController::create');
+    $routes->post('store', 'ServiceController::store');
+    $routes->get('view/(:num)', 'ServiceController::view/$1');
+    $routes->get('edit/(:num)', 'ServiceController::edit/$1');
+    $routes->post('update/(:num)', 'ServiceController::update/$1');
+});
+
+// Booking routes
+$routes->group('booking', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'BookingController::index');
+    $routes->get('create', 'BookingController::create');
+    $routes->post('store', 'BookingController::store');
+    $routes->get('view/(:num)', 'BookingController::view/$1');
+    $routes->get('cancel/(:num)', 'BookingController::cancel/$1');
+    $routes->get('payment/(:num)', 'BookingController::payment/$1');
+});
+
+// Schedule routes
+$routes->group('schedule', ['filter' => 'auth'], function ($routes) {
+    $routes->get('/', 'ScheduleController::index');
+    $routes->get('create', 'ScheduleController::create');
+    $routes->post('store', 'ScheduleController::store');
+    $routes->get('edit/(:num)', 'ScheduleController::edit/$1');
+    $routes->post('update/(:num)', 'ScheduleController::update/$1');
+    $routes->get('special', 'ScheduleController::special');
+    $routes->post('storeSpecial', 'ScheduleController::storeSpecial');
 });
 
 // Debug routes - only for administrator use
