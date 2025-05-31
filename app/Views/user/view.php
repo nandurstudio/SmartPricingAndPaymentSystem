@@ -1,29 +1,67 @@
-<!-- view.php -->
-<?= $this->extend('layouts/starter/main') ?>
+<?= $this->extend('layouts/main') ?>
+
 <?= $this->section('content') ?>
-<div class="container mt-5">
-    <h2>Detail User</h2>
-    <div class="card">
-        <div class="card-body">
-            <p><strong>Username:</strong> <?= esc($user['txtUserName']) ?></p>
-            <p><strong>Full Name:</strong> <?= esc($user['txtFullName']) ?></p>
-            <p><strong>Email:</strong> <?= esc($user['txtEmail']) ?></p>
-            <p><strong>Role:</strong> <?= esc($role['txtRoleName']) ?> <!-- Pastikan field role_name ada di tabel roles --></p>
-            <p><strong>Supervisor:</strong> <?= esc($supervisorName) ?></p>
-            <p><strong>Join Date:</strong> <?= esc($user['dtmJoinDate']) ?></p>
-
-            <!-- Tambahkan foto user -->
-            <p><strong>Photo:</strong>
-                <?php if ($user['txtPhoto'] !== 'default.jpg'): ?>
-                    <img src="<?= base_url('uploads/photos/' . $user['txtPhoto']) ?>" alt="User Photo" style="width: 100px; height: 100px; object-fit: cover;">
-                <?php else: ?>
-                    <span>No photo</span>
-                <?php endif; ?>
-            </p>
-
-            <!-- Anda bisa menambahkan lebih banyak data sesuai kebutuhan -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">User Details</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">                        <div class="col-md-3">
+                            <?php
+                            $photoPath = FCPATH . 'uploads/photos/' . ($user['txtPhoto'] ?? 'default.png');
+                            if (!empty($user['txtPhoto']) && file_exists($photoPath)) {
+                                $imgSrc = base_url('uploads/photos/' . $user['txtPhoto']);
+                            } else {
+                                $imgSrc = base_url('assets/img/default-avatar.png');
+                            }
+                            ?>
+                            <img src="<?= $imgSrc ?>" 
+                                 class="img-fluid rounded" 
+                                 alt="Profile Picture">
+                        </div>
+                        <div class="col-md-9">
+                            <table class="table">
+                                <tr>
+                                    <th width="200">Username</th>
+                                    <td><?= esc($user['txtUserName']) ?></td>
+                                </tr>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <td><?= esc($user['txtFullName']) ?></td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td><?= esc($user['txtEmail']) ?></td>
+                                </tr>
+                                <tr>
+                                    <th>Role</th>
+                                    <td><?= esc($user['txtRoleName']) ?></td>
+                                </tr>
+                                <tr>
+                                    <th>Join Date</th>
+                                    <td><?= date('d M Y', strtotime($user['dtmJoinDate'])) ?></td>
+                                </tr>
+                                <tr>
+                                    <th>Status</th>
+                                    <td>
+                                        <span class="badge bg-<?= $user['bitActive'] ? 'success' : 'danger' ?>">
+                                            <?= $user['bitActive'] ? 'Active' : 'Inactive' ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="<?= base_url('user') ?>" class="btn btn-secondary">Back to List</a>
+                    <a href="<?= base_url('user/edit/' . $user['intUserID']) ?>" class="btn btn-primary">Edit User</a>
+                </div>
+            </div>
         </div>
     </div>
-    <a href="<?= base_url('/user') ?>" class="btn btn-secondary mt-3">Back to List</a>
 </div>
 <?= $this->endSection() ?>

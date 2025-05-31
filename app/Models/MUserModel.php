@@ -232,4 +232,12 @@ class MUserModel extends Model
             return false;
         }
     }
+
+    public function getUserWithRole($id)
+    {
+        return $this->select('m_user.*, m_role.txtRoleName')
+                    ->join('m_role', 'm_role.intRoleID = m_user.intRoleID')
+                    ->where('m_user.intUserID', $id)
+                    ->first();
+    }
 }

@@ -34,15 +34,11 @@ $routes->get('auth/reset_password/(:any)', 'Auth::resetPassword/$1');  // Menamp
 $routes->post('auth/updatePassword', 'Auth::updatePassword');  // Memperbarui password
 
 $routes->group('user', ['filter' => 'auth'], function ($routes) {
-    $routes->get('/', 'UserController::index');                  // Daftar user
-    $routes->get('add', 'UserController::add');               // Form tambah user baru
-    $routes->get('list', 'UserController::list');               // Halaman daftar user (seharusnya index)
-    $routes->get('edit/(:num)', 'UserController::edit/$1');       // Form edit user berdasarkan ID
-    $routes->post('update/(:num)', 'UserController::update/$1'); // Proses update user
-    $routes->post('store', 'UserController::store');            // Proses simpan user baru (STORE)
-    $routes->get('view/(:num)', 'UserController::view/$1');      // Lihat detail user
-    $routes->post('getUsers', 'UserController::getUsers');       // Endpoint untuk DataTables
-    $routes->get('getLastUsers', 'UserController::getLastUsers'); // Ambil user terakhir
+    $routes->get('/', 'UserController::index');                   // User management dashboard
+    $routes->get('edit/(:num)', 'UserController::edit/$1');      // Edit user form
+    $routes->post('update/(:num)', 'UserController::update/$1'); // Process user update
+    $routes->get('view/(:num)', 'UserController::view/$1');      // View user details
+    $routes->post('toggle-status/(:num)', 'UserController::toggleStatus/$1'); // Toggle user status
 });
 
 $routes->group('role', ['filter' => 'auth'], function ($routes) {
@@ -80,15 +76,6 @@ $routes->group('product', ['filter' => 'auth'], function ($routes) {
     $routes->get('edit/(:num)', 'ProductController::edit/$1');
     $routes->post('update/(:num)', 'ProductController::update/$1');
     $routes->get('delete/(:num)', 'ProductController::delete/$1');
-});
-
-$routes->group('category', ['filter' => 'auth'], function ($routes) {
-    $routes->get('/', 'CategoryController::index');
-    $routes->get('add', 'CategoryController::add');
-    $routes->post('store', 'CategoryController::store');
-    $routes->get('edit/(:num)', 'CategoryController::edit/$1');
-    $routes->post('update/(:num)', 'CategoryController::update/$1');
-    $routes->get('delete/(:num)', 'CategoryController::delete/$1');
 });
 
 // Debug routes - only for administrator use

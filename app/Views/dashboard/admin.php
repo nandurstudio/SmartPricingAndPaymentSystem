@@ -1,4 +1,4 @@
-<?= $this->extend('layouts/admin') ?>
+<?= $this->extend('layouts/starter/main') ?>
 
 <?= $this->section('content') ?>
 <div class="container-fluid">

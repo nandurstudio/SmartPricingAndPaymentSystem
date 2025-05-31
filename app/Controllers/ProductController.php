@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\Models\MProductModel;
-use App\Models\MCategoryModel;
 use CodeIgniter\Controller;
 
 class ProductController extends Controller

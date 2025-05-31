@@ -1,5 +1,5 @@
 <!-- menu/edit.php -->
-<?= $this->extend('layouts/starter/main') ?>
+<?= $this->extend('layouts/main') ?>
 <?= $this->section('content') ?>
 
 <div class="container mt-4">

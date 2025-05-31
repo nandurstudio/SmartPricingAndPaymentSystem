@@ -7,6 +7,7 @@
     <title>Register Your Account - Smart Pricing System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <?= $this->renderSection('styles') ?>
     <style>
         .password-toggle {
             position: absolute;
@@ -54,150 +55,13 @@
 </head>
 
 <body class="bg-light">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="card shadow-sm mt-5">
-                    <div class="card-header bg-primary text-white text-center">
-                        <h4 class="mb-0">Create Your Account</h4>
-                        <p class="mb-0 small">Join Smart Pricing System today</p>
-                    </div>
-                    <div class="card-body p-4">
-                        <!-- Success Message -->
-                        <?php if (session()->getFlashdata('success')): ?>
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                <i class="fas fa-check-circle me-2"></i>
-                                <?= session()->getFlashdata('success'); ?>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        <?php endif; ?>
-
-                        <!-- Error Message -->
-                        <?php if (session()->getFlashdata('error')): ?>
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                <?= session()->getFlashdata('error'); ?>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        <?php endif; ?>
-
-                        <!-- Registration Form -->
-                        <form method="post" action="/register/createUser" id="registrationForm">
-                            <?= csrf_field() ?>
-                            
-                            <!-- Full Name -->
-                            <div class="form-floating mb-3">
-                                <input type="text" name="txtFullName" class="form-control" id="fullName" 
-                                       placeholder="Full Name" required minlength="3" maxlength="100" 
-                                       value="<?= old('txtFullName') ?>">
-                                <label for="fullName"><i class="fas fa-user me-2"></i>Full Name</label>
-                                <?php if (isset($validation) && $validation->hasError('txtFullName')): ?>
-                                    <div class="invalid-feedback d-block"><?= $validation->getError('txtFullName'); ?></div>
-                                <?php endif; ?>
-                            </div>
-
-                            <!-- Username -->
-                            <div class="form-floating mb-3">
-                                <input type="text" name="txtUserName" class="form-control" id="username" 
-                                       placeholder="Username" required minlength="4" maxlength="50" 
-                                       value="<?= old('txtUserName') ?>">
-                                <label for="username"><i class="fas fa-at me-2"></i>Username</label>
-                                <div class="form-text">Username must be 4-50 characters long</div>
-                                <?php if (isset($validation) && $validation->hasError('txtUserName')): ?>
-                                    <div class="invalid-feedback d-block"><?= $validation->getError('txtUserName'); ?></div>
-                                <?php endif; ?>
-                            </div>
-
-                            <!-- Email -->
-                            <div class="form-floating mb-3">
-                                <input type="email" name="txtEmail" class="form-control" id="email" 
-                                       placeholder="Email" required maxlength="100" 
-                                       value="<?= old('txtEmail') ?>">
-                                <label for="email"><i class="fas fa-envelope me-2"></i>Email Address</label>
-                                <?php if (isset($validation) && $validation->hasError('txtEmail')): ?>
-                                    <div class="invalid-feedback d-block"><?= $validation->getError('txtEmail'); ?></div>
-                                <?php endif; ?>
-                            </div>
-
-                            <!-- Password -->
-                            <div class="form-floating mb-3">
-                                <input type="password" name="txtPassword" class="form-control" id="password" 
-                                       placeholder="Password" required minlength="6" maxlength="255">
-                                <label for="password"><i class="fas fa-lock me-2"></i>Password</label>
-                                <i class="fas fa-eye password-toggle" id="togglePassword" data-target="password"></i>
-                                <div class="password-strength" id="passwordStrength"></div>
-                                <?php if (isset($validation) && $validation->hasError('txtPassword')): ?>
-                                    <div class="invalid-feedback d-block"><?= $validation->getError('txtPassword'); ?></div>
-                                <?php endif; ?>
-                            </div>
-
-                            <!-- Repeat Password -->
-                            <div class="form-floating mb-3">
-                                <input type="password" name="password_confirm" class="form-control" id="passwordConfirm" 
-                                       placeholder="Repeat Password" required minlength="6" maxlength="255">
-                                <label for="passwordConfirm"><i class="fas fa-lock me-2"></i>Repeat Password</label>
-                                <i class="fas fa-eye password-toggle" id="togglePasswordConfirm" data-target="passwordConfirm"></i>
-                                <div class="match-indicator" id="passwordMatch"></div>
-                                <?php if (isset($validation) && $validation->hasError('password_confirm')): ?>
-                                    <div class="invalid-feedback d-block"><?= $validation->getError('password_confirm'); ?></div>
-                                <?php endif; ?>
-                            </div>                            <!-- Terms and Conditions Agreement -->
-                            <div class="form-check mb-4">
-                                <input class="form-check-input" type="checkbox" name="terms_agreement" value="1" 
-                                       id="termsAgreement" required>
-                                <label class="form-check-label" for="termsAgreement">
-                                    I agree to the <a href="#" class="text-decoration-none">Terms of Service</a> 
-                                    and <a href="#" class="text-decoration-none">Privacy Policy</a>
-                                </label>
-                                <?php if (isset($validation) && $validation->hasError('terms_agreement')): ?>
-                                    <div class="invalid-feedback d-block"><?= $validation->getError('terms_agreement'); ?></div>
-                                <?php endif; ?>
-                            </div>
-
-                            <!-- Hidden Fields -->
-                            <input type="hidden" name="txtPhoto" value="default.png">
-                            <input type="hidden" name="intRoleID" value="5">
-                            <input type="hidden" name="bitActive" value="1"><!-- Submit Button -->
-                            <button class="btn btn-primary btn-lg w-100 mb-3" type="submit" id="submitBtn">
-                                <span id="btnText">
-                                    <i class="fas fa-user-plus me-2"></i>Create Account
-                                </span>
-                                <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
-                            </button>
-
-                            <!-- Alternative Login Options -->
-                            <div class="text-center">
-                                <div class="border-top pt-3 mb-3">
-                                    <small class="text-muted">Or sign up with</small>
-                                </div>
-                                <button class="btn btn-outline-danger w-100" type="button" id="googleBtn" 
-                                        onclick="window.location='<?php echo base_url('/auth/googleLogin'); ?>'">
-                                    <i class="fab fa-google me-2"></i>Continue with Google
-                                </button>
-                                <div class="mt-2">
-                                    <small class="text-muted">
-                                        <i class="fas fa-info-circle me-1"></i> By signing up with Google, we'll use your name and email automatically
-                                    </small>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="card-footer text-center bg-light">
-                        <p class="mb-0">
-                            Already have an account? 
-                            <a href="/login" class="text-decoration-none fw-bold">Sign in here</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <?= $this->renderSection('content') ?>
     <!-- Footer -->
     <footer class="text-center mt-5 pb-4">
         <p class="text-muted">&copy; 2025 Smart Pricing System - Kelompok 5</p>
     </footer>    <!-- JavaScript -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <?= $this->renderSection('scripts') ?>
     <script>
         // Password visibility toggle
         document.addEventListener('DOMContentLoaded', function() {

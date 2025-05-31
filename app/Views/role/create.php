@@ -9,30 +9,33 @@
 </head>
 
 <body>
-    <div class="container mt-5">
-        <h2>Create Role</h2>
+    <?= $this->extend('layouts/main') ?>
 
+    <?= $this->section('content') ?>
+    <div class="container mt-4">
+        <h2>Create Role</h2>
         <form action="<?= base_url('role/store') ?>" method="post">
             <div class="mb-3">
-                <label for="txtRoleName" class="form-label">Role Name</label>
-                <input type="text" class="form-control" id="txtRoleName" name="txtRoleName" required>
+                <label for="role_name" class="form-label">Role Name:</label>
+                <input type="text" class="form-control" id="role_name" name="txtRoleName" required>
             </div>
             <div class="mb-3">
-                <label for="txtRoleDesc" class="form-label">Description</label>
-                <textarea class="form-control" id="txtRoleDesc" name="txtRoleDesc"></textarea>
+                <label for="description" class="form-label">Description:</label>
+                <input type="text" class="form-control" id="description" name="txtDesc">
             </div>
             <div class="mb-3">
-                <label for="txtRoleNote" class="form-label">Note</label>
-                <textarea class="form-control" id="txtRoleNote" name="txtRoleNote"></textarea>
+                <label for="active" class="form-label">Status:</label>
+                <select class="form-select" id="active" name="bitActive">
+                    <option value="1">Active</option>
+                    <option value="0">Inactive</option>
+                </select>
             </div>
-            <div class="form-check mb-3">
-                <input type="checkbox" class="form-check-input" id="bitActive" name="bitActive" checked>
-                <label class="form-check-label" for="bitActive">Active</label>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary">Create Role</button>
             <a href="<?= base_url('role') ?>" class="btn btn-secondary">Cancel</a>
         </form>
     </div>
+    <?= $this->endSection() ?>
+
     <script src="<?php echo base_url('assets/js/bootstrap/bootstrap.bundle.min.js'); ?>"></script>
 </body>
 

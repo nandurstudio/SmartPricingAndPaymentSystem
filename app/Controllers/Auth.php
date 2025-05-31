@@ -151,10 +151,8 @@ class Auth extends BaseController
                     'lastLogin' => $user['dtmLastLogin'],
                     'joinDate' => $user['dtmJoinDate'],
                     'photo' => $profilePictureUrlHD, // Foto dengan resolusi lebih tinggi
-                ]);
-
-                // Redirect ke halaman landing setelah berhasil login
-                return redirect()->to('/landing');
+                ]);                // Redirect to user management page after successful login
+                return redirect()->to('/user');
             } else {
                 return redirect()->to('/auth')->with('error', 'Failed to get access token');
             }        } else {
@@ -222,11 +220,10 @@ class Auth extends BaseController
                     delete_cookie('email');
                     delete_cookie('password');
                 }
-                
-                if ($isAjax) {
-                    return $this->response->setJSON(['success' => true, 'redirect' => base_url('/landing')]);
+                  if ($isAjax) {
+                    return $this->response->setJSON(['success' => true, 'redirect' => base_url('/user')]);
                 } else {
-                    return redirect()->to('/landing'); // Redirect ke halaman landing setelah login
+                    return redirect()->to('/user'); // Redirect to user management page after login
                 }
             } else {
                 $error = 'Failed to update last login time.';
@@ -256,7 +253,12 @@ class Auth extends BaseController
         }
 
         // Tampilkan halaman landing setelah login
-        return view('dashboard-2'); // Pastikan Anda memiliki view 'landing.php'
+        return view('dashboard-2', [
+            'title' => 'Dashboard',
+            'pageTitle' => 'Dashboard',
+            'pageSubTitle' => 'Overview and statistics',
+            'icon' => 'activity'
+        ]);
     }
 
     public function logout()

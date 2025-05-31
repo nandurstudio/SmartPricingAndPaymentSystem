@@ -1,27 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-    <title><?= $title ?? 'E-Competency' ?></title>
-    <!-- Tambahan CSS lainnya -->
-    <link rel="stylesheet" href="<?php echo base_url('assets/css/styles.css'); ?>">
-    <link rel="icon" type="image/x-icon" href="assets/img/favicon.png" />
+    <?= $this->include('layouts/head') ?>
+    <title><?= $title ?? 'Smart Pricing System' ?></title>
 </head>
-
-<body>
-    <?= $this->include('layouts/navbar') ?>
-
-    <main>
-        <?= $this->renderSection('content') ?>
-    </main>
-
-    <?= $this->include('layouts/footer') ?>
+<body class="nav-fixed">
+    <?= $this->include('layouts/nav') ?>
+    
+    <div id="layoutSidenav">
+        <?= $this->include('layouts/sidenav') ?>
+        
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container-fluid px-4">
+                    <?= $this->renderSection('content') ?>
+                </div>
+            </main>
+            
+            <?= $this->include('layouts/footer') ?>
+        </div>
+    </div>
+    
     <?= $this->include('layouts/scripts') ?>
 </body>
-
 </html>

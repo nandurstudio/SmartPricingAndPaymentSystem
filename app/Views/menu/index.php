@@ -1,5 +1,5 @@
 <!-- menu/index.php -->
-<?= $this->extend('layouts/starter/main') ?>
+<?= $this->extend('layouts/main') ?>
 <?= $this->section('content') ?>
 <a href="<?= base_url('/menu/create') ?>" class="btn btn-primary mb-3">Add New Menu</a>
 

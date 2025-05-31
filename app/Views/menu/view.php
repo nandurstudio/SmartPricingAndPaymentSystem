@@ -1,5 +1,5 @@
 <!-- menu/detail.php -->
-<?= $this->extend('layouts/starter/main') ?>
+<?= $this->extend('layouts/main') ?>
 <?= $this->section('content') ?>
 <div class="container mt-4">
     <h2>Menu Detail</h2>
