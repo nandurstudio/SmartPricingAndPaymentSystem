@@ -137,22 +137,28 @@ class Auth extends BaseController
                     $userModel->update($existingUser['intUserID'], $updatedData);
                     // Ambil data pengguna yang sudah diperbarui
                     $user = $userModel->where('txtEmail', $googleUser->email)->first();
-                }
-
-                // Set session login setelah berhasil
+                }                // Set session
                 session()->set([
                     'isLoggedIn' => true,
                     'userID' => $user['intUserID'],
-                    'roleID' => $user['intRoleID'] ?? 2, // Default role misalnya 2 (user biasa)
+                    'roleID' => $user['intRoleID'] ?? 5, // Default role 5 = customer
                     'userName' => $user['txtUserName'],
-                    'userFullName' => $fullName, // Pastikan fullName disimpan di session
+                    'userFullName' => $fullName,
                     'userEmail' => $user['txtEmail'],
                     'bitActive' => $user['bitActive'],
                     'lastLogin' => $user['dtmLastLogin'],
                     'joinDate' => $user['dtmJoinDate'],
-                    'photo' => $profilePictureUrlHD, // Foto dengan resolusi lebih tinggi
-                ]);                // Redirect to user management page after successful login
-                return redirect()->to('/user');
+                    'photo' => $profilePictureUrlHD,
+                    'tenant_id' => $user['tenant_id'] ?? null
+                ]);
+
+                // Cek apakah user perlu setup tenant
+                if (!$user['tenant_id'] && !$existingUser) {
+                    return redirect()->to('/onboarding/setup-tenant');
+                }
+                
+                // Redirect ke dashboard jika sudah punya tenant
+                return redirect()->to('/dashboard');
             } else {
                 return redirect()->to('/auth')->with('error', 'Failed to get access token');
             }        } else {

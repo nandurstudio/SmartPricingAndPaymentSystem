@@ -8,6 +8,7 @@ class MUserModel extends Model
 {
     protected $table = 'm_user'; // Nama tabel yang sesuai dengan database
     protected $primaryKey = 'intUserID'; // Primary key
+    
     protected $allowedFields = [
         'intRoleID',
         'txtUserName',
@@ -16,8 +17,8 @@ class MUserModel extends Model
         'txtPassword',
         'bitActive',
         'dtmLastLogin',
-        'txtCreatedBy', // Sesuaikan dengan created
-        'dtmCreatedDate', // Sesuaikan dengan created
+        'txtCreatedBy',
+        'dtmCreatedDate',
         'txtUpdatedBy',
         'dtmUpdatedDate',
         'txtGUID',
@@ -25,14 +26,19 @@ class MUserModel extends Model
         'token_created_at',
         'txtPhoto',
         'dtmJoinDate',
-        'bitOnlineStatus',  // Field tambahan untuk online status
-        'google_auth_token' // Field tambahan untuk Google Auth SSO
+        'bitOnlineStatus',
+        'google_auth_token',
+        'tenant_id',        // Foreign key untuk relasi dengan tenant
+        'is_tenant_owner',  // Flag untuk menandai user adalah owner tenant
+        'default_tenant_id' // Tenant default untuk user yang memiliki akses ke multiple tenant
     ];
 
     // Optional: Untuk timestamps otomatis
     protected $useTimestamps = true;
     protected $createdField = 'dtmCreatedDate'; // Menyesuaikan dengan field created
-    protected $updatedField = 'dtmUpdatedDate';    // Fungsi untuk verifikasi login dengan email
+    protected $updatedField = 'dtmUpdatedDate'; // Menyesuaikan dengan field updated
+
+    // Fungsi untuk verifikasi login dengan email
     public function verifyLoginByEmail($email, $password)
     {
         $user = $this->where('txtEmail', $email)->first();
@@ -96,14 +102,13 @@ class MUserModel extends Model
     }
 
     // Fungsi untuk mendapatkan daftar pengguna
-    public function getUsers($start, $length, $searchValue, $orderBy, $orderDirection)
+    public function getUsers($start = false, $length = null, $searchValue = null, $orderBy = null, $orderDirection = 'ASC')
     {
         // Query untuk mengambil data pengguna
         $builder = $this->db->table('m_user');
-        $builder->select('m_user.*, m_role.txtRoleName'); // Mengambil txtRoleName dari tabel m_role
-        $builder->join('m_role', 'm_user.intRoleID = m_role.intRoleID', 'left'); // Join ke tabel m_role
+        $builder->select('m_user.*, m_role.txtRoleName');
+        $builder->join('m_role', 'm_user.intRoleID = m_role.intRoleID', 'left');
 
-        // Pencarian berdasarkan beberapa field
         if (!empty($searchValue)) {
             $builder->groupStart()
                 ->like('m_user.txtFullName', $searchValue)
@@ -113,13 +118,14 @@ class MUserModel extends Model
                 ->groupEnd();
         }
 
-        // Sorting
-        $builder->orderBy($orderBy, $orderDirection);
+        if ($orderBy) {
+            $builder->orderBy($orderBy, $orderDirection);
+        }
 
-        // Batasi jumlah data yang dikembalikan
-        $builder->limit($length, $start);
+        if ($start !== false && $length !== null) {
+            $builder->limit($length, $start);
+        }
 
-        // Eksekusi dan kembalikan hasil query
         return $builder->get()->getResultArray();
     }
 

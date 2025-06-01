@@ -7,15 +7,18 @@
                 $baseUrl = base_url();
                 
                 // Group menus by parent
-                $menuGroups = [];
-                foreach ($menus as $menu) {
-                    $parentId = $menu['intParentID'] ?? 0;
-                    $menuGroups[$parentId][] = $menu;
+                $menuGroups = [];                if (!empty($menus)) {
+                    foreach ($menus as $menu) {
+                        $parentId = $menu['intParentID'] ?? 0;
+                        $menuGroups[$parentId][] = $menu;
+                    }
+                } else {
+                    $menuGroups = [];
                 }
                 
                 // Function to check if menu or its children are active
                 function isMenuActive($menu, $menus, $currentUrl, $baseUrl) {
-                    if ($menu['txtMenuLink'] && $currentUrl == $baseUrl . $menu['txtMenuLink']) {
+                    if (!empty($menu['txtMenuLink']) && $currentUrl == $baseUrl . $menu['txtMenuLink']) {
                         return true;
                     }
                     

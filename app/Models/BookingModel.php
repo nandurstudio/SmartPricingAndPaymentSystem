@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class BookingModel extends Model
 {
-    protected $table = 'm_bookings';
+    protected $table = 'tr_bookings'; // Tabel transaksi booking
     protected $primaryKey = 'id';
     protected $allowedFields = [
         'booking_code',

@@ -9,8 +9,22 @@ Aplikasi booking multi-tenant (SaaS) berbasis CodeIgniter 4, Bootstrap 5, dan jQ
 
 ## Penting untuk Developer
 - **Baca instruksi pengembangan di `resources/INSTRUKSI_PENGEMBANGAN_APLIKASI_BOOKING_MULTI_TENANT.md` sebelum coding!**
-- **Selalu buat file `.env` di folder root project untuk konfigurasi lokal.**
-- **Jangan commit file sensitif, backup, atau SQL manual ke repo (lihat `.gitignore`).**
+
+### Keamanan & File Sensitif
+1. **Environment Files**:
+   - Wajib buat file `.env` di root project untuk konfigurasi lokal
+   - Jangan pernah commit file `.env` atau `.env.*` ke repository
+   - Gunakan `.env.example` sebagai template (sudah disediakan)
+
+2. **Database & Migrations**:
+   - File migration & seeder yang berisi struktur database & data master BOLEH dicommit
+   - File SQL manual, backup database, dan seeder dengan data sensitif TIDAK BOLEH dicommit
+   - Simpan SQL manual & backup di `/docs/sql/` (sudah di-ignore)
+
+3. **Kredensial & Konfigurasi**:
+   - Semua kredensial (API keys, passwords, dll) WAJIB di file `.env`
+   - Konfigurasi default di `/app/Config/` boleh dicommit
+   - Konfigurasi environment-specific taruh di `.env`
 
 ## Alur Kerja Pengembangan (Singkat)
 1. Desain database & ERD: semua tabel utama wajib ada `tenant_id`.
@@ -27,16 +41,51 @@ Aplikasi booking multi-tenant (SaaS) berbasis CodeIgniter 4, Bootstrap 5, dan jQ
 12. Multi-language & Scalability: siap scaling dan multi-bahasa.
 
 ## CLI & Database Pipeline
-- Jalankan migrasi: `php spark migrate`
-- Jalankan seeder: `php spark db:seed MroleSeeder`, `php spark db:seed MultiTenantSeeder`, dst.
-- Untuk reset/init database: `php spark db setup` atau gunakan menu interaktif `php spark db:maintenance`
-- Lihat panduan lengkap di `cli-guide.md`
 
-## Struktur Penting
-- **Migration utama:** `app/Database/Migrations/`
-- **Seeder utama:** `app/Database/Seeds/`
-- **Dokumentasi & instruksi:** `resources/`
-- **SQL manual/reference:** `docs/sql/` (tidak untuk production)
+### Initial Setup
+```bash
+# 1. Setup environment
+cp .env.example .env
+nano .env  # Edit sesuai environment local
+
+# 2. Install dependencies
+composer install
+npm install
+
+# 3. Initialize database
+php spark migrate
+php spark db:seed InitialSetupSeeder  # Data master wajib
+php spark db:seed DevelopmentSeeder   # Data dummy untuk development
+```
+
+### Database Maintenance
+```bash
+# Update database structure
+php spark migrate            # Jalankan migration baru
+php spark migrate:rollback   # Rollback migration terakhir
+php spark migrate:refresh    # Reset & rerun semua migration
+
+# Seeding data
+php spark db:seed MroleSeeder        # Role & permission
+php spark db:seed MultiTenantSeeder  # Sample tenant data
+
+# Tools
+php spark db:maintenance     # Menu interaktif maintenance
+```
+
+## Struktur Project
+- **Migration & Seeder**
+  - `/app/Database/Migrations/` - File migration (commit ke repo)
+  - `/app/Database/Seeds/` - File seeder data master (commit ke repo)
+  - `/docs/sql/` - SQL manual & backup (jangan commit)
+
+- **Konfigurasi**
+  - `.env` - Environment variables & kredensial (jangan commit)
+  - `/app/Config/` - Konfigurasi default (commit ke repo)
+  
+- **Dokumentasi**
+  - `/resources/` - Dokumentasi teknis & panduan
+  - `/docs/` - Dokumentasi tambahan & referensi
 
 ## Framework: CodeIgniter 4
 

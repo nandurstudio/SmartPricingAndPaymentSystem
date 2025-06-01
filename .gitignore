@@ -1,15 +1,21 @@
-# Ignore environment file (berisi konfigurasi sensitif)
-
-.env.*
+# Environment Files
 .env
+.env.*
+*.env
+*.local.env
 
-# Ignore system-generated files
-/system
+# CodeIgniter 4 System Files
+/system/*
+app/Config/Development/*
+app/Config/Testing/*
 
-# Ignore user-specific files
-application/config/*.php  # Konfigurasi yang sudah ada di repo
-application/cache/
-application/logs/
+# Application Files
+writable/cache/*
+writable/logs/*
+writable/session/*
+writable/uploads/*
+writable/debugbar/*
+!writable/*/index.html
 
 # Composer
 /vendor/
@@ -90,12 +96,20 @@ public/assets/vendor/bootstrap/
 *.bak
 *.old
 
-# Manual/reference SQL scripts (not for production, not for migration pipeline)
-docs/sql/
-database/reference/
+# Database Files
+/docs/sql/*                  # Manual/reference SQL scripts
+/database/reference/*        # Reference database files
+/app/Database/sql/*         # Raw SQL files
+/app/Database/backups/*     # Database backups
+*.sql                      # Individual SQL files
 
-# Legacy/backup SQL files
-app/Database/sql/
+# Public Assets (build results)
+/public/assets/vendor/*
+/public/uploads/*
+!public/*/index.html
 
-# (Optional) Ignore all .sql files at root or anywhere
-*.sqlpublic/assets/js/simple-datatables/
+# Documentation and Reference
+/docs/private/*
+*.pdf
+*.doc
+*.docx

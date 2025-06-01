@@ -121,10 +121,26 @@ $routes->group('schedule', ['filter' => 'auth'], function ($routes) {
     $routes->post('storeSpecial', 'ScheduleController::storeSpecial');
 });
 
+// Onboarding routes
+$routes->group('onboarding', ['filter' => 'auth'], function ($routes) {
+    $routes->get('setup-tenant', 'OnboardingController::setupTenant');
+    $routes->post('create-tenant', 'OnboardingController::createTenant');
+    $routes->get('setup-branding/(:num)', 'OnboardingController::setupBranding/$1');
+    $routes->post('update-branding/(:num)', 'OnboardingController::updateBranding/$1');
+});
+
 // Debug routes - only for administrator use
 $routes->group('debug', ['filter' => 'auth'], function ($routes) {
     $routes->get('test-google-registration', 'DebugController::testGoogleRegistration');
     $routes->get('check-guid-values', 'DebugController::checkGuidValues');
+});
+
+// Onboarding routes
+$routes->group('onboarding', ['filter' => 'auth'], function ($routes) {
+    $routes->get('setup-tenant', 'OnboardingController::setupTenant');
+    $routes->post('create-tenant', 'OnboardingController::createTenant');
+    $routes->get('setup-branding/(:num)', 'OnboardingController::setupBranding/$1');
+    $routes->post('update-branding/(:num)', 'OnboardingController::updateBranding/$1');
 });
 
 $routes->setDefaultNamespace('App\Controllers');

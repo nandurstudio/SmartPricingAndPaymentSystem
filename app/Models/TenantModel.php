@@ -6,13 +6,33 @@ use CodeIgniter\Model;
 
 class TenantModel extends Model
 {
-    protected $table = 'm_tenants'; // Updated from 'tenants' to 'm_tenants'
+    protected $table = 'm_tenant'; // Nama tabel yang sesuai dengan database
     protected $primaryKey = 'id';
-    
-    protected $allowedFields = [
-        'guid', 'name', 'slug', 'domain', 'service_type_id', 'owner_id',
-        'subscription_plan', 'status', 'settings', 'payment_settings',
-        'is_active', 'created_date', 'created_by', 'updated_date', 'updated_by'
+      protected $allowedFields = [
+        'guid',
+        'name', 
+        'slug',
+        'domain',
+        'tenant_code',
+        'service_type_id',
+        'owner_id',
+        'subscription_plan',
+        'subscription_status',
+        'subscription_start_date',
+        'subscription_end_date',
+        'trial_ends_at',
+        'settings',
+        'payment_settings',
+        'midtrans_client_key',
+        'midtrans_server_key',
+        'logo',
+        'theme',
+        'status',
+        'is_active',
+        'created_date',
+        'created_by',
+        'updated_date',
+        'updated_by'
     ];
 
     public function getWithServiceType(int $id = null)
