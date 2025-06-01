@@ -9,42 +9,46 @@
     <meta name="description" content="Multi-tenant booking system for various business types" />
     <meta name="author" content="Your Company Name" />
     <meta name="keywords" content="booking system, multi-tenant, SaaS, reservation system" />
-    
+
     <!-- Open Graph / Social Media Meta Tags -->
     <meta property="og:title" content="<?= $title ?? 'Smart Booking System' ?>" />
     <meta property="og:description" content="Multi-tenant booking system for various business types" />
     <meta property="og:image" content="<?= base_url('assets/img/og-image.jpg') ?>" />
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="<?= base_url('assets/img/favicon.png') ?>" />
     <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('assets/img/apple-touch-icon.png') ?>" />
-    
+
     <title><?= $title ?? 'Smart Booking System' ?> | <?= isset($tenant) ? esc($tenant['name']) : 'Multi-Tenant Platform' ?></title>
 
     <!-- Core CSS -->
     <link rel="stylesheet" href="<?= base_url('assets/css/bootstrap/bootstrap.min.css') ?>" />
     <link rel="stylesheet" href="<?= base_url('assets/css/bootstrap/bootstrap-icons/font/bootstrap-icons.css') ?>" />
-    
-    <!-- Third Party CSS -->
-    <link rel="stylesheet" href="<?= base_url('assets/css/datatables/dataTables.bootstrap5.css') ?>" />
-    <link rel="stylesheet" href="<?= base_url('assets/css/datatables/responsive.bootstrap5.css') ?>" />
-    <link rel="stylesheet" href="<?= base_url('assets/css/datatables/buttons.bootstrap5.min.css') ?>" />
+
+    <!-- DataTables Bootstrap 5 Theme -->
+    <link rel="stylesheet" href="<?= base_url('assets/css/datatables/dataTables.bootstrap5.min.css') ?>" />
+    <link rel="stylesheet" href="<?= base_url('assets/css/datatables/responsive.bootstrap5.min.css') ?>" />
+
+    <!-- Other CSS -->
     <link rel="stylesheet" href="<?= base_url('assets/css/select2/select2.min.css') ?>" />
     <link rel="stylesheet" href="<?= base_url('assets/css/sweetalert2/sweetalert2.min.css') ?>" />
     <link rel="stylesheet" href="<?= base_url('assets/css/flatpickr/flatpickr.min.css') ?>" />
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?= base_url('assets/css/styles.css') ?>" />
     <?php if (isset($tenant) && !empty($tenant['custom_css'])): ?>
-    <link rel="stylesheet" href="<?= base_url('uploads/tenants/' . $tenant['id'] . '/custom.css') ?>" />
-    <?php endif; ?>    <!-- Preconnect to External Resources -->
+        <link rel="stylesheet" href="<?= base_url('uploads/tenants/' . $tenant['id'] . '/custom.css') ?>" />
+    <?php endif; ?>
+
+    <!-- Preconnect to External Resources -->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
     <!-- PWA Support -->
     <link rel="manifest" href="<?= base_url('manifest.json') ?>" />
     <meta name="theme-color" content="#ffffff" />
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="<?= csrf_hash() ?>" />
-    
+
     <?= $this->renderSection('head') ?>
 </head>

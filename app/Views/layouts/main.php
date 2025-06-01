@@ -3,6 +3,7 @@
 <head>
     <?= $this->include('layouts/head') ?>
     <title><?= $title ?? 'Smart Pricing System' ?></title>
+    <?= $this->renderSection('css') ?>
 </head>
 <body class="nav-fixed">
     <?= $this->include('layouts/nav') ?>

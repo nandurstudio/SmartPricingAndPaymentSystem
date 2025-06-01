@@ -134,8 +134,7 @@ class UserController extends Controller
         }
 
         try {
-            $this->userModel->update($id, $updateData);
-            return redirect()->to('/user')
+            $this->userModel->update($id, $updateData);            return redirect()->to('/users')
                 ->with('message', 'User updated successfully')
                 ->with('message_type', 'success');
         } catch (\Exception $e) {

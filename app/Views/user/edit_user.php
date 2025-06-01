@@ -88,7 +88,7 @@
                         </div>
 
                         <button class="btn btn-primary" type="submit">Save changes</button>
-                        <a href="<?= base_url('user') ?>" class="btn btn-outline-secondary">Cancel</a>
+                        <a href="<?= base_url('users') ?>" class="btn btn-outline-secondary">Cancel</a>
                     </form>
                 </div>
             </div>

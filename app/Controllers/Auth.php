@@ -221,9 +221,9 @@ class Auth extends BaseController
                     delete_cookie('password');
                 }
                   if ($isAjax) {
-                    return $this->response->setJSON(['success' => true, 'redirect' => base_url('/user')]);
+                    return $this->response->setJSON(['success' => true, 'redirect' => base_url('/users')]);
                 } else {
-                    return redirect()->to('/user'); // Redirect to user management page after login
+                    return redirect()->to('/users'); // Redirect to user management page after login
                 }
             } else {
                 $error = 'Failed to update last login time.';

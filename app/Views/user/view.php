@@ -57,7 +57,7 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <a href="<?= base_url('user') ?>" class="btn btn-secondary">Back to List</a>
+                    <a href="<?= base_url('users') ?>" class="btn btn-secondary">Back to List</a>
                     <a href="<?= base_url('user/edit/' . $user['intUserID']) ?>" class="btn btn-primary">Edit User</a>
                 </div>
             </div>

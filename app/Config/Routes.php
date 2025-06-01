@@ -34,7 +34,7 @@ $routes->post('auth/sendResetLink', 'Auth::sendResetLink');  // Mengirim link re
 $routes->get('auth/reset_password/(:any)', 'Auth::resetPassword/$1');  // Menampilkan halaman reset password
 $routes->post('auth/updatePassword', 'Auth::updatePassword');  // Memperbarui password
 
-$routes->group('user', ['filter' => 'auth'], function ($routes) {
+$routes->group('users', ['filter' => 'auth'], function ($routes) {
     $routes->get('/', 'UserController::index');                   // User management dashboard
     $routes->get('edit/(:num)', 'UserController::edit/$1');      // Edit user form
     $routes->post('update/(:num)', 'UserController::update/$1'); // Process user update
@@ -42,8 +42,9 @@ $routes->group('user', ['filter' => 'auth'], function ($routes) {
     $routes->post('toggle-status/(:num)', 'UserController::toggleStatus/$1'); // Toggle user status
 });
 
-$routes->group('role', ['filter' => 'auth'], function ($routes) {
+$routes->group('roles', ['filter' => 'auth'], function ($routes) {
     $routes->get('/', 'RoleController::index');
+    $routes->post('data', 'RoleController::data'); // DataTables endpoint
     $routes->get('create', 'RoleController::create');
     $routes->post('store', 'RoleController::store');
     $routes->get('edit/(:num)', 'RoleController::edit/$1');
@@ -124,4 +125,36 @@ $routes->group('schedule', ['filter' => 'auth'], function ($routes) {
 $routes->group('debug', ['filter' => 'auth'], function ($routes) {
     $routes->get('test-google-registration', 'DebugController::testGoogleRegistration');
     $routes->get('check-guid-values', 'DebugController::checkGuidValues');
+});
+
+$routes->setDefaultNamespace('App\Controllers');
+$routes->setDefaultController('Home');
+$routes->setDefaultMethod('index');
+$routes->setTranslateURIDashes(false);
+$routes->set404Override();
+
+// The Auto Routing (Legacy) is very dangerous. It is easy to create vulnerable apps
+// where controller filters or CSRF protection are bypassed.
+// If you don't want to define all routes, please use the Auto Routing (Improved).
+$routes->setAutoRoute(false);
+
+/*
+ * --------------------------------------------------------------------
+ * Route Definitions
+ * --------------------------------------------------------------------
+ */
+
+// We get a performance increase by specifying the default
+// route since we don't have to scan directories.
+$routes->get('/', 'Home::index');
+
+// Role Management Routes
+$routes->group('roles', ['filter' => 'auth'], function($routes) {
+    $routes->get('/', 'RoleController::index');
+    $routes->post('data', 'RoleController::data'); // DataTables endpoint
+    $routes->get('create', 'RoleController::create');
+    $routes->post('store', 'RoleController::store');
+    $routes->get('edit/(:num)', 'RoleController::edit/$1');
+    $routes->post('update/(:num)', 'RoleController::update/$1');
+    $routes->get('view/(:num)', 'RoleController::view/$1');
 });
