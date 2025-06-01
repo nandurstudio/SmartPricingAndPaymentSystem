@@ -98,4 +98,4 @@ database/reference/
 app/Database/sql/
 
 # (Optional) Ignore all .sql files at root or anywhere
-*.sql
+*.sqlpublic/assets/js/simple-datatables/
