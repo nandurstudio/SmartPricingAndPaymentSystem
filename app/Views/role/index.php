@@ -1,54 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
+<?= $this->extend('layouts/main') ?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Role List</title>
-    <link rel="stylesheet" href="<?php echo base_url('assets/css/bootstrap/bootstrap.min.css'); ?>">
-</head>
-
-<body>
-    <div class="container mt-5">
-        <h2>Role List</h2>
-
-        <a href="<?= base_url('role/create') ?>" class="btn btn-success mb-3">Add New Role</a>
-
-        <table class="table table-bordered table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>#</th>
-                    <th>Role Name</th>
-                    <th>Description</th>
-                    <th>Note</th>
-                    <th>Active</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($roles) && is_array($roles)) : ?>
-                    <?php foreach ($roles as $index => $role) : ?>
-                        <tr>
-                            <td><?= $index + 1 ?></td>
-                            <td><?= esc($role['txtRoleName']) ?></td>
-                            <td><?= esc($role['txtRoleDesc']) ?></td>
-                            <td><?= esc($role['txtRoleNote']) ?></td>
-                            <td><?= $role['bitActive'] ? 'Yes' : 'No' ?></td>
-                            <td>
-                                <a href="<?= base_url('role/edit/' . $role['intRoleID']) ?>" class="btn btn-warning btn-sm">Edit</a>
-                                <a href="<?= base_url('role/view/' . $role['intRoleID']) ?>" class="btn btn-info btn-sm">View</a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else : ?>
+<?= $this->section('content') ?>
+<div class="container-xl px-4 mt-4">
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Role Management</h5>
+                <a href="<?= base_url('roles/create') ?>" class="btn btn-primary btn-sm">
+                    <i data-feather="plus"></i> Add New Role
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="roleTable" class="table table-striped" style="width:100%">
+                <thead>
                     <tr>
-                        <td colspan="7" class="text-center">No roles found.</td>
+                        <th>No.</th>  <!-- Changed from '#' to 'No.' -->
+                        <th>Role Name</th>
+                        <th>Description</th>
+                        <th>Notes</th>
+                        <th>Status</th>
+                        <th>Created By</th>
+                        <th>Created Date</th>
+                        <th>Updated By</th>
+                        <th>Updated Date</th>
+                        <th style="width: 100px">Actions</th>
                     </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                </thead>
+            </table>
+        </div>
     </div>
-    <script src="<?php echo base_url('assets/js/bootstrap/bootstrap.bundle.min.js'); ?>"></script>
-</body>
+</div>
+<?= $this->endSection() ?>
 
-</html>
+<?= $this->section('css') ?>
+<!-- Debug CSS loading -->
+<link href="<?= base_url('assets/css/pages/role/role.css?v=' . time()) ?>" rel="stylesheet" />
+<?= $this->endSection() ?>
+
+<?= $this->section('js') ?>
+<script>
+    const baseUrl = '<?= base_url() ?>';
+</script>
+<script src="<?= base_url('assets/js/pages/role/role.js') ?>"></script>
+<?= $this->endSection() ?>

@@ -10,13 +10,14 @@ class MRoleModel extends Model
     protected $primaryKey = 'intRoleID'; // Primary key
     protected $allowedFields = [
         'txtRoleName',
-        'txtDescription',
-        'bitActive',
+        'txtRoleDesc',
+        'txtRoleNote',
+        'bitStatus', 
         'txtCreatedBy',
         'dtmCreatedDate',
         'txtLastUpdatedBy',
         'dtmLastUpdatedDate',
-        'txtGUID', // UUID
+        'txtGUID'
     ];
 
     // Optional: Untuk timestamps otomatis

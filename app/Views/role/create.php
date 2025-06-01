@@ -1,42 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
+<?= $this->extend('layouts/main') ?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Role</title>
-    <link rel="stylesheet" href="<?php echo base_url('assets/css/bootstrap/bootstrap.min.css'); ?>">
-</head>
-
-<body>
-    <?= $this->extend('layouts/main') ?>
-
-    <?= $this->section('content') ?>
-    <div class="container mt-4">
-        <h2>Create Role</h2>
-        <form action="<?= base_url('role/store') ?>" method="post">
-            <div class="mb-3">
-                <label for="role_name" class="form-label">Role Name:</label>
-                <input type="text" class="form-control" id="role_name" name="txtRoleName" required>
+<?= $this->section('content') ?>
+<div class="container-xl px-4 mt-4">
+    <div class="card">
+        <div class="card-header">            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><?= $pageTitle ?? 'Create Role' ?></h5>
+                <div>
+                    <button type="submit" form="roleForm" class="btn btn-primary btn-sm">
+                        <i data-feather="plus"></i> Create Role
+                    </button>
+                    <a href="<?= base_url('roles') ?>" class="btn btn-secondary btn-sm ms-2">
+                        <i data-feather="arrow-left"></i> Back
+                    </a>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="description" class="form-label">Description:</label>
-                <input type="text" class="form-control" id="description" name="txtDesc">
-            </div>
-            <div class="mb-3">
-                <label for="active" class="form-label">Status:</label>
-                <select class="form-select" id="active" name="bitActive">
-                    <option value="1">Active</option>
-                    <option value="0">Inactive</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Create Role</button>
-            <a href="<?= base_url('role') ?>" class="btn btn-secondary">Cancel</a>
-        </form>
+        </div>
+        <div class="card-body">
+            <?= $this->include('layouts/messages') ?>            <form action="<?= base_url('roles/store') ?>" method="post" id="roleForm">
+                <?= $this->include('role/_form') ?>
+            </form>
+        </div>
     </div>
-    <?= $this->endSection() ?>
-
-    <script src="<?php echo base_url('assets/js/bootstrap/bootstrap.bundle.min.js'); ?>"></script>
-</body>
-
-</html>
+</div>
+<?= $this->endSection() ?>
