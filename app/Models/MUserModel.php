@@ -26,11 +26,10 @@ class MUserModel extends Model
         'token_created_at',
         'txtPhoto',
         'dtmJoinDate',
-        'bitOnlineStatus',
-        'google_auth_token',
-        'tenant_id',        // Foreign key untuk relasi dengan tenant
+        'bitOnlineStatus',        'txtGoogleAuthToken',
+        'intTenantID',        // Foreign key untuk relasi dengan tenant
         'is_tenant_owner',  // Flag untuk menandai user adalah owner tenant
-        'default_tenant_id' // Tenant default untuk user yang memiliki akses ke multiple tenant
+        'intDefaultTenantID' // Tenant default untuk user yang memiliki akses ke multiple tenant
     ];
 
     // Optional: Untuk timestamps otomatis
@@ -80,8 +79,7 @@ class MUserModel extends Model
             'txtPhoto'          => $googleUser->picture ?? null,
             'bitActive'         => 1,
             'dtmJoinDate'       => date('Y-m-d H:i:s'),
-            'dtmLastLogin'      => date('Y-m-d H:i:s'),
-            'google_auth_token' => $googleUser->id ?? null,
+            'dtmLastLogin'      => date('Y-m-d H:i:s'),            'txtGoogleAuthToken' => $googleUser->id ?? null,
             'txtCreatedBy'      => 'google_auth', // Changed to match Auth.php
             'dtmCreatedDate'    => date('Y-m-d H:i:s'),
             'txtGUID'           => uniqid('google_', true), // Using same format as Auth.php

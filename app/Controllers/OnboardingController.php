@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\MUserModel;
-use App\Models\TenantModel;
+use App\Models\MTenantModel;
 use App\Models\ServiceTypeModel;
 
 class OnboardingController extends BaseController
@@ -12,12 +12,10 @@ class OnboardingController extends BaseController
     protected $tenantModel;
     protected $serviceTypeModel;
     protected $db;
-    protected $menuModel;
-
-    public function __construct()
+    protected $menuModel;    public function __construct()
     {
         $this->userModel = new MUserModel();
-        $this->tenantModel = new TenantModel();
+        $this->tenantModel = new MTenantModel();
         $this->serviceTypeModel = new ServiceTypeModel();
         $this->db = \Config\Database::connect();
         $this->menuModel = new \App\Models\MenuModel();
@@ -30,11 +28,9 @@ class OnboardingController extends BaseController
     {
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login');
-        }
-
-        // Cek apakah user sudah punya tenant
+        }        // Cek apakah user sudah punya tenant
         $userId = session()->get('userID');
-        $existingTenant = $this->tenantModel->where('owner_id', $userId)->first();
+        $existingTenant = $this->tenantModel->where('intOwnerID', $userId)->first();
 
         if ($existingTenant) {
             return redirect()->to('/dashboard');
@@ -44,7 +40,7 @@ class OnboardingController extends BaseController
         
         $data = [
             'title' => 'Setup Your Business',
-            'serviceTypes' => $this->serviceTypeModel->where('is_active', 1)->findAll(),
+            'serviceTypes' => $this->serviceTypeModel->where('bitActive', 1)->findAll(),
             'validation' => \Config\Services::validation(),
             'menus' => $menus
         ];
@@ -78,12 +74,12 @@ class OnboardingController extends BaseController
         $subscriptionPlan = $this->request->getPost('subscription_plan');
 
         // Generate tenant data
-        $tenantData = [
-            'txtTenantName' => $this->request->getPost('name'),
+        $tenantData = [            'txtTenantName' => $this->request->getPost('name'),
             'intServiceTypeID' => $this->request->getPost('service_type_id'),
             'txtSubscriptionPlan' => $subscriptionPlan,
             'txtDomain' => $this->request->getPost('domain'),
-            'txtDescription' => $this->request->getPost('description'),
+            'txtSlug' => $this->tenantModel->generateTenantSlug($this->request->getPost('name')),
+            'txtTenantCode' => strtoupper(substr(md5(time()), 0, 8)),
             'intOwnerID' => $userId,
             'txtStatus' => $subscriptionPlan === 'free' ? 'active' : 'pending',
             'txtGUID' => uniqid('tenant_', true),
@@ -104,10 +100,9 @@ class OnboardingController extends BaseController
 
             // Update user role to tenant owner and link to tenant
             $this->userModel->update($userId, [
-                'intRoleID' => 3, // Tenant Owner role
-                'tenant_id' => $tenantId,
-                'is_tenant_owner' => 1,
-                'default_tenant_id' => $tenantId
+                'intRoleID' => 3, // Tenant Owner role                'intTenantID' => $tenantId,
+                'bitIsTenantOwner' => 1,
+                'intDefaultTenantID' => $tenantId
             ]);
 
             // Commit transaction
@@ -199,12 +194,10 @@ class OnboardingController extends BaseController
     {
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login');
-        }
-
-        $tenant = $this->tenantModel->find($tenantId);
+        }        $tenant = $this->tenantModel->find($tenantId);
         
         // Validasi akses
-        if (!$tenant || $tenant['owner_id'] != session()->get('userID')) {
+        if (!$tenant || $tenant['intOwnerID'] != session()->get('userID')) {
             return redirect()->to('/dashboard');
         }
 
@@ -224,12 +217,10 @@ class OnboardingController extends BaseController
     {
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login');
-        }
-
-        $tenant = $this->tenantModel->find($tenantId);
+        }        $tenant = $this->tenantModel->find($tenantId);
         
         // Validasi akses
-        if (!$tenant || $tenant['owner_id'] != session()->get('userID')) {
+        if (!$tenant || $tenant['intOwnerID'] != session()->get('userID')) {
             return redirect()->to('/dashboard');
         }
 
@@ -238,17 +229,16 @@ class OnboardingController extends BaseController
         if ($logo && $logo->isValid() && !$logo->hasMoved()) {
             $newName = $logo->getRandomName();
             $logo->move(ROOTPATH . 'public/uploads/tenants', $newName);
-            
-            // Delete old logo if exists
-            if ($tenant['logo'] && file_exists(ROOTPATH . 'public/uploads/tenants/' . $tenant['logo'])) {
-                unlink(ROOTPATH . 'public/uploads/tenants/' . $tenant['logo']);
+              // Delete old logo if exists
+            if ($tenant['txtLogo'] && file_exists(ROOTPATH . 'public/uploads/tenants/' . $tenant['txtLogo'])) {
+                unlink(ROOTPATH . 'public/uploads/tenants/' . $tenant['txtLogo']);
             }
             
             // Update tenant dengan logo baru
             $this->tenantModel->update($tenantId, [
-                'logo' => $newName,
-                'theme' => $this->request->getPost('theme'),
-                'settings' => json_encode([
+                'txtLogo' => $newName,
+                'txtTheme' => $this->request->getPost('theme'),
+                'jsonSettings' => json_encode([
                     'primary_color' => $this->request->getPost('primary_color'),
                     'secondary_color' => $this->request->getPost('secondary_color')
                 ])
@@ -333,18 +323,17 @@ class OnboardingController extends BaseController
             if ($transactionStatus == 'capture') {
                 if ($fraudStatus == 'challenge') {
                     // Do nothing, wait for manual verification
-                    $this->tenantModel->update($tenantId, ['status' => 'pending_verification']);
+                    $this->tenantModel->update($tenantId, ['txtStatus' => 'pending_verification']);
                 } else if ($fraudStatus == 'accept') {
                     $this->tenantModel->activateSubscription($tenantId, (array)$notification);
                 }
             } else if ($transactionStatus == 'settlement') {
-                $this->tenantModel->activateSubscription($tenantId, (array)$notification);
-            } else if ($transactionStatus == 'cancel' || 
+                $this->tenantModel->activateSubscription($tenantId, (array)$notification);            } else if ($transactionStatus == 'cancel' || 
                       $transactionStatus == 'deny' || 
                       $transactionStatus == 'expire') {
-                $this->tenantModel->update($tenantId, ['status' => 'payment_failed']);
+                $this->tenantModel->update($tenantId, ['txtStatus' => 'payment_failed']);
             } else if ($transactionStatus == 'pending') {
-                $this->tenantModel->update($tenantId, ['status' => 'pending_payment']);
+                $this->tenantModel->update($tenantId, ['txtStatus' => 'pending_payment']);
             }
 
             // Return 200 OK

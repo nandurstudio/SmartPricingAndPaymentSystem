@@ -229,7 +229,7 @@ class RoleController extends Controller
             $filteredRecords = $builder->countAllResults(false);
 
             // Ordering
-            $columns = ['intRoleID', 'txtRoleName', 'txtRoleDesc', 'txtRoleNote', 'bitStatus', 'txtCreatedBy', 'dtmCreatedDate', 'txtLastUpdatedBy', 'dtmLastUpdatedDate'];
+            $columns = ['intRoleID', 'txtRoleName', 'txtRoleDesc', 'txtRoleNote', 'bitStatus', 'txtCreatedBy', 'dtmCreatedDate', 'txtLastUpdatedBy', 'dtmUpdatedDate'];
             if (isset($order['column']) && isset($columns[$order['column']])) {
                 $orderColumn = $columns[$order['column']];
                 $builder->orderBy($orderColumn, $order['dir']);

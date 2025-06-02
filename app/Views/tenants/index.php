@@ -34,14 +34,14 @@
                 </a>
             </div>
         </div>
-        <div class="card-body">
-            <table id="datatablesSimple" class="table table-striped table-bordered">
+        <div class="card-body">            <table id="datatablesSimple" class="table table-striped table-bordered">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
                         <th>Type</th>
                         <th>Status</th>
+                        <th>Subscription</th>
                         <th>Owner</th>
                         <th>Created</th>
                         <th>Actions</th>
@@ -51,23 +51,32 @@
                     <?php if (!empty($tenants)) : ?>
                         <?php foreach ($tenants as $tenant) : ?>
                             <tr>
-                                <td><?= $tenant['id'] ?></td>
-                                <td><?= esc($tenant['name']) ?></td>
-                                <td><?= esc($tenant['type']) ?></td>
+                                <td><?= $tenant['intTenantID'] ?></td>
+                                <td><?= esc($tenant['txtTenantName']) ?></td>
+                                <td><?= isset($tenant['service_type_name']) ? esc($tenant['service_type_name']) : 'N/A' ?></td>
                                 <td>
-                                    <?php if ($tenant['is_active'] == 1) : ?>
-                                        <span class="badge bg-success">Active</span>
-                                    <?php else : ?>
-                                        <span class="badge bg-danger">Inactive</span>
-                                    <?php endif; ?>
+                                    <?php 
+                                    $statusClass = 'secondary';
+                                    switch($tenant['txtStatus']) {
+                                        case 'active': $statusClass = 'success'; break;
+                                        case 'inactive': $statusClass = 'danger'; break;
+                                        case 'suspended': $statusClass = 'warning'; break;
+                                        case 'pending': $statusClass = 'info'; break;
+                                        case 'pending_verification': $statusClass = 'primary'; break;
+                                        case 'pending_payment': $statusClass = 'dark'; break;
+                                        case 'payment_failed': $statusClass = 'danger'; break;
+                                    }
+                                    ?>
+                                    <span class="badge bg-<?= $statusClass ?>"><?= ucfirst(str_replace('_', ' ', $tenant['txtStatus'])) ?></span>
                                 </td>
+                                <td><?= ucfirst(esc($tenant['txtSubscriptionPlan'])) ?></td>
                                 <td><?= isset($tenant['owner_name']) ? esc($tenant['owner_name']) : session()->get('userFullName') ?></td>
-                                <td><?= date('Y-m-d', strtotime($tenant['created_date'] ?? date('Y-m-d'))) ?></td>
+                                <td><?= date('Y-m-d', strtotime($tenant['dtmCreatedDate'] ?? date('Y-m-d'))) ?></td>
                                 <td>
-                                    <a href="<?= base_url('tenant/view/' . $tenant['id']) ?>" class="btn btn-info btn-sm">
+                                    <a href="<?= base_url('tenant/view/' . $tenant['intTenantID']) ?>" class="btn btn-info btn-sm">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="<?= base_url('tenant/edit/' . $tenant['id']) ?>" class="btn btn-warning btn-sm">
+                                    <a href="<?= base_url('tenant/edit/' . $tenant['intTenantID']) ?>" class="btn btn-warning btn-sm">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 </td>
@@ -75,7 +84,7 @@
                         <?php endforeach; ?>
                     <?php else : ?>
                         <tr>
-                            <td colspan="7" class="text-center">No tenants found. Create your first tenant to get started.</td>
+                            <td colspan="8" class="text-center">No tenants found. Create your first tenant to get started.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

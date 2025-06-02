@@ -6,26 +6,24 @@ use CodeIgniter\Model;
 
 class ServiceTypeModel extends Model
 {
-    protected $table = 'm_service_types'; // Updated from 'service_types' to 'm_service_types'
-    protected $primaryKey = 'id';
+    protected $table = 'm_service_types'; 
+    protected $primaryKey = 'intServiceTypeID';
     
     protected $allowedFields = [
-        'guid', 'name', 'slug', 'description', 'icon', 'category',
-        'is_system', 'is_approved', 'requested_by', 'approved_by',
-        'approved_date', 'default_attributes', 'is_active',
-        'created_date', 'created_by', 'updated_date', 'updated_by'
+        'txtGUID', 'txtName', 'txtSlug', 'txtDescription', 'txtIcon', 'txtCategory',
+        'bitIsSystem', 'bitIsApproved', 'intRequestedByID', 'intApprovedByID',
+        'dtmApprovedDate', 'jsonDefaultAttributes', 'bitActive',
+        'dtmCreatedDate', 'txtCreatedBy', 'dtmUpdatedDate', 'txtUpdatedBy'
     ];
 
     protected $useTimestamps = false;
-    protected $beforeInsert = ['addGuid'];
-
-    protected function addGuid(array $data)
+    protected $beforeInsert = ['addGuid'];    protected function addGuid(array $data)
     {
-        if (!isset($data['data']['guid'])) {
-            $data['data']['guid'] = uniqid('st_', true);
+        if (!isset($data['data']['txtGUID'])) {
+            $data['data']['txtGUID'] = uniqid('st_', true);
         }
-        $data['data']['created_date'] = date('Y-m-d H:i:s');
-        $data['data']['is_active'] = $data['data']['is_active'] ?? true;
+        $data['data']['dtmCreatedDate'] = date('Y-m-d H:i:s');
+        $data['data']['bitActive'] = $data['data']['bitActive'] ?? true;
         return $data;
     }
 

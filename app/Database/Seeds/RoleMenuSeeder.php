@@ -7,138 +7,95 @@ use CodeIgniter\Database\Seeder;
 class RoleMenuSeeder extends Seeder
 {
     public function run()
-    {        // First, truncate the role_menu table to avoid duplicates
+    {
+        // Clear existing role menu assignments first
         $this->db->table('m_role_menu')->truncate();
 
-        // Get all menu IDs
-        $allMenus = $this->db->table('m_menu')->select('intMenuID')->get()->getResultArray();
-        $allMenuIds = array_column($allMenus, 'intMenuID');
-
-        // Super Administrator (Full Access)
-        $superAdminAccess = array_map(function($menuId) {
-            return [
-                'intRoleID' => 1,
-                'intMenuID' => $menuId
-            ];
-        }, $allMenuIds);
-        $this->db->table('m_role_menu')->insertBatch($superAdminAccess);
-
-        // Administrator (Limited Access)
-        $adminMenuPaths = ['/dashboard', '/master/users', '/master/roles', '/settings/profile'];
-        $adminMenus = $this->db->table('m_menu')
-            ->select('intMenuID')
-            ->whereIn('txtMenuLink', $adminMenuPaths)
-            ->get()
-            ->getResultArray();
-        
-        $adminAccess = array_map(function($menu) {
-            return [
-                'intRoleID' => 2,
-                'intMenuID' => $menu['intMenuID']
-            ];
-        }, $adminMenus);
-        if (!empty($adminAccess)) {
-            $this->db->table('m_role_menu')->insertBatch($adminAccess);
+        // Get all menu IDs first
+        $menuIds = [];
+        $query = $this->db->table('m_menu')->select('intMenuID, txtMenuLink, intParentID')->get();
+        foreach ($query->getResultArray() as $menu) {
+            $menuIds[$menu['txtMenuLink']] = $menu['intMenuID'];
+            if ($menu['intParentID']) {
+                $parentMenus[$menu['intMenuID']] = $menu['intParentID'];
+            }
         }
 
-        // Tenant Owner Access
-        $tenantOwnerPaths = [
-            '/dashboard',
-            '/services',
-            '/services/schedule',
-            '/services/attributes',
-            '/bookings',
-            '/bookings/calendar',
-            '/reports/bookings',
-            '/reports/revenue',
-            '/reports/usage',
-            '/settings/profile'
+        $roleMenus = [
+            // Super Administrator - Full Access
+            ['intRoleID' => 1, 'menuLinks' => [
+                '/dashboard', '/users', '/roles', '/service-types',
+                '/tenants', '/tenant-services', '/services', '/schedules',
+                '/service-attributes', '/bookings', '/booking-calendar',
+                '/reports/bookings', '/reports/revenue', '/reports/usage',
+                '/settings/system', '/settings/profile'
+            ]],
+            
+            // Administrator - Limited Access
+            ['intRoleID' => 2, 'menuLinks' => [
+                '/dashboard', '/users', '/services', '/schedules',
+                '/service-attributes', '/bookings', '/booking-calendar',
+                '/reports/bookings', '/settings/profile'
+            ]],
+            
+            // Tenant Owner - Business Access
+            ['intRoleID' => 3, 'menuLinks' => [
+                '/dashboard', '/tenant-services', '/services', '/schedules',
+                '/service-attributes', '/bookings', '/booking-calendar',
+                '/reports/bookings', '/reports/revenue', '/settings/profile'
+            ]],
+            
+            // Tenant Staff - Operational Access
+            ['intRoleID' => 4, 'menuLinks' => [
+                '/dashboard', '/services', '/schedules', '/bookings',
+                '/booking-calendar', '/settings/profile'
+            ]],
+            
+            // Customer - Basic Access
+            ['intRoleID' => 5, 'menuLinks' => [
+                '/dashboard', '/bookings', '/settings/profile'
+            ]],
+            
+            // Guest - View Only
+            ['intRoleID' => 6, 'menuLinks' => [
+                '/dashboard'
+            ]]
         ];
-        $tenantOwnerMenus = $this->db->table('m_menu')
-            ->select('intMenuID')
-            ->whereIn('txtMenuLink', $tenantOwnerPaths)
-            ->get()
-            ->getResultArray();
 
-        $tenantOwnerAccess = array_map(function($menu) {
-            return [
-                'intRoleID' => 3,
-                'intMenuID' => $menu['intMenuID']
-            ];
-        }, $tenantOwnerMenus);
-        if (!empty($tenantOwnerAccess)) {
-            $this->db->table('m_role_menu')->insertBatch($tenantOwnerAccess);
+        $data = [];
+        foreach ($roleMenus as $role) {
+            // Add menus based on menuLinks
+            foreach ($role['menuLinks'] as $menuLink) {
+                if (isset($menuIds[$menuLink])) {
+                    $menuId = $menuIds[$menuLink];
+                    $data[] = [
+                        'intRoleID' => $role['intRoleID'],
+                        'intMenuID' => $menuId,
+                        'bitActive' => 1,
+                        'txtCreatedBy' => 'system',
+                        'dtmCreatedDate' => date('Y-m-d H:i:s')
+                    ];
+                    
+                    // Add parent menu if exists
+                    if (isset($parentMenus[$menuId])) {
+                        $parentId = $parentMenus[$menuId];
+                        $data[] = [
+                            'intRoleID' => $role['intRoleID'],
+                            'intMenuID' => $parentId,
+                            'bitActive' => 1,
+                            'txtCreatedBy' => 'system',
+                            'dtmCreatedDate' => date('Y-m-d H:i:s')
+                        ];
+                    }
+                }
+            }
         }
 
-        // Tenant Staff Access
-        $tenantStaffPaths = [
-            '/dashboard',
-            '/services',
-            '/services/schedule',
-            '/bookings',
-            '/bookings/calendar',
-            '/settings/profile'
-        ];
-        $tenantStaffMenus = $this->db->table('m_menu')
-            ->select('intMenuID')
-            ->whereIn('txtMenuLink', $tenantStaffPaths)
-            ->get()
-            ->getResultArray();
-
-        $tenantStaffAccess = array_map(function($menu) {
-            return [
-                'intRoleID' => 4,
-                'intMenuID' => $menu['intMenuID']
-            ];
-        }, $tenantStaffMenus);
-        if (!empty($tenantStaffAccess)) {
-            $this->db->table('m_role_menu')->insertBatch($tenantStaffAccess);
-        }
-
-        // Customer Access
-        $customerPaths = [
-            '/dashboard',
-            '/services/list',
-            '/bookings/list',
-            '/bookings/calendar',
-            '/bookings/payments',
-            '/settings/profile'
-        ];
-        $customerMenus = $this->db->table('m_menu')
-            ->select('intMenuID')
-            ->whereIn('txtMenuLink', $customerPaths)
-            ->get()
-            ->getResultArray();
-
-        $customerAccess = array_map(function($menu) {
-            return [
-                'intRoleID' => 5,
-                'intMenuID' => $menu['intMenuID']
-            ];
-        }, $customerMenus);
-        if (!empty($customerAccess)) {
-            $this->db->table('m_role_menu')->insertBatch($customerAccess);
-        }
-
-        // Guest Access
-        $guestPaths = [
-            '/services/list',
-            '/bookings/calendar'
-        ];
-        $guestMenus = $this->db->table('m_menu')
-            ->select('intMenuID')
-            ->whereIn('txtMenuLink', $guestPaths)
-            ->get()
-            ->getResultArray();
-
-        $guestAccess = array_map(function($menu) {
-            return [
-                'intRoleID' => 6,
-                'intMenuID' => $menu['intMenuID']
-            ];
-        }, $guestMenus);
-        if (!empty($guestAccess)) {
-            $this->db->table('m_role_menu')->insertBatch($guestAccess);
+        // Insert data in batches
+        if (!empty($data)) {
+            // Remove duplicate entries
+            $data = array_map('unserialize', array_unique(array_map('serialize', $data)));
+            $this->db->table('m_role_menu')->insertBatch($data);
         }
     }
 }

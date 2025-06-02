@@ -21,16 +21,21 @@ class Auth extends BaseController
         // Menambahkan scope 'email' dan 'profile'
         $this->googleClient->addScope('email');
         $this->googleClient->addScope('profile');
-        
-        // Load helper for consistent flash message handling
-        helper(['flashmessage']);
+
+        // Load helper for consistent flash message handling and cookies
+        helper(['flashmessage', 'cookie']);
     }
 
     public function index()
     {
+        // Add debug logging
+        log_message('debug', 'Checking for Remember Me cookies...');
+        
         // Cek cookie untuk Remember Me
         $email = get_cookie('email');
         $password = get_cookie('password');
+        
+        log_message('debug', 'Cookie values - Email: ' . ($email ? 'found' : 'not found') . ', Password: ' . ($password ? 'found' : 'not found'));
 
         // Jika cookie Remember Me ditemukan, coba login otomatis
         if ($email && $password) {
@@ -114,10 +119,9 @@ class Auth extends BaseController
                         'intRoleID' => 5, // Default role for Customer
                         'dtmJoinDate' => date('Y-m-d H:i:s'),
                         'dtmLastLogin' => date('Y-m-d H:i:s'),
-                        'txtGUID' => uniqid('google_', true), // Generate a unique ID dengan prefix google_ untuk tracking
-                        'dtmCreatedDate' => date('Y-m-d H:i:s'),
+                        'txtGUID' => uniqid('google_', true), // Generate a unique ID dengan prefix google_ untuk tracking                        'dtmCreatedDate' => date('Y-m-d H:i:s'),
                         'txtCreatedBy' => 'google_auth',
-                        'google_auth_token' => $googleUser->id,
+                        'txtGoogleAuthToken' => $googleUser->id,
                     ];
 
                     // Insert data pengguna baru
@@ -131,6 +135,7 @@ class Auth extends BaseController
                         'txtFullName' => $fullName, // Update fullname
                         'txtPhoto' => $profilePictureUrlHD, // Update photo jika perlu dengan foto HD
                         'dtmLastLogin' => date('Y-m-d H:i:s'), // Update last login
+                        'intTenantID' => $existingUser['intTenantID'] ?? null
                     ];
 
                     // Update data pengguna yang sudah ada
@@ -149,23 +154,22 @@ class Auth extends BaseController
                     'lastLogin' => $user['dtmLastLogin'],
                     'joinDate' => $user['dtmJoinDate'],
                     'photo' => $profilePictureUrlHD,
-                    'tenant_id' => $user['tenant_id'] ?? null
-                ]);
-
-                // Cek apakah user perlu setup tenant
-                if (!$user['tenant_id'] && !$existingUser) {
+                    'intTenantID' => $user['intTenantID'] ?? null
+                ]);                // Cek apakah user perlu setup tenant
+                if (!$user['intTenantID'] && !$existingUser) {
                     return redirect()->to('/onboarding/setup-tenant');
                 }
-                
+
                 // Redirect ke dashboard jika sudah punya tenant
                 return redirect()->to('/dashboard');
             } else {
                 return redirect()->to('/auth')->with('error', 'Failed to get access token');
-            }        } else {
+            }
+        } else {
             return redirect()->to('/auth')->with('error', 'Invalid request');
         }
     } // End of googleCallback method
-      public function login()
+    public function login()
     {
         log_message('debug', 'Identity input: ' . $this->request->getPost('txtEmail'));
         log_message('debug', 'Password input: ' . $this->request->getPost('txtPassword'));
@@ -174,21 +178,21 @@ class Auth extends BaseController
         $identity = $this->request->getPost('txtEmail'); // Bisa berisi email atau username
         $password = $this->request->getPost('txtPassword');
         $rememberMe = $this->request->getPost('remember_me');
-        
+
         // Check if it's an AJAX request
         $isAjax = $this->request->isAJAX();
-        
+
         // Validation
         $errors = [];
-        
+
         if (empty($identity)) {
             $errors['fields']['email'] = 'Email or Username is required';
         }
-        
+
         if (empty($password)) {
             $errors['fields']['password'] = 'Password is required';
         }
-        
+
         if (!empty($errors)) {
             if ($isAjax) {
                 $errors['error'] = 'Please check your input';
@@ -202,12 +206,15 @@ class Auth extends BaseController
         $user = $userModel->verifyLoginByUsernameOrEmail($identity, $password);
 
         if ($user) {
-            if ($userModel->updateLastLogin($user['intUserID'])) {
-                // Set session
+            if ($userModel->updateLastLogin($user['intUserID'])) {                // Get user with role name
+                $userWithRole = $userModel->getUserWithRole($user['intUserID']);
+                
+                // Set session with role name
                 session()->set([
                     'isLoggedIn' => true,
                     'userID' => $user['intUserID'],
                     'roleID' => $user['intRoleID'],
+                    'roleName' => $userWithRole['txtRoleName'] ?? 'Unknown Role', // Add role name to session
                     'userName' => $user['txtUserName'],
                     'userFullName' => $user['txtFullName'],
                     'userEmail' => $user['txtEmail'],
@@ -215,18 +222,35 @@ class Auth extends BaseController
                     'lastLogin' => $user['dtmLastLogin'],
                     'joinDate' => $user['dtmJoinDate'],
                     'photo' => $user['txtPhoto'],
-                ]);
-
-                log_message('debug', 'Session set for user: ' . $user['txtUserName']);
+                ]);log_message('debug', 'Session set for user: ' . $user['txtUserName']);
 
                 if ($rememberMe) {
-                    set_cookie('email', $user['txtEmail'], 30 * 86400);
-                    set_cookie('password', $password, 30 * 86400);
+                    log_message('debug', 'Setting remember me cookies...');
+                    
+                    // Cookie settings
+                    $cookieExpiry = 30 * 86400; // 30 days in seconds
+                    $domain = '.smartpricingandpaymentsystem.localhost.com';
+                    $path = '/';
+                    
+                    // Set email cookie
+                    $result1 = set_cookie('email', $user['txtEmail'], $cookieExpiry);
+                    
+                    // Set password cookie (consider encrypting for better security)
+                    $result2 = set_cookie('password', $password, $cookieExpiry);
+                    
+                    log_message('debug', 'Cookie set results - Email: ' . ($result1 ? 'success' : 'failed') . 
+                              ', Password: ' . ($result2 ? 'success' : 'failed'));
+                    
+                    // Double check if cookies were set
+                    $emailCookie = get_cookie('email');
+                    log_message('debug', 'Cookie values after set - Email cookie exists: ' . 
+                              ($emailCookie ? 'yes' : 'no'));
                 } else {
+                    log_message('debug', 'Removing remember me cookies...');
                     delete_cookie('email');
                     delete_cookie('password');
                 }
-                  if ($isAjax) {
+                if ($isAjax) {
                     return $this->response->setJSON(['success' => true, 'redirect' => base_url('/users')]);
                 } else {
                     return redirect()->to('/users'); // Redirect to user management page after login
@@ -255,7 +279,7 @@ class Auth extends BaseController
             // Jika belum login, arahkan ke halaman login
             return redirect()->to('/login');
         }
-        
+
         // Ambil roleID dari session dan menu berdasarkan role
         $roleID = session()->get('roleID');
         $menuModel = new \App\Models\MenuModel();
@@ -283,7 +307,8 @@ class Auth extends BaseController
     public function forgotPassword()
     {
         return view('forgot_password', ['title' => 'Forgot Password']);
-    }    public function sendResetLink()
+    }
+    public function sendResetLink()
     {
         $email = $this->request->getPost('email');
         log_message('debug', 'Send reset link requested for email: ' . $email);
@@ -306,12 +331,12 @@ class Auth extends BaseController
         $user = $userModel->where('txtEmail', $email)->first();
         if (!$user) {
             log_message('debug', 'Email not found in database: ' . $email);
-            
+
             // For security reasons, we still show a success message
             // This prevents email enumeration attacks
             $_SESSION['success'] = 'If your email exists in our system, a reset link has been sent.';
             session()->markAsFlashdata('success');
-            
+
             return redirect()->to('/auth/forgot_password');
         }
 
@@ -324,19 +349,19 @@ class Auth extends BaseController
             'reset_token' => $token,
             'token_created_at' => date('Y-m-d H:i:s') // Menyimpan waktu sekarang
         ];
-        
+
         $updated = $userModel->update($user['intUserID'], $updateData);
         log_message('debug', 'Token updated in database: ' . ($updated ? 'Yes' : 'No'));
 
         // Kirim email reset password
         $emailSent = $this->sendResetEmail($email, $token);
-        
+
         if ($emailSent) {
             log_message('debug', 'Reset email sent successfully to: ' . $email);
-              // Use our helper function for consistent flash messages
+            // Use our helper function for consistent flash messages
             set_flash_message('success', 'A password reset link has been sent to your email. Please check your inbox.');
             log_message('debug', 'Flash data set using helper function');
-            
+
             return redirect()->to('/auth/forgot_password');
         } else {
             log_message('error', 'Failed to send email to: ' . $email);
@@ -344,19 +369,21 @@ class Auth extends BaseController
                 ->withInput()
                 ->with('error', 'Failed to send email. Please try again later or contact support.');
         }
-    }    public function resetPassword($token)
+    }
+    public function resetPassword($token)
     {
         log_message('debug', 'Reset password page requested with token: ' . substr($token, 0, 10) . '...');
-        
+
         // Validate token format first - basic security check
         if (empty($token) || strlen($token) < 32) {
             log_message('warning', 'Invalid token format attempted: ' . substr($token, 0, 10) . '...');
             return redirect()->to('/login')->with('error', 'Invalid password reset link');
         }
-        
+
         // Cek apakah token valid
         $userModel = new MUserModel();
-        $user = $userModel->where('reset_token', $token)->first();        if (!$user) {
+        $user = $userModel->where('reset_token', $token)->first();
+        if (!$user) {
             log_message('warning', 'Reset token not found in database: ' . substr($token, 0, 10) . '...');
             set_flash_message('error', 'Invalid password reset link. Please request a new password reset.');
             return redirect()->to('/login');
@@ -371,17 +398,18 @@ class Auth extends BaseController
 
         log_message('debug', 'Valid token, showing reset password form');
         return view('reset_password', [
-            'token' => $token, 
+            'token' => $token,
             'title' => 'Reset Password',
             'email' => $user['txtEmail'], // Add email for display in the UI
             'username' => $user['txtUserName'] // Add username for display in the UI
         ]);
-    }public function updatePassword()
+    }
+    public function updatePassword()
     {
         $token = $this->request->getPost('token');
         $txtPassword = $this->request->getPost('txtPassword');        // Log request parameters (excluding sensitive data)
-        log_message('debug', 'Update password request received with token: ' . substr($token, 0, 8) . '...');        
-        
+        log_message('debug', 'Update password request received with token: ' . substr($token, 0, 8) . '...');
+
         // Validasi konfirmasi password
         $confirmPassword = $this->request->getPost('confirmPassword');
         if ($txtPassword !== $confirmPassword) {
@@ -397,13 +425,13 @@ class Auth extends BaseController
             set_flash_message('error', 'Invalid password reset token. Please request a new password reset link.');
             return redirect()->to(base_url('/login'));
         }
-        
+
         if ($this->isTokenExpired($user['token_created_at'])) {
             log_message('warning', 'Expired token used for password reset');
             set_flash_message('error', 'Your password reset link has expired. Please request a new one.');
             return redirect()->to(base_url('/auth/forgot_password'));
         }
-        
+
         // Token valid, proceed with password update
         // Hash password sebelum menyimpannya
         $hashedPassword = password_hash($txtPassword, PASSWORD_DEFAULT);
@@ -420,10 +448,10 @@ class Auth extends BaseController
 
         // Simpan pesan sukses ke session dan log aktivitas using our helper
         set_flash_message('success', 'Password berhasil direset. Silakan login dengan password baru.');
-        
+
         log_message('info', 'Password reset successful for user: ' . $user['txtEmail']);
         log_message('debug', 'Flash message set using helper function');
-            
+
         // Redirect ke login dengan base_url untuk memastikan path yang benar
         return redirect()->to(base_url('/login'));
     }    // Fungsi untuk memeriksa apakah token telah kadaluarsa
@@ -433,16 +461,16 @@ class Auth extends BaseController
             log_message('debug', 'Token created date is empty, considering as expired');
             return true;
         }
-        
+
         $createdAt = new \CodeIgniter\I18n\Time($tokenCreatedAt);
         $expiryTime = $createdAt->addHours(24); // Token berlaku selama 24 jam
         $isExpired = Time::now() > $expiryTime;
-        
+
         log_message('debug', 'Token created at: ' . $tokenCreatedAt);
         log_message('debug', 'Token expires at: ' . $expiryTime->toDateTimeString());
         log_message('debug', 'Current time: ' . Time::now()->toDateTimeString());
         log_message('debug', 'Token expired: ' . ($isExpired ? 'Yes' : 'No'));
-        
+
         return $isExpired; // Mengembalikan true jika sudah kadaluarsa
     }
 

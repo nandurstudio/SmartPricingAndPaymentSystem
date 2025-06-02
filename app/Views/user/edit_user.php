@@ -19,7 +19,7 @@
                         </div>
                     <?php endif ?>
 
-                    <form action="<?= base_url('user/update/' . $user['intUserID']) ?>" method="POST" enctype="multipart/form-data">
+                    <form action="<?= base_url('users/update/' . $user['intUserID']) ?>" method="POST" enctype="multipart/form-data">
                         <?= csrf_field() ?>
                         
                         <!-- Username -->

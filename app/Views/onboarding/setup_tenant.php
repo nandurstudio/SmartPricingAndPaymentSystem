@@ -22,21 +22,19 @@
 
                     <form action="<?= base_url('onboarding/create-tenant') ?>" method="post">
                         <?= csrf_field() ?>
-                        
-                        <div class="row mb-3">
+                          <div class="row mb-3">
                             <div class="col-md-6">
                                 <div class="form-floating mb-3 mb-md-0">
                                     <input class="form-control" id="name" name="name" type="text" value="<?= old('name') ?>" required />
                                     <label for="name">Business Name</label>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
+                            </div><div class="col-md-6">
                                 <div class="form-floating">
                                     <select class="form-select" id="service_type_id" name="service_type_id" required>
                                         <option value="" selected disabled>Select Type</option>
                                         <?php foreach ($serviceTypes as $type): ?>
-                                            <option value="<?= $type['id'] ?>" <?= old('service_type_id') == $type['id'] ? 'selected' : '' ?>>
-                                                <?= esc($type['name']) ?>
+                                            <option value="<?= $type['intServiceTypeID'] ?>" <?= old('service_type_id') == $type['intServiceTypeID'] ? 'selected' : '' ?>>
+                                                <?= esc($type['txtName']) ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>

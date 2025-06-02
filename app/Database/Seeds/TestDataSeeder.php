@@ -8,6 +8,65 @@ class TestDataSeeder extends Seeder
 {
     public function run()
     {
+        // Seed default super admin user
+        $this->db->table('m_user')->insert([
+            'txtEmail' => 'admin@example.com',
+            'txtUserName' => 'admin',
+            'txtPassword' => password_hash('admin123', PASSWORD_DEFAULT),
+            'txtFullName' => 'System Administrator',
+            'bitActive' => 1,
+            'intRoleID' => 1,
+            'dtmJoinDate' => date('Y-m-d H:i:s'),
+            'dtmLastLogin' => null,
+            'txtGUID' => 'admin_' . uniqid(),
+            'txtCreatedBy' => 'Seeder',
+            'dtmCreatedDate' => date('Y-m-d H:i:s'),
+            'txtUpdatedBy' => 'Seeder',
+            'dtmUpdatedDate' => date('Y-m-d H:i:s')
+        ]);
+
+        // Seed service types
+        $serviceTypeId = $this->db->table('m_service_types')->insert([
+            'txtServiceTypeName' => 'Futsal Field',
+            'txtDescription' => 'Indoor futsal field rental',
+            'bitActive' => 1,
+            'txtGUID' => 'st_' . uniqid(),
+            'txtCreatedBy' => 'Seeder',
+            'dtmCreatedDate' => date('Y-m-d H:i:s'),
+            'txtUpdatedBy' => 'Seeder',
+            'dtmUpdatedDate' => date('Y-m-d H:i:s')
+        ]);
+
+        // Seed service type attributes
+        $this->db->table('m_service_type_attributes')->insert([
+            'intServiceTypeID' => $serviceTypeId,
+            'txtAttributeName' => 'Field Size',
+            'txtDescription' => 'Size of the futsal field',
+            'bitRequired' => 1,
+            'txtInputType' => 'select',
+            'jsonOptions' => json_encode(['Small', 'Medium', 'Large']),
+            'bitActive' => 1,
+            'txtGUID' => 'sta_' . uniqid(),
+            'txtCreatedBy' => 'Seeder',
+            'dtmCreatedDate' => date('Y-m-d H:i:s'),
+            'txtUpdatedBy' => 'Seeder',
+            'dtmUpdatedDate' => date('Y-m-d H:i:s')
+        ]);
+
+        // Seed tenant data
+        $tenantId = $this->db->table('m_tenants')->insert([
+            'txtTenantName' => 'Sample Futsal',
+            'txtDescription' => 'Sample futsal field rental business',
+            'intServiceTypeID' => $serviceTypeId,
+            'intOwnerID' => 1,
+            'bitActive' => 1,
+            'txtGUID' => 'tenant_' . uniqid(),
+            'txtCreatedBy' => 'Seeder',
+            'dtmCreatedDate' => date('Y-m-d H:i:s'),
+            'txtUpdatedBy' => 'Seeder',
+            'dtmUpdatedDate' => date('Y-m-d H:i:s')
+        ]);
+
         // Add test tenant
         $tenantID = $this->db->table('m_tenants')->insert([
             'txtTenantName' => 'Test Tenant',

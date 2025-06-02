@@ -22,51 +22,94 @@
                             <i class="fas fa-edit"></i> Edit
                         </a>
                     </div>
-                </div>
-                <div class="card-body">
+                </div>                <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <h5 class="card-title"><?= esc($tenant['name']) ?></h5>
+                            <h5 class="card-title"><?= esc($tenant['txtTenantName']) ?></h5>
                             <p class="mb-0">
-                                <span class="fw-bold">Type:</span> <?= esc($tenant['type']) ?>
+                                <span class="fw-bold">Type:</span> <?= esc($tenant['service_type_name'] ?? 'N/A') ?>
                             </p>
                             <p class="mb-0">
                                 <span class="fw-bold">Status:</span>
-                                <?php if ($tenant['is_active'] == 1) : ?>
-                                    <span class="badge bg-success">Active</span>
-                                <?php else : ?>
-                                    <span class="badge bg-danger">Inactive</span>
-                                <?php endif; ?>
+                                <?php 
+                                $statusClass = 'secondary';
+                                switch($tenant['txtStatus']) {
+                                    case 'active': $statusClass = 'success'; break;
+                                    case 'inactive': $statusClass = 'danger'; break;
+                                    case 'suspended': $statusClass = 'warning'; break;
+                                    case 'pending': $statusClass = 'info'; break;
+                                    case 'pending_verification': $statusClass = 'primary'; break;
+                                    case 'pending_payment': $statusClass = 'dark'; break;
+                                    case 'payment_failed': $statusClass = 'danger'; break;
+                                }
+                                ?>
+                                <span class="badge bg-<?= $statusClass ?>"><?= ucfirst(str_replace('_', ' ', $tenant['txtStatus'])) ?></span>
                             </p>
                             <p class="mb-0">
                                 <span class="fw-bold">Tenant Code:</span>
-                                <code><?= esc($tenant['tenant_code'] ?? 'N/A') ?></code>
+                                <code><?= esc($tenant['txtTenantCode'] ?? 'N/A') ?></code>
+                            </p>
+                            <p class="mb-0">
+                                <span class="fw-bold">Domain:</span>
+                                <code><?= esc($tenant['txtDomain'] ?? 'N/A') ?></code>
+                            </p>
+                            <p class="mb-0">
+                                <span class="fw-bold">GUID:</span>
+                                <code><?= esc($tenant['txtGUID'] ?? 'N/A') ?></code>
                             </p>
                         </div>
                         <div class="col-md-6">
                             <p class="mb-0">
-                                <span class="fw-bold">Contact Email:</span>
-                                <a href="mailto:<?= esc($tenant['contact_email']) ?>"><?= esc($tenant['contact_email']) ?></a>
+                                <span class="fw-bold">Subscription Plan:</span>
+                                <span class="badge bg-primary"><?= ucfirst($tenant['txtSubscriptionPlan']) ?></span>
                             </p>
                             <p class="mb-0">
-                                <span class="fw-bold">Contact Phone:</span>
-                                <a href="tel:<?= esc($tenant['contact_phone']) ?>"><?= esc($tenant['contact_phone']) ?></a>
+                                <span class="fw-bold">Subscription Status:</span>
+                                <span class="badge bg-<?= $tenant['txtSubscriptionStatus'] == 'active' ? 'success' : 'warning' ?>">
+                                    <?= ucfirst($tenant['txtSubscriptionStatus'] ?? 'N/A') ?>
+                                </span>
+                            </p>
+                            <p class="mb-0">
+                                <span class="fw-bold">Trial Ends:</span>
+                                <?= isset($tenant['dtmTrialEndsAt']) ? date('F d, Y', strtotime($tenant['dtmTrialEndsAt'])) : 'N/A' ?>
                             </p>
                             <p class="mb-0">
                                 <span class="fw-bold">Created:</span>
-                                <?= date('F d, Y', strtotime($tenant['created_date'])) ?>
+                                <?= date('F d, Y', strtotime($tenant['dtmCreatedDate'])) ?>
                             </p>
                             <p class="mb-0">
                                 <span class="fw-bold">Last Updated:</span>
-                                <?= isset($tenant['updated_date']) ? date('F d, Y', strtotime($tenant['updated_date'])) : 'N/A' ?>
+                                <?= isset($tenant['dtmUpdatedDate']) ? date('F d, Y', strtotime($tenant['dtmUpdatedDate'])) : 'N/A' ?>
                             </p>
                         </div>
                     </div>
+                    
+                    <?php
+                    // Parse the JSON settings to extract description and other settings
+                    $settings = json_decode($tenant['jsonSettings'] ?? '{}', true);
+                    $description = $settings['description'] ?? '';
+                    ?>
+                    
                     <div class="row">
                         <div class="col-md-12">
                             <div class="mb-3">
                                 <span class="fw-bold">Description:</span>
-                                <p class="mt-2"><?= esc($tenant['description']) ?></p>
+                                <p class="mt-2"><?= esc($description) ?></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <span class="fw-bold">Owner:</span>
+                                <p class="mt-2"><?= esc($tenant['owner_name'] ?? 'N/A') ?> (<?= esc($tenant['owner_email'] ?? 'N/A') ?>)</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <span class="fw-bold">Theme:</span>
+                                <p class="mt-2"><?= ucfirst(esc($tenant['txtTheme'] ?? 'default')) ?></p>
                             </div>
                         </div>
                     </div>

@@ -61,17 +61,17 @@
                             </td>
                             <td>
                                 <div class="btn-group">
-                                    <a href="<?= base_url('user/view/' . $user['intUserID']) ?>" class="btn btn-sm btn-outline-primary" title="View">
-                                        <i class="fas fa-eye"></i>
+                                    <a href="<?= base_url('users/view/' . $user['intUserID']) ?>" class="btn btn-sm btn-outline-primary" title="View">
+                                        <i class="fa fa-eye"></i>
                                     </a>
-                                    <a href="<?= base_url('user/edit/' . $user['intUserID']) ?>" class="btn btn-sm btn-outline-warning" title="Edit">
-                                        <i class="fas fa-edit"></i>
+                                    <a href="<?= base_url('users/edit/' . $user['intUserID']) ?>" class="btn btn-sm btn-outline-warning" title="Edit">
+                                        <i class="fa fa-edit"></i>
                                     </a>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary toggle-status" 
+                                    <button type="button" class="btn btn-sm btn-outline-<?= $user['bitActive'] ? 'danger' : 'success' ?> toggle-status" 
                                             data-id="<?= $user['intUserID'] ?>" 
-                                            data-status="<?= $user['bitActive'] ?>"
+                                            data-status="<?= $user['bitActive'] ?>" 
                                             title="<?= $user['bitActive'] ? 'Deactivate' : 'Activate' ?>">
-                                        <i class="fas fa-power-off"></i>
+                                        <i class="fa <?= $user['bitActive'] ? 'fa-ban' : 'fa-check' ?>"></i>
                                     </button>
                                 </div>
                             </td>
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('confirmStatusChange').addEventListener('click', function() {
         if (selectedUserId) {
-            fetch(`<?= base_url('user/toggle-status/') ?>/${selectedUserId}`, {
+            fetch(`<?= base_url('users/toggle-status/') ?>/${selectedUserId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

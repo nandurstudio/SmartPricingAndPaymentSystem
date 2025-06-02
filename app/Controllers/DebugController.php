@@ -45,10 +45,9 @@ class DebugController extends BaseController
             'intRoleID' => 5, // Customer role
             'dtmJoinDate' => date('Y-m-d H:i:s'),
             'dtmLastLogin' => date('Y-m-d H:i:s'),
-            'txtGUID' => uniqid('google_', true), // Generate with prefix for tracking
-            'dtmCreatedDate' => date('Y-m-d H:i:s'),
+            'txtGUID' => uniqid('google_', true), // Generate with prefix for tracking            'dtmCreatedDate' => date('Y-m-d H:i:s'),
             'txtCreatedBy' => 'google_auth',
-            'google_auth_token' => $googleUser->id,
+            'txtGoogleAuthToken' => $googleUser->id,
         ];
         
         // Return the data as JSON for inspection

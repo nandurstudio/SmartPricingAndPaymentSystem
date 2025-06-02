@@ -151,21 +151,30 @@
         </li>
         <!-- User Dropdown-->
         <li class="nav-item dropdown no-caret dropdown-user me-3 me-lg-4">
-            <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img class="img-fluid" src="<?php echo base_url('assets/img/illustrations/profiles/profile-1.png'); ?>" /></a>
-            <div class="dropdown-menu dropdown-menu-end border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownUserImage">
-                <h6 class="dropdown-header d-flex align-items-center">
-                    <img class="dropdown-user-img" src="<?php echo base_url('assets/img/illustrations/profiles/profile-1.png'); ?>" />
+            <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage" href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">                <?php 
+                    $profilePic = get_profile_picture(session()->get('photo'));
+                ?>
+                <img class="img-fluid" src="<?= esc($profilePic) ?>" alt="Profile" />
+            </a>
+            <div class="dropdown-menu dropdown-menu-end border-0 shadow animated--fade-in-up" aria-labelledby="navbarDropdownUserImage">                <h6 class="dropdown-header d-flex align-items-center">
+                    <img class="dropdown-user-img" src="<?= esc($profilePic) ?>" alt="Profile" />
                     <div class="dropdown-user-details">
                         <div class="dropdown-user-details-name"><?= esc(session()->get('userFullName')); ?></div>
                         <div class="dropdown-user-details-email"><?= esc(session()->get('userEmail')); ?></div>
                     </div>
                 </h6>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#!">
+                <a class="dropdown-item" href="<?= base_url('settings/profile') ?>">
                     <div class="dropdown-item-icon"><i data-feather="settings"></i></div>
-                    Account
+                    My Profile
                 </a>
-                <a class="dropdown-item" href="<?php echo base_url('/logout'); ?>">
+                <?php if (session()->get('intTenantID')): ?>
+                <a class="dropdown-item" href="<?= base_url('tenants/view/' . session()->get('intTenantID')) ?>">
+                    <div class="dropdown-item-icon"><i data-feather="briefcase"></i></div>
+                    My Tenant
+                </a>
+                <?php endif; ?>
+                <a class="dropdown-item" href="<?= base_url('/logout') ?>">
                     <div class="dropdown-item-icon"><i data-feather="log-out"></i></div>
                     Sign Out
                 </a>

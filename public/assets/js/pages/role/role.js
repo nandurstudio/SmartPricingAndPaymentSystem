@@ -135,8 +135,8 @@ $(document).ready(function () {
                 width: '120px'
             },
             {
-                data: 'dtmLastUpdatedDate',
-                name: 'dtmLastUpdatedDate',
+                data: 'dtmUpdatedDate',
+                name: 'dtmUpdatedDate',
                 render: function (data) {
                     if (!data) return '-';
                     try {
