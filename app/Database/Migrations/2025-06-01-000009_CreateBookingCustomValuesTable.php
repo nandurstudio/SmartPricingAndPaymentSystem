@@ -9,60 +9,66 @@ class CreateBookingCustomValuesTable extends Migration
     public function up()
     {
         // Create Booking Custom Values Table
-        $this->forge->addField([
-            'id' => [
+        $this->forge->addField([            'intBookingCustomValueID' => [
                 'type'           => 'INT',
                 'constraint'     => 11,
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'booking_id' => [
+            'txtGUID' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 36,
+                'null'       => false,
+                'unique'     => true,
+            ],
+            'intBookingID' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => false,
             ],
-            'attribute_id' => [
+            'intAttributeID' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => false,
             ],
-            'value' => [
+            'txtValue' => [
                 'type'       => 'TEXT',
                 'null'       => true,
             ],
-            'created_date' => [
+            'bitActive' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'default'    => 1,
+            ],
+            'txtCreatedBy' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
+                'default'    => 'system',
+            ],            'dtmCreatedDate' => [
                 'type'       => 'DATETIME',
-                'null'       => false,
-            ],
-            'created_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
                 'null'       => true,
+                'default'    => date('Y-m-d H:i:s'),
             ],
-            'updated_date' => [
+            'txtUpdatedBy' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
+                'default'    => 'system',
+            ],
+            'dtmUpdatedDate' => [
                 'type'       => 'DATETIME',
                 'null'       => true,
             ],
-            'updated_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
-                'null'       => true,
-            ],
-        ]);
-        
-        $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('booking_id', 'm_bookings', 'id', 'CASCADE', 'CASCADE');
-        $this->forge->addForeignKey('attribute_id', 'm_service_type_attributes', 'id', 'CASCADE', 'CASCADE');
-        $this->forge->createTable('m_booking_custom_values');
+        ]);          $this->forge->addKey('intBookingCustomValueID', true);
+        $this->forge->addForeignKey('intBookingID', 'tr_bookings', 'intBookingID', 'CASCADE', 'CASCADE');
+        $this->forge->addForeignKey('intAttributeID', 'm_service_type_attributes', 'intAttributeID', 'CASCADE', 'CASCADE');
+        $this->forge->createTable('tr_booking_custom_values');
     }
 
     public function down()
     {
         // Drop table if exists
-        $this->forge->dropTable('m_booking_custom_values');
+        $this->forge->dropTable('tr_booking_custom_values');
     }
 }

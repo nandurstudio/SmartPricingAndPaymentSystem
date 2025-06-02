@@ -10,53 +10,51 @@ class CreateServiceCustomValuesTable extends Migration
     {
         // Create Service Custom Values Table
         $this->forge->addField([
-            'id' => [
+            'intCustomValueID' => [
                 'type'           => 'INT',
                 'constraint'     => 11,
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'service_id' => [
+            'intServiceID' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => false,
             ],
-            'attribute_id' => [
+            'intAttributeID' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => false,
             ],
-            'value' => [
+            'txtValue' => [
                 'type'       => 'TEXT',
                 'null'       => true,
             ],
-            'created_date' => [
-                'type'       => 'DATETIME',
-                'null'       => false,
+            'txtCreatedBy' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
+                'default'    => 'system',
             ],
-            'created_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
-                'null'       => true,
-            ],
-            'updated_date' => [
+            'dtmCreatedDate' => [
                 'type'       => 'DATETIME',
                 'null'       => true,
             ],
-            'updated_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
-                'null'       => true,
+            'txtUpdatedBy' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
+                'default'    => 'system',
             ],
+            'dtmUpdatedDate' => [
+                'type'       => 'DATETIME',
+                'null'       => true,
+            ]
         ]);
         
-        $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('service_id', 'm_services', 'id', 'CASCADE', 'CASCADE');
-        $this->forge->addForeignKey('attribute_id', 'm_service_type_attributes', 'id', 'CASCADE', 'CASCADE');
+        $this->forge->addKey('intCustomValueID', true);
+        $this->forge->addForeignKey('intServiceID', 'm_services', 'intServiceID', 'CASCADE', 'CASCADE');
+        $this->forge->addForeignKey('intAttributeID', 'm_service_type_attributes', 'intAttributeID', 'CASCADE', 'CASCADE');
         $this->forge->createTable('m_service_custom_values');
     }
 

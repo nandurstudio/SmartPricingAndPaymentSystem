@@ -10,122 +10,115 @@ class CreateBookingsTable extends Migration
     {
         // Create Bookings Table
         $this->forge->addField([
-            'id' => [
+            'intBookingID' => [
                 'type'           => 'INT',
                 'constraint'     => 11,
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'booking_code' => [
+            'txtBookingCode' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 50,
                 'null'       => false,
-                'unique'     => true,
             ],
-            'service_id' => [
+            'intServiceID' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => false,
             ],
-            'customer_id' => [
+            'intCustomerID' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => false,
             ],
-            'tenant_id' => [
+            'intTenantID' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => false,
             ],
-            'booking_date' => [
+            'dtmBookingDate' => [
                 'type'       => 'DATE',
                 'null'       => false,
             ],
-            'start_time' => [
+            'dtmStartTime' => [
                 'type'       => 'TIME',
                 'null'       => false,
             ],
-            'end_time' => [
+            'dtmEndTime' => [
                 'type'       => 'TIME',
                 'null'       => false,
             ],
-            'price' => [
+            'decPrice' => [
                 'type'       => 'DECIMAL',
                 'constraint' => '12,2',
-                'null'       => false,
                 'default'    => 0.00,
             ],
-            'status' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 30,
-                'null'       => false,
+            'txtStatus' => [
+                'type'       => 'ENUM',
+                'constraint' => ['pending', 'confirmed', 'completed', 'cancelled'],
                 'default'    => 'pending',
-                'comment'    => 'pending, confirmed, completed, cancelled',
             ],
-            'payment_status' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 30,
-                'null'       => false,
+            'txtPaymentStatus' => [
+                'type'       => 'ENUM',
+                'constraint' => ['unpaid', 'paid', 'partially_paid', 'refunded'],
                 'default'    => 'unpaid',
-                'comment'    => 'unpaid, paid, partially_paid, refunded',
             ],
-            'payment_id' => [
+            'txtPaymentID' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 100,
                 'null'       => true,
                 'comment'    => 'External payment gateway ID',
+            ],            'txtGUID' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 36,
+                'null'       => false,
+                'unique'     => true,
             ],
-            'custom_fields' => [
-                'type'       => 'JSON',
+            'dtmCancelledDate' => [
+                'type'       => 'DATETIME',
                 'null'       => true,
             ],
-            'notes' => [
+            'txtCancelledReason' => [
                 'type'       => 'TEXT',
                 'null'       => true,
             ],
-            'created_date' => [
-                'type'       => 'DATETIME',
-                'null'       => false,
-            ],
-            'created_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
-                'null'       => true,
-            ],
-            'updated_date' => [
-                'type'       => 'DATETIME',
-                'null'       => true,
-            ],
-            'updated_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
-                'null'       => true,
-            ],
-            'cancelled_date' => [
-                'type'       => 'DATETIME',
-                'null'       => true,
-            ],
-            'cancelled_reason' => [
+            'txtCreatedBy' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 255,
+                'constraint' => 50,
+                'default'    => 'system',
+            ],            'dtmCreatedDate' => [
+                'type'       => 'DATETIME',
                 'null'       => true,
+                'default'    => date('Y-m-d H:i:s'),
             ],
-        ]);
-          $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('service_id', 'm_services', 'id', 'CASCADE', 'CASCADE');
-        $this->forge->addForeignKey('tenant_id', 'm_tenants', 'id', 'CASCADE', 'CASCADE');
-        // Customer foreign key will be added in the UpdateForeignKeyConstraints migration
-        $this->forge->createTable('m_bookings');
+            'txtUpdatedBy' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
+                'default'    => 'system',
+            ],
+            'bitActive' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'default'    => 1,
+            ],
+            'dtmUpdatedDate' => [
+                'type'       => 'DATETIME',
+                'null'       => true,
+            ]
+        ]);        $this->forge->addKey('intBookingID', true);
+        $this->forge->addUniqueKey('txtBookingCode');
+        $this->forge->addForeignKey('intServiceID', 'm_services', 'intServiceID', 'CASCADE', 'CASCADE');
+        $this->forge->addForeignKey('intTenantID', 'm_tenants', 'intTenantID', 'CASCADE', 'CASCADE');
+        $this->forge->addForeignKey('intCustomerID', 'm_user', 'intUserID', 'CASCADE', 'CASCADE');
+        $this->forge->createTable('tr_bookings');
     }
 
     public function down()
     {
         // Drop table if exists
-        $this->forge->dropTable('m_bookings');
+        $this->forge->dropTable('tr_bookings');
     }
 }

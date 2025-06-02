@@ -35,6 +35,10 @@ class TenantModel extends Model
         'updated_by'
     ];
 
+    protected $useTimestamps = true;
+    protected $createdField = 'created_date';
+    protected $updatedField = 'updated_date';
+
     public function getWithServiceType(int $id = null)
     {
         $builder = $this->db->table($this->table . ' t')
@@ -99,5 +103,46 @@ class TenantModel extends Model
                         ->limit($limit)
                         ->get()
                         ->getResultArray();
+    }
+
+    public function activateSubscription($tenantId, $transactionData)
+    {
+        $plan = $this->find($tenantId)['subscription_plan'];
+        $duration = $this->getSubscriptionDuration($plan);
+        
+        $data = [
+            'subscription_status' => 'active',
+            'status' => 'active',
+            'subscription_start_date' => date('Y-m-d H:i:s'),
+            'subscription_end_date' => date('Y-m-d H:i:s', strtotime("+{$duration} months")),
+            'payment_settings' => json_encode([
+                'currency' => 'IDR',
+                'last_payment_id' => $transactionData['transaction_id'] ?? null,
+                'last_payment_status' => $transactionData['transaction_status'] ?? null,
+                'last_payment_date' => date('Y-m-d H:i:s')
+            ])
+        ];
+
+        return $this->update($tenantId, $data);
+    }
+
+    public function updateMidtransKeys($tenantId, $clientKey, $serverKey)
+    {
+        return $this->update($tenantId, [
+            'midtrans_client_key' => $clientKey,
+            'midtrans_server_key' => $serverKey
+        ]);
+    }
+
+    private function getSubscriptionDuration($plan)
+    {
+        $durations = [
+            'free' => 1,
+            'basic' => 1,
+            'premium' => 3,
+            'enterprise' => 12
+        ];
+
+        return $durations[$plan] ?? 1;
     }
 }

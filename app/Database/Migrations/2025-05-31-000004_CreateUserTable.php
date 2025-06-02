@@ -12,7 +12,13 @@ class CreateUserTable extends Migration
             'intUserID' => [
                 'type' => 'INT',
                 'constraint' => 10,
+                'unsigned' => true,
                 'auto_increment' => true,
+            ],            
+            'txtGUID' => [
+                'type' => 'VARCHAR',
+                'constraint' => 36,
+                'null' => false,
             ],
             'intRoleID' => [
                 'type' => 'INT',
@@ -20,11 +26,27 @@ class CreateUserTable extends Migration
                 'unsigned' => true,
                 'default' => 5,
             ],
+            'intTenantID' => [
+                'type' => 'INT',
+                'constraint' => 11,
+                'unsigned' => true,
+                'null' => true,
+            ],
+            'is_tenant_owner' => [
+                'type' => 'TINYINT',
+                'constraint' => 1,
+                'default' => 0,
+            ],
+            'intDefaultTenantID' => [
+                'type' => 'INT',
+                'constraint' => 11,
+                'unsigned' => true,
+                'null' => true,
+            ],
             'txtUserName' => [
                 'type' => 'VARCHAR',
                 'constraint' => 50,
                 'null' => false,
-                'default' => 'dummy.nick',
             ],
             'txtFullName' => [
                 'type' => 'VARCHAR',
@@ -35,7 +57,6 @@ class CreateUserTable extends Migration
                 'type' => 'VARCHAR',
                 'constraint' => 100,
                 'null' => false,
-                'default' => 'dummy@email.com',
             ],
             'txtPassword' => [
                 'type' => 'VARCHAR',
@@ -45,72 +66,63 @@ class CreateUserTable extends Migration
             'bitActive' => [
                 'type' => 'TINYINT',
                 'constraint' => 1,
-                'null' => true,
                 'default' => 1,
             ],
             'bitOnlineStatus' => [
                 'type' => 'TINYINT',
                 'constraint' => 1,
-                'null' => true,
                 'default' => 0,
             ],
             'dtmLastLogin' => [
                 'type' => 'DATETIME',
                 'null' => true,
             ],
-            'txtCreatedBy' => [
+            'txtPhoto' => [
                 'type' => 'VARCHAR',
-                'constraint' => 50,
-                'null' => true,
-                'default' => 'system',
-            ],
-            'dtmCreatedDate' => [
-                'type' => 'DATETIME',
+                'constraint' => 255,
+                'default' => 'default.png',
                 'null' => true,
             ],
-            'txtUpdatedBy' => [
-                'type' => 'VARCHAR',
-                'constraint' => 50,
-                'null' => true,
-                'default' => 'system',
-            ],
-            'dtmUpdatedDate' => [
-                'type' => 'DATETIME',
-                'null' => true,
-            ],
-            'txtGUID' => [
-                'type' => 'VARCHAR',
-                'constraint' => 50,
-                'null' => false,
-            ],
-            'reset_token' => [
+            'txtResetToken' => [
                 'type' => 'VARCHAR',
                 'constraint' => 100,
                 'null' => true,
             ],
-            'token_created_at' => [
+            'dtmTokenCreatedAt' => [
                 'type' => 'DATETIME',
                 'null' => true,
             ],
-            'google_auth_token' => [
+            'txtGoogleAuthToken' => [
                 'type' => 'VARCHAR',
                 'constraint' => 255,
                 'null' => true,
-            ],
-            'txtPhoto' => [
-                'type' => 'VARCHAR',
-                'constraint' => 255,
-                'null' => true,
-                'default' => 'default.png',
             ],
             'dtmJoinDate' => [
                 'type' => 'DATETIME',
                 'null' => true,
             ],
-        ]);
-
-        $this->forge->addKey('intUserID', true);
-        $this->forge->addForeignKey('intRoleID', 'm_role', 'intRoleID');
+            'txtCreatedBy' => [
+                'type' => 'VARCHAR',
+                'constraint' => 50,
+                'default' => 'system',
+            ],
+            'dtmCreatedDate' => [
+                'type' => 'DATETIME',
+                'null' => true,
+                'default' => date('Y-m-d H:i:s'),
+            ],
+            'txtUpdatedBy' => [
+                'type' => 'VARCHAR',
+                'constraint' => 50,
+                'default' => 'system',
+            ],
+            'dtmUpdatedDate' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ]
+        ]);        $this->forge->addKey('intUserID', true);
+        $this->forge->addUniqueKey(['txtEmail', 'txtUserName', 'txtGUID']);
+        $this->forge->addForeignKey('intRoleID', 'm_role', 'intRoleID', 'CASCADE', 'CASCADE');
         $this->forge->createTable('m_user');
     }
 

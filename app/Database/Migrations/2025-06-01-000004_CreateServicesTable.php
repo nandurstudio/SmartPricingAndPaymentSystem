@@ -10,88 +10,91 @@ class CreateServicesTable extends Migration
     {
         // Create Services Table
         $this->forge->addField([
-            'id' => [
+            'intServiceID' => [
                 'type'           => 'INT',
                 'constraint'     => 11,
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'tenant_id' => [
+            'intTenantID' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => false,
             ],
-            'service_type_id' => [
+            'intServiceTypeID' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => false,
             ],
-            'name' => [
+            'txtName' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
                 'null'       => false,
             ],
-            'description' => [
+            'txtDescription' => [
                 'type'       => 'TEXT',
                 'null'       => true,
             ],
-            'price' => [
+            'decPrice' => [
                 'type'       => 'DECIMAL',
                 'constraint' => '12,2',
-                'null'       => false,
-                'default'    => 0.00,
+                'default'    => 0,
             ],
-            'duration' => [
+            'intDuration' => [
                 'type'       => 'INT',
                 'constraint' => 5,
-                'null'       => false,
                 'default'    => 60,
                 'comment'    => 'Duration in minutes',
             ],
-            'capacity' => [
+            'intCapacity' => [
                 'type'       => 'INT',
                 'constraint' => 5,
-                'null'       => false,
                 'default'    => 1,
                 'comment'    => 'Number of people/slots per booking',
             ],
-            'image' => [
+            'txtImage' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
                 'null'       => true,
             ],
-            'is_active' => [
-                'type'       => 'BOOLEAN',
-                'null'       => false,
-                'default'    => true,
-            ],
-            'created_date' => [
-                'type'       => 'DATETIME',
+            'txtGUID' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 36,
                 'null'       => false,
             ],
-            'created_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
-                'null'       => true,
+            'bitActive' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'default'    => 1,
             ],
-            'updated_date' => [
+            'txtCreatedBy' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
+                'null'       => false,
+                'default'    => 'system',
+            ],
+            'dtmCreatedDate' => [
                 'type'       => 'DATETIME',
                 'null'       => true,
+                'default'    => date('Y-m-d H:i:s'),
             ],
-            'updated_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
+            'txtUpdatedBy' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
+                'null'       => false,
+                'default'    => 'system',
+            ],
+            'dtmUpdatedDate' => [
+                'type'       => 'DATETIME',
                 'null'       => true,
-            ],
+            ]
         ]);
         
-        $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('tenant_id', 'm_tenants', 'id', 'CASCADE', 'CASCADE');
-        $this->forge->addForeignKey('service_type_id', 'm_service_types', 'id', 'CASCADE', 'CASCADE');
+        $this->forge->addKey('intServiceID', true);
+        $this->forge->addForeignKey('intTenantID', 'm_tenants', 'intTenantID', 'CASCADE', 'CASCADE');
+        $this->forge->addForeignKey('intServiceTypeID', 'm_service_types', 'intServiceTypeID', 'CASCADE', 'CASCADE');
         $this->forge->createTable('m_services');
     }
 

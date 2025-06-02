@@ -10,89 +10,93 @@ class CreateServiceTypeAttributesTable extends Migration
     {
         // Create Service Type Attributes Table
         $this->forge->addField([
-            'id' => [
+            'intAttributeID' => [
                 'type'           => 'INT',
                 'constraint'     => 11,
                 'unsigned'       => true,
                 'auto_increment' => true,
+            ],            
+            'txtGUID' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 36,
+                'null'       => false,
             ],
-            'service_type_id' => [
+            'intServiceTypeID' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => false,
             ],
-            'name' => [
+            'txtName' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 100,
                 'null'       => false,
             ],
-            'label' => [
+            'txtLabel' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
                 'null'       => false,
             ],
-            'field_type' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 50,
+            'txtFieldType' => [
+                'type'       => 'ENUM',
+                'constraint' => ['text', 'number', 'boolean', 'select', 'date', 'time', 'datetime'],
                 'null'       => false,
-                'comment'    => 'text, number, date, select, checkbox, etc.',
             ],
-            'is_required' => [
-                'type'       => 'BOOLEAN',
-                'null'       => false,
-                'default'    => false,
-            ],
-            'default_value' => [
-                'type'       => 'TEXT',
-                'null'       => true,
-            ],
-            'options' => [
+            'jsonOptions' => [
                 'type'       => 'JSON',
                 'null'       => true,
                 'comment'    => 'For select, radio, checkbox types',
             ],
-            'validation' => [
+            'bitRequired' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'default'    => 0,
+            ],
+            'txtDefaultValue' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
                 'null'       => true,
+            ],
+            'txtValidation' => [
+                'type'       => 'TEXT',
+                'null'       => true,
                 'comment'    => 'Validation rules',
             ],
-            'display_order' => [
+            'intDisplayOrder' => [
                 'type'       => 'INT',
-                'constraint' => 3,
-                'null'       => false,
+                'constraint' => 5,
                 'default'    => 0,
             ],
-            'is_active' => [
-                'type'       => 'BOOLEAN',
+            'bitActive' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'default'    => 1,
+            ],
+            'txtCreatedBy' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
                 'null'       => false,
-                'default'    => true,
+                'default'    => 'system',
             ],
-            'created_date' => [
-                'type'       => 'DATETIME',
-                'null'       => false,
-            ],
-            'created_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
-                'null'       => true,
-            ],
-            'updated_date' => [
+            'dtmCreatedDate' => [
                 'type'       => 'DATETIME',
                 'null'       => true,
+                'default'    => date('Y-m-d H:i:s'),
             ],
-            'updated_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
+            'txtUpdatedBy' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
+                'null'       => false,
+                'default'    => 'system',
+            ],
+            'dtmUpdatedDate' => [
+                'type'       => 'DATETIME',
                 'null'       => true,
-            ],
+            ]
         ]);
         
-        $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('service_type_id', 'm_service_types', 'id', 'CASCADE', 'CASCADE');
+        $this->forge->addKey('intAttributeID', true);
+        $this->forge->addForeignKey('intServiceTypeID', 'm_service_types', 'intServiceTypeID', 'CASCADE', 'CASCADE');
         $this->forge->createTable('m_service_type_attributes');
     }
 

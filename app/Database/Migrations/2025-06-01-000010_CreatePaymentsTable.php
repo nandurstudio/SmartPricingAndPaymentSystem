@@ -9,88 +9,89 @@ class CreatePaymentsTable extends Migration
     public function up()
     {
         // Create Payments Table
-        $this->forge->addField([
-            'id' => [
+        $this->forge->addField([            'intPaymentID' => [
                 'type'           => 'INT',
                 'constraint'     => 11,
                 'unsigned'       => true,
                 'auto_increment' => true,
+            ],            'txtGUID' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 36,
+                'null'       => false,
             ],
-            'booking_id' => [
+            'intBookingID' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => false,
-            ],
-            'payment_code' => [
+            ],            'txtPaymentCode' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 100,
                 'null'       => false,
-                'unique'     => true,
             ],
-            'amount' => [
+            'decAmount' => [
                 'type'       => 'DECIMAL',
                 'constraint' => '12,2',
                 'null'       => false,
                 'default'    => 0.00,
             ],
-            'payment_method' => [
+            'txtPaymentMethod' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 50,
                 'null'       => false,
                 'comment'    => 'midtrans, transfer, cash, etc.',
             ],
-            'payment_date' => [
+            'dtmPaymentDate' => [
                 'type'       => 'DATETIME',
                 'null'       => true,
             ],
-            'status' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 30,
-                'null'       => false,
+            'txtStatus' => [
+                'type'       => 'ENUM',
+                'constraint' => ['pending', 'success', 'failed', 'refunded'],
                 'default'    => 'pending',
-                'comment'    => 'pending, success, failed, refunded',
             ],
-            'transaction_id' => [
+            'txtTransactionID' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
                 'null'       => true,
                 'comment'    => 'External payment gateway transaction ID',
             ],
-            'payment_details' => [
+            'jsonPaymentDetails' => [
                 'type'       => 'JSON',
                 'null'       => true,
             ],
-            'created_date' => [
+            'bitActive' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'default'    => 1,
+            ],
+            'txtCreatedBy' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
+                'default'    => 'system',
+            ],            'dtmCreatedDate' => [
                 'type'       => 'DATETIME',
-                'null'       => false,
-            ],
-            'created_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
                 'null'       => true,
+                'default'    => date('Y-m-d H:i:s'),
             ],
-            'updated_date' => [
+            'txtUpdatedBy' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
+                'default'    => 'system',
+            ],
+            'dtmUpdatedDate' => [
                 'type'       => 'DATETIME',
                 'null'       => true,
             ],
-            'updated_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
-                'null'       => true,
-            ],
-        ]);
-        
-        $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('booking_id', 'm_bookings', 'id', 'CASCADE', 'CASCADE');
-        $this->forge->createTable('m_payments');
+        ]);          $this->forge->addKey('intPaymentID', true);
+        $this->forge->addUniqueKey('txtPaymentCode');
+        $this->forge->addForeignKey('intBookingID', 'tr_bookings', 'intBookingID', 'CASCADE', 'CASCADE');
+        $this->forge->createTable('tr_payments');
     }
 
     public function down()
     {
         // Drop table if exists
-        $this->forge->dropTable('m_payments');
+        $this->forge->dropTable('tr_payments');
     }
 }

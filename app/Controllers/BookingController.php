@@ -45,36 +45,38 @@ class BookingController extends BaseController
         // For admin - all bookings
         // For tenant owner - bookings for their tenant
         // For customer - their own bookings
-        
-        // For now, just return dummy data until we create the models
+          // For now, just return dummy data until we create the models
         $data['bookings'] = [
             [
                 'id' => 1,
+                'booking_code' => 'BK2506001',
                 'service_name' => 'Futsal Field A',
                 'customer_name' => 'John Doe',
                 'booking_date' => '2025-06-05',
                 'start_time' => '15:00',
                 'end_time' => '16:00',
+                'price' => 150000,
+                'price' => 150000,
                 'status' => 'confirmed',
                 'payment_status' => 'paid',
-            ],
-            [
+            ],            [
                 'id' => 2,
-                'service_name' => 'Villa Anggrek',
+                'booking_code' => 'BK2506002',                'service_name' => 'Villa Anggrek',
                 'customer_name' => 'Jane Smith',
                 'booking_date' => '2025-06-10',
                 'start_time' => '12:00',
                 'end_time' => '12:00 (next day)',
+                'price' => 1500000,
                 'status' => 'pending',
                 'payment_status' => 'unpaid',
-            ],
-            [
+            ],            [
                 'id' => 3,
-                'service_name' => 'Haircut & Styling',
+                'booking_code' => 'BK2506003',                'service_name' => 'Haircut & Styling',
                 'customer_name' => 'Alex Johnson',
                 'booking_date' => '2025-06-03',
                 'start_time' => '10:30',
                 'end_time' => '11:15',
+                'price' => 75000,
                 'status' => 'confirmed',
                 'payment_status' => 'paid',
             ]

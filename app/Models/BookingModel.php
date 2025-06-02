@@ -127,4 +127,17 @@ class BookingModel extends Model
         
         return $hoursUntilBooking >= $hoursBeforeBooking;
     }
+
+    // Get all bookings for a specific date and service
+    public function getBookingsForDate($serviceId, $date)
+    {
+        return $this->db->table($this->table)
+            ->select('start_time, end_time')
+            ->where('service_id', $serviceId)
+            ->where('booking_date', $date)
+            ->where('status !=', 'cancelled')
+            ->orderBy('start_time ASC')
+            ->get()
+            ->getResultArray();
+    }
 }

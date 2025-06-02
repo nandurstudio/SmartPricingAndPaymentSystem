@@ -61,10 +61,9 @@ class OnboardingController extends BaseController
             return redirect()->to('/login');
         }
 
-        // Validasi input
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'name' => 'required|min_length[3]|max_length[100]',
+            'name' => 'required',
             'service_type_id' => 'required|numeric',
             'subscription_plan' => 'required|in_list[free,basic,premium,enterprise]',
             'domain' => 'permit_empty|valid_url',
@@ -76,21 +75,24 @@ class OnboardingController extends BaseController
         }
 
         $userId = session()->get('userID');
+        $subscriptionPlan = $this->request->getPost('subscription_plan');
 
         // Generate tenant data
         $tenantData = [
-            'name' => $this->request->getPost('name'),
-            'service_type_id' => $this->request->getPost('service_type_id'),
-            'subscription_plan' => $this->request->getPost('subscription_plan'),
-            'domain' => $this->request->getPost('domain'),
-            'description' => $this->request->getPost('description'),
-            'owner_id' => $userId,
-            'status' => 'pending',
-            'guid' => uniqid('tenant_', true),
-            'created_by' => $userId,
-            'created_date' => date('Y-m-d H:i:s'),
-            'trial_ends_at' => date('Y-m-d H:i:s', strtotime('+14 days')),
-            'is_active' => 1
+            'txtTenantName' => $this->request->getPost('name'),
+            'intServiceTypeID' => $this->request->getPost('service_type_id'),
+            'txtSubscriptionPlan' => $subscriptionPlan,
+            'txtDomain' => $this->request->getPost('domain'),
+            'txtDescription' => $this->request->getPost('description'),
+            'intOwnerID' => $userId,
+            'txtStatus' => $subscriptionPlan === 'free' ? 'active' : 'pending',
+            'txtGUID' => uniqid('tenant_', true),
+            'txtCreatedBy' => $userId,
+            'dtmCreatedDate' => date('Y-m-d H:i:s'),
+            'jsonSettings' => json_encode(['theme' => 'default']),
+            'jsonPaymentSettings' => json_encode(['currency' => 'IDR']),
+            'dtmTrialEndsAt' => date('Y-m-d H:i:s', strtotime('+14 days')),
+            'bitActive' => 1
         ];
 
         try {
@@ -100,9 +102,9 @@ class OnboardingController extends BaseController
             // Insert tenant
             $tenantId = $this->tenantModel->insert($tenantData);
 
-            // Update user role to tenant owner (role_id = 3) and link to tenant
+            // Update user role to tenant owner and link to tenant
             $this->userModel->update($userId, [
-                'intRoleID' => 3,
+                'intRoleID' => 3, // Tenant Owner role
                 'tenant_id' => $tenantId,
                 'is_tenant_owner' => 1,
                 'default_tenant_id' => $tenantId
@@ -113,23 +115,81 @@ class OnboardingController extends BaseController
 
             if ($this->db->transStatus() === false) {
                 throw new \Exception('Failed to create tenant and update user role');
-            }            // Redirect berdasarkan tipe subscription
-            if ($tenantData['subscription_plan'] === 'free') {
-                // Tampilkan halaman sukses untuk free plan
+            }
+
+            // Handle different subscription plans
+            if ($subscriptionPlan === 'free') {
                 return view('onboarding/free_plan_success', [
                     'title' => 'Free Plan Activated',
                     'tenantId' => $tenantId
                 ]);
             } else {
-                // Redirect ke halaman pembayaran untuk plan berbayar
-                return redirect()->to("/subscription/checkout/{$tenantId}");
-            }
+                // Get subscription pricing
+                $pricing = $this->getSubscriptionPricing($subscriptionPlan);
+                
+                // Setup Midtrans payment
+                \Midtrans\Config::$serverKey = getenv('MIDTRANS_SERVER_KEY');
+                \Midtrans\Config::$isProduction = getenv('MIDTRANS_IS_PRODUCTION') == 'true';
+                \Midtrans\Config::$isSanitized = true;
+                \Midtrans\Config::$is3ds = true;
 
+                $transactionDetails = [
+                    'order_id' => 'TENANT-' . $tenantId . '-' . time(),
+                    'gross_amount' => $pricing['amount']
+                ];
+
+                $customerDetails = [
+                    'first_name' => session()->get('userFullName'),
+                    'email' => session()->get('userEmail')
+                ];
+
+                $itemDetails = [
+                    [
+                        'id' => 'SUBSCRIPTION-' . strtoupper($subscriptionPlan),
+                        'price' => $pricing['amount'],
+                        'quantity' => 1,
+                        'name' => ucfirst($subscriptionPlan) . ' Plan Subscription'
+                    ]
+                ];
+
+                $midtransParams = [
+                    'transaction_details' => $transactionDetails,
+                    'customer_details' => $customerDetails,
+                    'item_details' => $itemDetails
+                ];
+
+                try {
+                    $snapToken = \Midtrans\Snap::getSnapToken($midtransParams);
+
+                    return view('onboarding/payment', [
+                        'title' => 'Complete Subscription Payment',
+                        'tenantId' => $tenantId,
+                        'snapToken' => $snapToken,
+                        'plan' => $subscriptionPlan,
+                        'amount' => $pricing['amount']
+                    ]);
+                } catch (\Exception $e) {
+                    log_message('error', '[Midtrans Payment] Error: ' . $e->getMessage());
+                    throw new \Exception('Failed to setup payment. Please try again or contact support.');
+                }
+            }
         } catch (\Exception $e) {
             log_message('error', '[OnboardingController::createTenant] Error: ' . $e->getMessage());
             return redirect()->back()->withInput()
-                ->with('error', 'Failed to create tenant. Please try again or contact support.');
+                ->with('error', 'Failed to create tenant. ' . $e->getMessage());
         }
+    }
+
+    private function getSubscriptionPricing($plan)
+    {
+        $pricing = [
+            'free' => ['amount' => 0],
+            'basic' => ['amount' => 99000],
+            'premium' => ['amount' => 299000],
+            'enterprise' => ['amount' => 999000]
+        ];
+
+        return $pricing[$plan] ?? ['amount' => 0];
     }
 
     /**
@@ -198,4 +258,107 @@ class OnboardingController extends BaseController
         return redirect()->to('/dashboard')
             ->with('success', 'Brand settings updated successfully!');
     }
+
+    public function paymentSuccess($tenantId)
+    {
+        $transactionId = $this->request->getGet('transaction_id');
+        
+        try {
+            // Verify transaction status with Midtrans
+            \Midtrans\Config::$serverKey = getenv('MIDTRANS_SERVER_KEY');
+            \Midtrans\Config::$isProduction = getenv('MIDTRANS_IS_PRODUCTION') == 'true';
+            
+            $transactionData = \Midtrans\Transaction::status($transactionId);
+            
+            if ($transactionData->transaction_status === 'settlement' || 
+                $transactionData->transaction_status === 'capture') {
+                
+                // Activate tenant subscription
+                $this->tenantModel->activateSubscription($tenantId, (array)$transactionData);
+                
+                return view('onboarding/payment_success', [
+                    'title' => 'Payment Successful',
+                    'tenantId' => $tenantId,
+                    'transaction' => $transactionData
+                ]);
+            } else {
+                throw new \Exception('Payment verification failed. Status: ' . $transactionData->transaction_status);
+            }
+            
+        } catch (\Exception $e) {
+            log_message('error', '[Payment Verification] Error: ' . $e->getMessage());
+            return redirect()->to('/onboarding/payment-failed/' . $tenantId)
+                ->with('error', 'Payment verification failed. Please contact support.');
+        }
+    }
+
+    public function paymentPending($tenantId)
+    {
+        return view('onboarding/payment_pending', [
+            'title' => 'Payment Pending',
+            'tenantId' => $tenantId,
+            'transaction_id' => $this->request->getGet('transaction_id')
+        ]);
+    }
+
+    public function paymentFailed($tenantId)
+    {
+        return view('onboarding/payment_failed', [
+            'title' => 'Payment Failed',
+            'tenantId' => $tenantId,
+            'error_message' => $this->request->getGet('message')
+        ]);
+    }
+
+    public function midtransNotification()
+    {
+        try {
+            \Midtrans\Config::$serverKey = getenv('MIDTRANS_SERVER_KEY');
+            \Midtrans\Config::$isProduction = getenv('MIDTRANS_IS_PRODUCTION') == 'true';
+
+            $notification = new \Midtrans\Notification();
+            
+            $transactionStatus = $notification->transaction_status;
+            $orderId = $notification->order_id;
+            $fraudStatus = $notification->fraud_status;
+
+            // Extract tenant ID from order ID (format: TENANT-{id}-timestamp)
+            preg_match('/TENANT-(\d+)-/', $orderId, $matches);
+            $tenantId = $matches[1] ?? null;
+
+            if (!$tenantId) {
+                throw new \Exception('Invalid order ID format');
+            }
+
+            if ($transactionStatus == 'capture') {
+                if ($fraudStatus == 'challenge') {
+                    // Do nothing, wait for manual verification
+                    $this->tenantModel->update($tenantId, ['status' => 'pending_verification']);
+                } else if ($fraudStatus == 'accept') {
+                    $this->tenantModel->activateSubscription($tenantId, (array)$notification);
+                }
+            } else if ($transactionStatus == 'settlement') {
+                $this->tenantModel->activateSubscription($tenantId, (array)$notification);
+            } else if ($transactionStatus == 'cancel' || 
+                      $transactionStatus == 'deny' || 
+                      $transactionStatus == 'expire') {
+                $this->tenantModel->update($tenantId, ['status' => 'payment_failed']);
+            } else if ($transactionStatus == 'pending') {
+                $this->tenantModel->update($tenantId, ['status' => 'pending_payment']);
+            }
+
+            // Return 200 OK
+            $this->response->setStatusCode(200);
+            return $this->response->setJSON(['status' => 'OK']);
+            
+        } catch (\Exception $e) {
+            log_message('error', '[Midtrans Notification] Error: ' . $e->getMessage());
+            
+            // Return 500 Error
+            $this->response->setStatusCode(500);
+            return $this->response->setJSON(['error' => $e->getMessage()]);
+        }
+    }
+    
+    // ... existing methods ...
 }

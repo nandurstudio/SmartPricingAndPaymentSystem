@@ -14,6 +14,11 @@ class CreateRoleTable extends Migration
                 'constraint' => 10,
                 'unsigned' => true,
                 'auto_increment' => true,
+            ],            
+            'txtGUID' => [
+                'type' => 'VARCHAR',
+                'constraint' => 36,
+                'null' => false,
             ],
             'txtRoleName' => [
                 'type' => 'VARCHAR',
@@ -28,7 +33,7 @@ class CreateRoleTable extends Migration
                 'type' => 'TEXT',
                 'null' => true,
             ],
-            'bitStatus' => [
+            'bitActive' => [
                 'type' => 'TINYINT',
                 'constraint' => 1,
                 'default' => 1,
@@ -39,22 +44,18 @@ class CreateRoleTable extends Migration
                 'default' => 'system',
             ],
             'dtmCreatedDate' => [
-                'type' => 'TIMESTAMP',
+                'type' => 'DATETIME',
                 'null' => true,
             ],
-            'txtLastUpdatedBy' => [
+            'txtUpdatedBy' => [
                 'type' => 'VARCHAR',
-                'constraint' => 50,
+                'constraint' => 50,  
                 'default' => 'system',
             ],
-            'dtmLastUpdatedDate' => [
-                'type' => 'TIMESTAMP',
+            'dtmUpdatedDate' => [
+                'type' => 'DATETIME',
                 'null' => true,
-            ],
-            'txtGUID' => [
-                'type' => 'VARCHAR',
-                'constraint' => 50,
-            ],
+            ]
         ]);
 
         $this->forge->addKey('intRoleID', true);

@@ -143,6 +143,11 @@ $routes->group('onboarding', ['filter' => 'auth'], function ($routes) {
     $routes->post('update-branding/(:num)', 'OnboardingController::updateBranding/$1');
 });
 
+// API Routes for booking time slots
+$routes->group('api', ['filter' => 'auth'], function ($routes) {
+    $routes->get('get-available-slots/(:num)', 'Api\TimeSlotController::getAvailableSlots/$1');
+});
+
 $routes->setDefaultNamespace('App\Controllers');
 $routes->setDefaultController('Home');
 $routes->setDefaultMethod('index');

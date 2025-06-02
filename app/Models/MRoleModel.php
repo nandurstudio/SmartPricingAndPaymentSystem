@@ -8,11 +8,10 @@ class MRoleModel extends Model
 {
     protected $table = 'm_role'; // Nama tabel
     protected $primaryKey = 'intRoleID'; // Primary key
-    protected $allowedFields = [
-        'txtRoleName',
+    protected $allowedFields = [        'txtRoleName',
         'txtRoleDesc',
         'txtRoleNote',
-        'bitStatus', 
+        'bitActive',
         'txtCreatedBy',
         'dtmCreatedDate',
         'txtLastUpdatedBy',

@@ -9,72 +9,83 @@ class CreateSpecialSchedulesTable extends Migration
     public function up()
     {
         // Create Special Schedules Table for exceptions
-        $this->forge->addField([
-            'id' => [
-                'type'           => 'INT',
-                'constraint'     => 11,
-                'unsigned'       => true,
-                'auto_increment' => true,
-            ],
-            'service_id' => [
-                'type'       => 'INT',
+        $fields = [
+            'intSpecialScheduleID' => [
+                'type' => 'INT',
                 'constraint' => 11,
-                'unsigned'   => true,
-                'null'       => false,
+                'unsigned' => true,
+                'auto_increment' => true
             ],
-            'special_date' => [
-                'type'       => 'DATE',
-                'null'       => false,
+            'intServiceID' => [
+                'type' => 'INT',
+                'constraint' => 11,
+                'unsigned' => true,
+                'null' => false
             ],
-            'start_time' => [
-                'type'       => 'TIME',
-                'null'       => true,
+            'dtmSpecialDate' => [
+                'type' => 'DATE',
+                'null' => false
             ],
-            'end_time' => [
-                'type'       => 'TIME',
-                'null'       => true,
+            'dtmStartTime' => [
+                'type' => 'TIME',
+                'null' => true
             ],
-            'is_closed' => [
-                'type'       => 'BOOLEAN',
-                'null'       => false,
-                'default'    => false,
-                'comment'    => 'If true, service is closed for this date',
+            'dtmEndTime' => [
+                'type' => 'TIME',
+                'null' => true
             ],
-            'slot_duration' => [
-                'type'       => 'INT',
+            'bitIsClosed' => [
+                'type' => 'TINYINT',
+                'constraint' => 1,
+                'default' => 0,
+                'comment' => 'If true, service is closed for this date'
+            ],
+            'intSlotDuration' => [
+                'type' => 'INT',
                 'constraint' => 5,
-                'null'       => true,
-                'comment'    => 'Duration in minutes',
+                'default' => 60,
+                'comment' => 'Duration in minutes'
             ],
-            'note' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 255,
-                'null'       => true,
+            'txtNote' => [
+                'type' => 'TEXT',
+                'null' => true
             ],
-            'created_date' => [
-                'type'       => 'DATETIME',
-                'null'       => false,
+            'txtGUID' => [
+                'type' => 'VARCHAR',
+                'constraint' => 36,
+                'null' => false
             ],
-            'created_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
-                'null'       => true,
+            'bitActive' => [
+                'type' => 'TINYINT',
+                'constraint' => 1,
+                'default' => 1
             ],
-            'updated_date' => [
-                'type'       => 'DATETIME',
-                'null'       => true,
+            'txtCreatedBy' => [
+                'type' => 'VARCHAR',
+                'constraint' => 50,
+                'null' => false,
+                'default' => 'system'
             ],
-            'updated_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
-                'null'       => true,
+            'dtmCreatedDate' => [
+                'type' => 'DATETIME',
+                'null' => true,
+                'default' => date('Y-m-d H:i:s')
             ],
-        ]);
-        
-        $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('service_id', 'm_services', 'id', 'CASCADE', 'CASCADE');
+            'txtUpdatedBy' => [
+                'type' => 'VARCHAR',
+                'constraint' => 50,
+                'null' => false,
+                'default' => 'system'
+            ],
+            'dtmUpdatedDate' => [
+                'type' => 'DATETIME',
+                'null' => true
+            ]
+        ];
+
+        $this->forge->addField($fields);
+        $this->forge->addKey('intSpecialScheduleID', true);
+        $this->forge->addForeignKey('intServiceID', 'm_services', 'intServiceID', 'CASCADE', 'CASCADE');
         $this->forge->createTable('m_special_schedules');
     }
 

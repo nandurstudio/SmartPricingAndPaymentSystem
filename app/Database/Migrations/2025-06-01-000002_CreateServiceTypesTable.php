@@ -10,101 +10,103 @@ class CreateServiceTypesTable extends Migration
     {
         // Create Service Types Table
         $this->forge->addField([
-            'id' => [
+            'intServiceTypeID' => [
                 'type'           => 'INT',
                 'constraint'     => 11,
                 'unsigned'       => true,
                 'auto_increment' => true,
-            ],
-            'guid' => [
+            ],            
+            'txtGUID' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 64,
+                'constraint' => 36,
                 'null'       => false,
-                'unique'     => true,
             ],
-            'name' => [
+            'txtName' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+                'null'       => false,
+            ],
+            'txtSlug' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
                 'null'       => false,
             ],
-            'slug' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 255,
-                'null'       => false,
-                'unique'     => true,
-            ],
-            'description' => [
+            'txtDescription' => [
                 'type'       => 'TEXT',
                 'null'       => true,
             ],
-            'icon' => [
+            'txtIcon' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+                'null'       => true,
+            ],
+            'txtCategory' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 100,
                 'null'       => true,
             ],
-            'category' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 100,
-                'null'       => true,
+            'bitIsSystem' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'default'    => 0,
             ],
-            'is_system' => [
-                'type'       => 'BOOLEAN',
-                'null'       => false,
-                'default'    => false,
+            'bitIsApproved' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'default'    => 0,
             ],
-            'is_approved' => [
-                'type'       => 'BOOLEAN',
-                'null'       => false,
-                'default'    => false,
-            ],
-            'requested_by' => [
+            'intRequestedBy' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => true,
             ],
-            'approved_by' => [
+            'intApprovedBy' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => true,
             ],
-            'approved_date' => [
+            'dtmApprovedDate' => [
                 'type'       => 'DATETIME',
                 'null'       => true,
             ],
-            'default_attributes' => [
+            'jsonDefaultAttributes' => [
                 'type'       => 'JSON',
                 'null'       => true,
             ],
-            'is_active' => [
-                'type'       => 'BOOLEAN',
+            'bitActive' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'default'    => 1,
+            ],
+            'txtCreatedBy' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
                 'null'       => false,
-                'default'    => true,
+                'default'    => 'system',
             ],
-            'created_date' => [
-                'type'       => 'DATETIME',
-                'null'       => false,
-            ],
-            'created_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
-                'null'       => true,
-            ],
-            'updated_date' => [
+            'dtmCreatedDate' => [
                 'type'       => 'DATETIME',
                 'null'       => true,
+                'default'    => date('Y-m-d H:i:s'),
             ],
-            'updated_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
+            'txtUpdatedBy' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
+                'null'       => false,
+                'default'    => 'system',
+            ],
+            'dtmUpdatedDate' => [
+                'type'       => 'DATETIME',
                 'null'       => true,
-            ],
+            ]
         ]);
-          $this->forge->addKey('id', true);
-        // Foreign keys will be added in the UpdateForeignKeyConstraints migration
+          
+        $this->forge->addKey('intServiceTypeID', true);
+        $this->forge->addUniqueKey(['txtGUID', 'txtSlug']);
+        $this->forge->addForeignKey('intRequestedBy', 'm_user', 'intUserID', 'SET NULL', 'CASCADE');
+        $this->forge->addForeignKey('intApprovedBy', 'm_user', 'intUserID', 'SET NULL', 'CASCADE');
         $this->forge->createTable('m_service_types');
     }
 

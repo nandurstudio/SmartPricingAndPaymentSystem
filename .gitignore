@@ -81,9 +81,6 @@ public/assets/vendor/bootstrap/
 /app/Database/sql/
 /migrations/
 
-# Seeder files (if containing sensitive or real data)
-/app/Database/Seeds/
-
 # Extra: prevent accidental commit of local scripts
 *.sh
 *.ps1

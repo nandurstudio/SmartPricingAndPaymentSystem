@@ -1,6 +1,9 @@
 <?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
+<!-- Add CSS link at the top -->
+<link rel="stylesheet" href="<?= base_url('assets/css/booking/booking.css') ?>">
+
 <div class="container-fluid px-4">
     <h1 class="mt-4"><?= $pageTitle ?></h1>
     <ol class="breadcrumb mb-4">
@@ -78,10 +81,9 @@
                             <div class="col-md-6">
                                 <label for="booking_date" class="form-label">Booking Date <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control" id="booking_date" name="booking_date" value="<?= old('booking_date') ?? date('Y-m-d') ?>" min="<?= date('Y-m-d') ?>" required>
-                            </div>
-                            <div class="col-md-6" id="time-slot-wrapper">
-                                <label for="time_slot" class="form-label">Time Slot <span class="text-danger">*</span></label>
-                                <select class="form-select" id="time_slot" name="time_slot" required>
+                            </div>                            <div class="col-md-6" id="time-slot-wrapper">
+                                <label for="start_time" class="form-label">Time Slot <span class="text-danger">*</span></label>
+                                <select class="form-select" id="time_slot" name="start_time" required>
                                     <option value="" selected disabled>Select date and service first</option>
                                 </select>
                                 <div class="form-text">Please select a date and service to see available time slots.</div>
@@ -214,216 +216,6 @@
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const tenantSelect = document.getElementById('tenant_id');
-    const serviceSelect = document.getElementById('service_id');
-    const dateInput = document.getElementById('booking_date');
-    const timeSlotSelect = document.getElementById('time_slot');
-    const existingCustomerRadio = document.getElementById('existing_customer');
-    const newCustomerRadio = document.getElementById('new_customer');
-    const existingForm = document.getElementById('existing-customer-form');
-    const newForm = document.getElementById('new-customer-form');
-    const payLaterRadio = document.getElementById('pay_later');
-    const payNowRadio = document.getElementById('pay_now');
-    const paymentMethods = document.getElementById('payment-methods');
-    
-    // Price and duration display
-    function updateServiceInfo() {
-        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
-        if (selectedOption && selectedOption.value) {
-            document.getElementById('service-price').textContent = 'Rp ' + 
-                parseFloat(selectedOption.dataset.price).toLocaleString('id-ID', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                });
-            document.getElementById('service-duration').textContent = 
-                selectedOption.dataset.duration + ' minutes';
-        } else {
-            document.getElementById('service-price').textContent = '-';
-            document.getElementById('service-duration').textContent = '-';
-        }
-    }
-    
-    // Update booking date and time display
-    function updateDateTimeInfo() {
-        const date = dateInput.value;
-        const timeSlot = timeSlotSelect.value;
-        
-        if (date) {
-            const formattedDate = new Date(date).toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-            document.getElementById('selected-date').textContent = formattedDate;
-        } else {
-            document.getElementById('selected-date').textContent = '-';
-        }
-        
-        if (timeSlot) {
-            document.getElementById('selected-time').textContent = timeSlot;
-        } else {
-            document.getElementById('selected-time').textContent = '-';
-        }
-    }
-    
-    // When tenant changes, load services for that tenant
-    if (tenantSelect) {
-        tenantSelect.addEventListener('change', function() {
-            const tenantId = this.value;
-            serviceSelect.innerHTML = '<option value="" selected disabled>Loading services...</option>';
-            
-            fetch(`<?= base_url('api/get-services-by-tenant') ?>/${tenantId}`)
-                .then(response => response.json())
-                .then(data => {
-                    serviceSelect.innerHTML = '<option value="" selected disabled>Select Service</option>';
-                    
-                    if (data.services && data.services.length > 0) {
-                        data.services.forEach(service => {
-                            const option = document.createElement('option');
-                            option.value = service.id;
-                            option.dataset.price = service.price;
-                            option.dataset.duration = service.duration;
-                            option.textContent = `${service.name} - Rp ${parseFloat(service.price).toLocaleString('id-ID', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            })}`;
-                            serviceSelect.appendChild(option);
-                        });
-                    } else {
-                        serviceSelect.innerHTML = '<option value="" selected disabled>No services available</option>';
-                    }
-                    
-                    updateServiceInfo();
-                })
-                .catch(error => {
-                    console.error('Error fetching services:', error);
-                    serviceSelect.innerHTML = '<option value="" selected disabled>Error loading services</option>';
-                });
-        });
-    }
-    
-    // When service or date changes, load available time slots
-    function loadTimeSlots() {
-        const serviceId = serviceSelect.value;
-        const date = dateInput.value;
-        
-        if (!serviceId || !date) {
-            timeSlotSelect.innerHTML = '<option value="" selected disabled>Select date and service first</option>';
-            return;
-        }
-        
-        timeSlotSelect.innerHTML = '<option value="" selected disabled>Loading time slots...</option>';
-        
-        fetch(`<?= base_url('api/get-available-slots') ?>/${serviceId}?date=${date}`)
-            .then(response => response.json())
-            .then(data => {
-                timeSlotSelect.innerHTML = '';
-                
-                if (data.error) {
-                    timeSlotSelect.innerHTML = `<option value="" selected disabled>${data.error}</option>`;
-                    return;
-                }
-                
-                if (data.slots && data.slots.length > 0) {
-                    const availableSlots = data.slots.filter(slot => slot.available);
-                    
-                    if (availableSlots.length > 0) {
-                        availableSlots.forEach(slot => {
-                            const option = document.createElement('option');
-                            option.value = slot.time;
-                            option.textContent = `${slot.time} - ${slot.end_time}`;
-                            option.dataset.endTime = slot.end_time;
-                            timeSlotSelect.appendChild(option);
-                        });
-                    } else {
-                        timeSlotSelect.innerHTML = '<option value="" selected disabled>No available slots for this date</option>';
-                    }
-                } else {
-                    timeSlotSelect.innerHTML = '<option value="" selected disabled>No schedule available for this date</option>';
-                }
-                
-                updateDateTimeInfo();
-            })
-            .catch(error => {
-                console.error('Error fetching time slots:', error);
-                timeSlotSelect.innerHTML = '<option value="" selected disabled>Error loading time slots</option>';
-            });
-    }
-    
-    serviceSelect.addEventListener('change', function() {
-        updateServiceInfo();
-        loadTimeSlots();
-    });
-    
-    dateInput.addEventListener('change', function() {
-        loadTimeSlots();
-        updateDateTimeInfo();
-    });
-    
-    timeSlotSelect.addEventListener('change', function() {
-        updateDateTimeInfo();
-    });
-    
-    // Customer form toggle
-    if (existingCustomerRadio && newCustomerRadio) {
-        existingCustomerRadio.addEventListener('change', function() {
-            if (this.checked) {
-                existingForm.style.display = 'block';
-                newForm.style.display = 'none';
-            }
-        });
-        
-        newCustomerRadio.addEventListener('change', function() {
-            if (this.checked) {
-                existingForm.style.display = 'none';
-                newForm.style.display = 'block';
-            }
-        });
-    }
-    
-    // Payment method toggle
-    if (payLaterRadio && payNowRadio) {
-        payLaterRadio.addEventListener('change', function() {
-            if (this.checked) {
-                paymentMethods.style.display = 'none';
-            }
-        });
-        
-        payNowRadio.addEventListener('change', function() {
-            if (this.checked) {
-                paymentMethods.style.display = 'block';
-            }
-        });
-    }
-    
-    // Initialize the form
-    updateServiceInfo();
-    updateDateTimeInfo();
-    
-    // If service and tenant are already selected (from URL params)
-    if (serviceSelect.value) {
-        loadTimeSlots();
-    }
-});
-</script>
-
-<style>
-.payment-option .form-check-input {
-    position: absolute;
-    clip: rect(0,0,0,0);
-}
-
-.payment-option .form-check-label {
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.payment-option .form-check-input:checked + .form-check-label {
-    border-color: #0d6efd !important;
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
-}
-</style>
+<!-- Add script tag at the bottom -->
+<script src="<?= base_url('assets/js/booking/booking.js') ?>"></script>
 <?= $this->endSection() ?>

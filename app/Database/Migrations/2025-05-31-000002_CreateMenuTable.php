@@ -14,6 +14,11 @@ class CreateMenuTable extends Migration
                 'constraint' => 10,
                 'unsigned' => true,
                 'auto_increment' => true,
+            ],            
+            'txtGUID' => [
+                'type' => 'VARCHAR',
+                'constraint' => 36,
+                'null' => false,
             ],
             'txtMenuName' => [
                 'type' => 'VARCHAR',
@@ -38,7 +43,8 @@ class CreateMenuTable extends Migration
             ],
             'intSortOrder' => [
                 'type' => 'INT',
-                'constraint' => 10,
+                'constraint' => 5,
+                'null' => false,
                 'default' => 0,
             ],
             'bitActive' => [
@@ -49,25 +55,28 @@ class CreateMenuTable extends Migration
             'txtCreatedBy' => [
                 'type' => 'VARCHAR',
                 'constraint' => 50,
+                'null' => false,
                 'default' => 'system',
             ],
             'dtmCreatedDate' => [
-                'type' => 'TIMESTAMP',
+                'type' => 'DATETIME',
                 'null' => true,
+                'default' => date('Y-m-d H:i:s'),
             ],
-            'txtLastUpdatedBy' => [
+            'txtUpdatedBy' => [
                 'type' => 'VARCHAR',
                 'constraint' => 50,
+                'null' => false,
                 'default' => 'system',
             ],
-            'dtmLastUpdatedDate' => [
-                'type' => 'TIMESTAMP',
+            'dtmUpdatedDate' => [
+                'type' => 'DATETIME',
                 'null' => true,
-            ],
+            ]
         ]);
 
         $this->forge->addKey('intMenuID', true);
-        $this->forge->addForeignKey('intParentID', 'm_menu', 'intMenuID', 'SET NULL', 'CASCADE');
+        $this->forge->addForeignKey('intParentID', 'm_menu', 'intMenuID', 'CASCADE', 'SET NULL');
         $this->forge->createTable('m_menu');
     }
 

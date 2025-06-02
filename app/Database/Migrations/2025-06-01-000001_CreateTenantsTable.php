@@ -10,94 +10,91 @@ class CreateTenantsTable extends Migration
     {
         // Create Tenants Table
         $this->forge->addField([
-            'id' => [
+            'intTenantID' => [
                 'type'           => 'INT',
                 'constraint'     => 11,
                 'unsigned'       => true,
                 'auto_increment' => true,
-            ],
-            'guid' => [
+            ],            
+            'txtGUID' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 64,
+                'constraint' => 36,
                 'null'       => false,
-                'unique'     => true,
             ],
-            'name' => [
+            'txtTenantName' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+                'null'       => false,
+            ],
+            'txtSlug' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
                 'null'       => false,
             ],
-            'slug' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 255,
-                'null'       => false,
-                'unique'     => true,
-            ],
-            'domain' => [
+            'txtDomain' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
                 'null'       => true,
             ],
-            'service_type_id' => [
+            'intServiceTypeID' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => true,
-            ],
-            'owner_id' => [
+            ],            'intOwnerID' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
-                'null'       => false,
+                'null'       => true, // Changed to allow null initially
             ],
-            'subscription_plan' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 50,
-                'null'       => true,
+            'txtSubscriptionPlan' => [
+                'type'       => 'ENUM',
+                'constraint' => ['free', 'basic', 'premium', 'enterprise'],
                 'default'    => 'free',
             ],
-            'status' => [
+            'txtStatus' => [
+                'type'       => 'ENUM',
+                'constraint' => ['active', 'inactive', 'suspended', 'pending'],
+                'default'    => 'pending',
+            ],
+            'jsonSettings' => [
+                'type'       => 'JSON',
+                'null'       => true,
+            ],
+            'jsonPaymentSettings' => [
+                'type'       => 'JSON',
+                'null'       => true,
+            ],
+            'bitActive' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'default'    => 1,
+            ],
+            'txtCreatedBy' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 50,
                 'null'       => false,
-                'default'    => 'active',
+                'default'    => 'system',
             ],
-            'settings' => [
-                'type'       => 'JSON',
-                'null'       => true,
-            ],
-            'payment_settings' => [
-                'type'       => 'JSON',
-                'null'       => true,
-            ],
-            'is_active' => [
-                'type'       => 'BOOLEAN',
-                'null'       => false,
-                'default'    => true,
-            ],
-            'created_date' => [
-                'type'       => 'DATETIME',
-                'null'       => false,
-            ],
-            'created_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
-                'null'       => true,
-            ],
-            'updated_date' => [
+            'dtmCreatedDate' => [
                 'type'       => 'DATETIME',
                 'null'       => true,
+                'default'    => date('Y-m-d H:i:s'),
             ],
-            'updated_by' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
+            'txtUpdatedBy' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
+                'null'       => false,
+                'default'    => 'system',
+            ],
+            'dtmUpdatedDate' => [
+                'type'       => 'DATETIME',
                 'null'       => true,
-            ],
+            ]
         ]);
-          $this->forge->addKey('id', true);
-        // Foreign keys will be added in the UpdateForeignKeyConstraints migration
+        
+        $this->forge->addKey('intTenantID', true);
+        $this->forge->addUniqueKey(['txtGUID', 'txtSlug', 'txtDomain']);
         $this->forge->createTable('m_tenants');
     }
 
