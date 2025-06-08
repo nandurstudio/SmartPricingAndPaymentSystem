@@ -14,6 +14,7 @@ use CodeIgniter\Filters\PerformanceMetrics;
 use CodeIgniter\Filters\SecureHeaders;
 use App\Filters\AuthCheck;
 use App\Filters\RoleAccessFilter;
+use App\Filters\TenantFilter;
 
 class Filters extends BaseFilters
 {
@@ -35,9 +36,9 @@ class Filters extends BaseFilters
         'cors'          => Cors::class,
         'forcehttps'    => ForceHTTPS::class,
         'pagecache'     => PageCache::class,
-        'performance'   => PerformanceMetrics::class,
-        'auth'          => AuthCheck::class,  // Tambahkan alias untuk AuthCheck F
+        'performance'   => PerformanceMetrics::class,        'auth'          => AuthCheck::class,  // Tambahkan alias untuk AuthCheck F
         'roleAccess'    => roleAccessFilter::class,
+        'tenantfilter'  => \App\Filters\TenantFilter::class,
     ];
 
     /**
@@ -73,13 +74,14 @@ class Filters extends BaseFilters
      */
     public array $globals = [
         'before' => [
-            // 'honeypot',
-            // 'csrf',
-            // 'invalidchars',
+            'honeypot',
+            'csrf',
+            'invalidchars',
+            'tenantfilter'
         ],
         'after' => [
-            // 'honeypot',
-            // 'secureheaders',
+            'honeypot',
+            'secureheaders',
         ],
     ];
 
@@ -107,5 +109,9 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, list<string>>>
      */
-    public array $filters = [];
+    public array $filters = [
+        'auth' => \App\Filters\AuthFilter::class,
+        'role' => \App\Filters\RoleFilter::class,
+        'tenantfilter' => \App\Filters\TenantFilter::class
+    ];
 }

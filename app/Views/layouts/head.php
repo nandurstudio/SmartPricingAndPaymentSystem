@@ -17,9 +17,7 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="<?= base_url('assets/img/favicon.png') ?>" />
-    <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('assets/img/apple-touch-icon.png') ?>" />
-
-    <title><?= $title ?? 'Smart Booking System' ?> | <?= isset($tenant) ? esc($tenant['name']) : 'Multi-Tenant Platform' ?></title>
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('assets/img/apple-touch-icon.png') ?>" />    <title><?= $title ?? 'Smart Booking System' ?> | <?= isset($tenant) ? esc($tenant['txtTenantName']) : 'Multi-Tenant Platform' ?></title>
 
     <!-- Core CSS -->
     <link rel="stylesheet" href="<?= base_url('assets/css/bootstrap/bootstrap.min.css') ?>" />
@@ -38,9 +36,13 @@
     <link rel="stylesheet" href="<?= base_url('assets/css/flatpickr/flatpickr.min.css') ?>" />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="<?= base_url('assets/css/styles.css') ?>" />
-    <?php if (isset($tenant) && !empty($tenant['custom_css'])): ?>
-        <link rel="stylesheet" href="<?= base_url('uploads/tenants/' . $tenant['id'] . '/custom.css') ?>" />
+    <link rel="stylesheet" href="<?= base_url('assets/css/styles.css') ?>" />    <?php if (isset($tenant) && isset($tenant['intTenantID'])): ?>
+        <?php
+        // Load tenant custom CSS if exists
+        $cssPath = FCPATH . 'uploads/tenants/css/' . ($tenant['intTenantID'] ?? '0') . '_custom.css';
+        if (file_exists($cssPath)): ?>
+            <link rel="stylesheet" href="<?= base_url('uploads/tenants/css/' . ($tenant['intTenantID'] ?? '0') . '_custom.css') ?>" />
+        <?php endif; ?>
     <?php endif; ?>
 
     <!-- Preconnect to External Resources -->

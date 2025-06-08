@@ -32,7 +32,7 @@
                         <a href="<?= base_url('onboarding/retry-payment/' . $tenantId) ?>" class="btn btn-primary me-2">
                             Try Again
                         </a>
-                        <a href="<?= base_url('tenant') ?>" class="btn btn-secondary">
+                        <a href="<?= base_url('tenants') ?>" class="btn btn-secondary">
                             Back to Dashboard
                         </a>
                     </div>

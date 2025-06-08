@@ -29,14 +29,12 @@ class ServiceController extends BaseController
             'pageTitle' => 'Services Management',
             'pageSubTitle' => 'Create and manage your booking services',
             'icon' => 'briefcase'
-        ];
-
-        // Get tenant ID - in a multi-tenant app, we need to filter by tenant
+        ];        // Get tenant ID - in a multi-tenant app, we need to filter by tenant
         $tenantId = $this->getTenantId();
 
         if (!$tenantId) {
             // No tenant assigned to user, redirect to tenant creation
-            return redirect()->to('/tenant/create')->with('info', 'Please create a tenant first to manage services.');
+            return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage services.');
         }
 
         // Get services for this tenant
@@ -81,11 +79,9 @@ class ServiceController extends BaseController
         }
 
         // Get tenant ID
-        $tenantId = $this->getTenantId();
-
-        if (!$tenantId) {
+        $tenantId = $this->getTenantId();        if (!$tenantId) {
             // No tenant assigned to user, redirect to tenant creation
-            return redirect()->to('/tenant/create')->with('info', 'Please create a tenant first to manage services.');
+            return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage services.');
         }
 
         $data = [
@@ -120,11 +116,9 @@ class ServiceController extends BaseController
         }
 
         // Get tenant ID
-        $tenantId = $this->getTenantId();
-
-        if (!$tenantId) {
+        $tenantId = $this->getTenantId();        if (!$tenantId) {
             // No tenant assigned to user
-            return redirect()->to('/tenant/create')->with('info', 'Please create a tenant first to manage services.');
+            return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage services.');
         }
 
         // Validate form input
@@ -190,7 +184,7 @@ class ServiceController extends BaseController
         
         if (!$tenantId) {
             // No tenant assigned to user
-            return redirect()->to('/tenant/create')->with('info', 'Please create a tenant first to manage services.');
+            return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage services.');
         }
 
         // Fetch the service and verify it belongs to the tenant
@@ -249,7 +243,7 @@ class ServiceController extends BaseController
 
         if (!$tenantId) {
             // No tenant assigned to user
-            return redirect()->to('/tenant/create')->with('info', 'Please create a tenant first to manage services.');
+            return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage services.');
         }
 
         // Fetch the service and verify it belongs to the tenant
@@ -336,7 +330,7 @@ class ServiceController extends BaseController
 
         if (!$tenantId) {
             // No tenant assigned to user
-            return redirect()->to('/tenant/create')->with('info', 'Please create a tenant first to manage services.');
+            return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage services.');
         }
 
         // Fetch the service and verify it belongs to the tenant

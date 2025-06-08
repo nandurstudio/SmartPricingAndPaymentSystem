@@ -55,10 +55,25 @@
                             </table>
                         </div>
                     </div>
-                </div>
-                <div class="card-footer">
-                    <a href="<?= base_url('users') ?>" class="btn btn-secondary">Back to List</a>
-                    <a href="<?= base_url('users/edit/' . $user['intUserID']) ?>" class="btn btn-primary">Edit User</a>
+                </div>                <div class="card-footer">
+                    <div class="d-flex">
+                        <div class="me-2">
+                            <a href="<?= base_url('users') ?>" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-arrow-left"></i> Back
+                            </a>
+                        </div>
+                        <div class="btn-group">
+                            <a href="<?= base_url('users/view/' . $user['intUserID']) ?>" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="<?= base_url('users/edit/' . $user['intUserID']) ?>" class="btn btn-outline-warning btn-sm">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="<?= base_url('users/delete/' . $user['intUserID']) ?>" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure you want to delete this user?');">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -19,7 +19,7 @@
                     </div>
 
                     <div class="mb-4">
-                        <a href="<?= base_url('tenant') ?>" class="btn btn-secondary me-2">
+                        <a href="<?= base_url('tenants') ?>" class="btn btn-secondary me-2">
                             Back to Dashboard
                         </a>
                         <button onclick="checkStatus()" class="btn btn-primary">

@@ -33,11 +33,9 @@ class ScheduleController extends BaseController
 
         // Get tenant ID - in a multi-tenant app, we need to filter by tenant
         $tenantId = $this->getTenantId();
-        $roleId = session()->get('roleID');
-
-        if (!$tenantId && $roleId != 1) {
+        $roleId = session()->get('roleID');        if (!$tenantId && $roleId != 1) {
             // No tenant assigned to user, redirect to tenant creation
-            return redirect()->to('/tenant/create')->with('info', 'Please create a tenant first to manage schedules.');
+            return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage schedules.');
         }
 
         // Get services for filtering
@@ -105,7 +103,7 @@ class ScheduleController extends BaseController
 
         if (!$tenantId && $roleId != 1) {
             // No tenant assigned to user, redirect to tenant creation
-            return redirect()->to('/tenant/create')->with('info', 'Please create a tenant first to manage schedules.');
+            return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage schedules.');
         }
 
         $data = [
@@ -348,7 +346,7 @@ class ScheduleController extends BaseController
 
         if (!$tenantId && $roleId != 1) {
             // No tenant assigned to user, redirect to tenant creation
-            return redirect()->to('/tenant/create')->with('info', 'Please create a tenant first to manage schedules.');
+            return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage schedules.');
         }
 
         // Get services for dropdown

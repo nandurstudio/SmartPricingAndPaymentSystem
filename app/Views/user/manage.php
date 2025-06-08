@@ -17,20 +17,34 @@
             <?php endif; ?>
 
             <div class="table-responsive">
-                <table class="table table-hover table-bordered" id="userTable">
-                    <thead class="table-light">
+                <table class="table table-hover table-bordered" id="userTable">                    <thead class="table-light">
                         <tr>
+                            <th>Actions</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Role</th>
                             <th>Join Date</th>
                             <th>Status</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($users as $user): ?>
-                        <tr>
+                        <?php foreach ($users as $user): ?>                        <tr>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="<?= base_url('users/view/' . $user['intUserID']) ?>" class="btn btn-sm btn-outline-primary" title="View">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                    <a href="<?= base_url('users/edit/' . $user['intUserID']) ?>" class="btn btn-sm btn-outline-warning" title="Edit">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-<?= $user['bitActive'] ? 'danger' : 'success' ?> toggle-status" 
+                                            data-id="<?= $user['intUserID'] ?>" 
+                                            data-status="<?= $user['bitActive'] ?>" 
+                                            title="<?= $user['bitActive'] ? 'Deactivate' : 'Activate' ?>">
+                                        <i class="fa <?= $user['bitActive'] ? 'fa-ban' : 'fa-check' ?>"></i>
+                                    </button>
+                                </div>
+                            </td>
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="avatar me-2">
@@ -57,24 +71,7 @@
                                     <span class="badge bg-success">Active</span>
                                 <?php else: ?>
                                     <span class="badge bg-danger">Inactive</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <div class="btn-group">
-                                    <a href="<?= base_url('users/view/' . $user['intUserID']) ?>" class="btn btn-sm btn-outline-primary" title="View">
-                                        <i class="fa fa-eye"></i>
-                                    </a>
-                                    <a href="<?= base_url('users/edit/' . $user['intUserID']) ?>" class="btn btn-sm btn-outline-warning" title="Edit">
-                                        <i class="fa fa-edit"></i>
-                                    </a>
-                                    <button type="button" class="btn btn-sm btn-outline-<?= $user['bitActive'] ? 'danger' : 'success' ?> toggle-status" 
-                                            data-id="<?= $user['intUserID'] ?>" 
-                                            data-status="<?= $user['bitActive'] ?>" 
-                                            title="<?= $user['bitActive'] ? 'Deactivate' : 'Activate' ?>">
-                                        <i class="fa <?= $user['bitActive'] ? 'fa-ban' : 'fa-check' ?>"></i>
-                                    </button>
-                                </div>
-                            </td>
+                                <?php endif; ?>                            </td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>

@@ -6,6 +6,9 @@ use Config\Services;
 
 $routes = Services::routes();
 
+// Payment callback route - no auth filter as it's called by payment gateway
+$routes->post('payment/callback', 'PaymentController::handleCallback');
+
 // Default route
 $routes->get('/', 'Auth::landingPage', ['filter' => 'auth']);
 $routes->get('landing', 'Auth::landingPage', ['filter' => 'auth']);
@@ -30,6 +33,13 @@ $routes->get('auth/forgot_password', 'Auth::forgotPassword');
 $routes->post('auth/sendResetLink', 'Auth::sendResetLink');
 $routes->get('auth/reset_password/(:any)', 'Auth::resetPassword/$1');
 $routes->post('auth/updatePassword', 'Auth::updatePassword');
+
+// Tenant Website Routes - Must be before protected routes
+$routes->group('', ['subdomain' => '(:any)'], function($routes) {
+    $routes->get('/', 'TenantWebsiteController::index/$1');
+    $routes->get('(:any)', 'TenantWebsiteController::page/$1/$2');
+    $routes->get('assets/(:any)', 'TenantWebsiteController::assets/$1/$2');
+});
 
 // Protected routes
 $routes->group('', ['filter' => 'auth'], function ($routes) {
@@ -82,9 +92,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('view/(:num)', 'MenuController::view/$1');
         $routes->get('edit/(:num)', 'MenuController::edit/$1');
         $routes->post('update/(:num)', 'MenuController::update/$1');
-    });
-
-    // Product management
+    });    // Product management
     $routes->group('products', function ($routes) {
         $routes->get('/', 'ProductController::index');
         $routes->get('create', 'ProductController::create');
@@ -93,6 +101,14 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('edit/(:num)', 'ProductController::edit/$1');
         $routes->post('update/(:num)', 'ProductController::update/$1');
         $routes->get('delete/(:num)', 'ProductController::delete/$1');
+    });    // Service Type management
+    $routes->group('service-types', function ($routes) {
+        $routes->get('/', 'ServiceTypeController::index');
+        $routes->get('create', 'ServiceTypeController::create');
+        $routes->post('store', 'ServiceTypeController::store');
+        $routes->get('edit/(:num)', 'ServiceTypeController::edit/$1');
+        $routes->post('update/(:num)', 'ServiceTypeController::update/$1');
+        $routes->post('toggle-status/(:num)', 'ServiceTypeController::toggleStatus/$1');
     });
 
     // Tenant management
@@ -104,6 +120,10 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('edit/(:num)', 'TenantsController::edit/$1');
         $routes->post('update/(:num)', 'TenantsController::update/$1');
     });
+    
+    // Redirect old tenant URLs to new ones
+    $routes->addRedirect('tenant', 'tenants');
+    $routes->addRedirect('tenant/(:any)', 'tenants/$1');
 
     // Service management
     $routes->group('services', function ($routes) {

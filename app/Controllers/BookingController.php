@@ -32,13 +32,12 @@ class BookingController extends BaseController
         ];
 
         // Get tenant ID - in a multi-tenant app, we need to filter by tenant
-        $tenantId = $this->getTenantId();
-        $userId = session()->get('userID');
+        $tenantId = $this->getTenantId();        $userId = session()->get('userID');
         $roleId = session()->get('roleID');
 
         if (!$tenantId && $roleId != 1) {
             // No tenant assigned to user, redirect to tenant creation
-            return redirect()->to('/tenant/create')->with('info', 'Please create a tenant first to manage bookings.');
+            return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage bookings.');
         }
 
         // Get bookings based on role
@@ -101,13 +100,12 @@ class BookingController extends BaseController
         ];
 
         // Get tenant ID
-        $tenantId = $this->getTenantId();
-        $userId = session()->get('userID');
+        $tenantId = $this->getTenantId();        $userId = session()->get('userID');
         $roleId = session()->get('roleID');
 
         if (!$tenantId && $roleId != 1) {
             // No tenant assigned to user, redirect to tenant creation
-            return redirect()->to('/tenant/create')->with('info', 'Please create a tenant first to manage bookings.');
+            return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage bookings.');
         }
 
         // Get services for dropdown
