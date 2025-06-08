@@ -1,0 +1,73 @@
+:root {
+    --tenant-primary: #6366f1;
+    --bs-body-bg: #0f172a;
+    --bs-body-color: #e2e8f0;
+    --bs-navbar-color: rgba(226, 232, 240, 0.7);
+    --bs-navbar-hover-color: rgba(226, 232, 240, 0.9);
+    --bs-navbar-active-color: #e2e8f0;
+}
+
+/* Theme Dark Specific */
+.theme-dark {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+/* Navbar */
+.theme-dark .navbar {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3);
+}
+
+.theme-dark .navbar-dark {
+    background-color: #1e293b;
+}
+
+.theme-dark .navbar.bg-transparent {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    backdrop-filter: blur(10px);
+}
+
+/* Cards */
+.theme-dark .card {
+    background-color: #1e293b;
+    border: 1px solid rgba(226, 232, 240, 0.1);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3);
+}
+
+.theme-dark .card-header {
+    background-color: rgba(226, 232, 240, 0.05);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.1);
+}
+
+/* Buttons */
+.theme-dark .btn-primary {
+    background-color: var(--tenant-primary);
+    border-color: var(--tenant-primary);
+}
+
+.theme-dark .btn-primary:hover {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+}
+
+.theme-dark .btn-light {
+    background-color: #1e293b;
+    border-color: rgba(226, 232, 240, 0.1);
+    color: var(--bs-body-color);
+}
+
+.theme-dark .btn-light:hover {
+    background-color: #273548;
+    border-color: rgba(226, 232, 240, 0.2);
+}
+
+/* Text Colors */
+.theme-dark .text-muted {
+    color: #94a3b8 !important;
+}
+
+/* Footer */
+.theme-dark footer.bg-dark {
+    background-color: #1e293b !important;
+    border-top: 1px solid rgba(226, 232, 240, 0.1);
+}

@@ -1,0 +1,66 @@
+:root {
+    --tenant-primary: #6366f1;
+    --bs-body-bg: #f8fafc;
+    --bs-body-color: #1e293b;
+    --bs-navbar-color: rgba(30, 41, 59, 0.7);
+    --bs-navbar-hover-color: rgba(30, 41, 59, 0.9);
+    --bs-navbar-active-color: #1e293b;
+}
+
+/* Theme Light Specific */
+.theme-light {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+/* Navbar */
+.theme-light .navbar {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.theme-light .navbar-light {
+    background-color: #ffffff;
+}
+
+.theme-light .navbar.bg-transparent {
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(10px);
+}
+
+/* Cards */
+.theme-light .card {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    border: none;
+    background-color: #fff;
+}
+
+.theme-light .card-header {
+    background-color: #fff;
+}
+
+/* Buttons */
+.theme-light .btn-primary {
+    background-color: var(--tenant-primary);
+    border-color: var(--tenant-primary);
+}
+
+.theme-light .btn-primary:hover {
+    background-color: #4f46e5;
+    border-color: #4f46e5;
+}
+
+.theme-light .btn-light {
+    background-color: #fff;
+    border-color: #e2e8f0;
+}
+
+.theme-light .btn-light:hover {
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+/* Footer */
+.theme-light footer.bg-light {
+    background-color: #fff !important;
+    box-shadow: 0 -1px 3px 0 rgb(0 0 0 / 0.1), 0 -1px 2px -1px rgb(0 0 0 / 0.1);
+}
