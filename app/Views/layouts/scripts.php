@@ -1,5 +1,19 @@
-<!-- Core Libraries -->
+<!-- jQuery First -->
 <script src="<?= base_url('assets/js/jquery/jquery.min.js'); ?>"></script>
+
+<!-- Ensure jQuery is loaded before using it -->
+<script>
+if (typeof jQuery === 'undefined') {
+    console.error('jQuery is not loaded!');
+} else {
+    window.$ = window.jQuery = jQuery;
+}
+</script>
+
+<!-- Font Awesome -->
+<script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+
+<!-- Bootstrap Bundle -->
 <script src="<?= base_url('assets/js/bootstrap/bootstrap.bundle.min.js'); ?>"></script>
 
 <!-- DataTables Core - Must load before extensions -->

@@ -5,7 +5,7 @@
     <h1 class="mt-4"><?= $pageTitle ?></h1>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="<?= base_url('schedule') ?>">Schedules</a></li>
+        <li class="breadcrumb-item"><a href="<?= base_url('schedules') ?>">Schedules</a></li>
         <li class="breadcrumb-item active"><?= $pageTitle ?></li>
     </ol>
     
@@ -159,7 +159,7 @@
                 <h5 class="modal-title" id="addSpecialDateModalLabel">Add Special Date</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('schedule/store-special') ?>" method="post">
+            <form action="<?= base_url('schedules/store-special') ?>" method="post">
                 <?= csrf_field() ?>
                 <div class="modal-body">
                     <div class="mb-3">
@@ -223,7 +223,7 @@
                 <h5 class="modal-title" id="editSpecialDateModalLabel">Edit Special Date</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('schedule/update-special') ?>" method="post">
+            <form action="<?= base_url('schedules/update-special') ?>" method="post">
                 <?= csrf_field() ?>
                 <input type="hidden" id="edit_special_id" name="id">
                 <div class="modal-body">
@@ -282,7 +282,7 @@
                 <h5 class="modal-title" id="deleteSpecialModalLabel">Delete Special Date</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('schedule/delete-special') ?>" method="post">
+            <form action="<?= base_url('schedules/delete-special') ?>" method="post">
                 <?= csrf_field() ?>
                 <input type="hidden" id="delete_special_id" name="id">
                 <div class="modal-body">

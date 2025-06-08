@@ -223,6 +223,7 @@
                                 <thead class="bg-light">
                                     <tr>
                                         <th class="border-0">Name</th>
+                                        <th class="border-0">Type</th>
                                         <th class="border-0">Price</th>
                                         <th class="border-0">Status</th>
                                         <th class="border-0 text-center">Actions</th>
@@ -233,11 +234,11 @@
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <?php if (!empty($service['image'])): ?>
-                                                        <img src="<?= base_url('uploads/services/' . $service['image']) ?>" 
+                                                    <?php if (!empty($service['txtImage'])): ?>
+                                                        <img src="<?= base_url('uploads/services/' . $service['txtImage']) ?>" 
                                                              class="rounded-circle me-2" 
                                                              width="40" height="40"
-                                                             alt="<?= esc($service['name']) ?>">
+                                                             alt="<?= esc($service['txtName']) ?>">
                                                     <?php else: ?>
                                                         <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-2"
                                                              style="width: 40px; height: 40px;">
@@ -245,21 +246,19 @@
                                                         </div>
                                                     <?php endif; ?>
                                                     <div>
-                                                        <h6 class="mb-0"><?= esc($service['name']) ?></h6>
-                                                        <small class="text-muted"><?= esc($service['duration'] ?? 'N/A') ?></small>
+                                                        <h6 class="mb-0"><?= esc($service['txtName']) ?></h6>
+                                                        <small class="text-muted"><?= $service['intDuration'] ?> minutes</small>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
-                                                <h6 class="mb-0">Rp <?= number_format($service['price'], 0, ',', '.') ?></h6>
-                                                <?php if (!empty($service['original_price']) && $service['original_price'] > $service['price']): ?>
-                                                    <small class="text-decoration-line-through text-muted">
-                                                        Rp <?= number_format($service['original_price'], 0, ',', '.') ?>
-                                                    </small>
-                                                <?php endif; ?>
+                                                <?= esc($service['type_name'] ?? 'N/A') ?>
                                             </td>
                                             <td>
-                                                <?php if ($service['is_active'] == 1) : ?>
+                                                <h6 class="mb-0">Rp <?= number_format($service['decPrice'], 0, ',', '.') ?></h6>
+                                            </td>
+                                            <td>
+                                                <?php if ($service['bitActive'] == 1) : ?>
                                                     <span class="badge bg-success px-2 py-1">Active</span>
                                                 <?php else : ?>
                                                     <span class="badge bg-danger px-2 py-1">Inactive</span>
@@ -267,11 +266,11 @@
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group">
-                                                    <a href="<?= base_url('service/view/' . $service['id']) ?>" 
+                                                    <a href="<?= base_url('services/view/' . $service['intServiceID']) ?>" 
                                                        class="btn btn-light btn-sm">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
-                                                    <a href="<?= base_url('service/edit/' . $service['id']) ?>" 
+                                                    <a href="<?= base_url('services/edit/' . $service['intServiceID']) ?>" 
                                                        class="btn btn-light btn-sm">
                                                         <i class="fas fa-edit"></i>
                                                     </a>

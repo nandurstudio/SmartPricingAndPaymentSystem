@@ -3,9 +3,16 @@
     * Copyright 2013-2022 Start Bootstrap
     * Licensed under SEE_LICENSE (https://github.com/StartBootstrap/sb-admin-pro/blob/master/LICENSE)
     */
+// Ensure jQuery and other dependencies are loaded
 window.addEventListener('DOMContentLoaded', event => {
-    // Activate feather
-    feather.replace();
+    if (typeof jQuery === 'undefined') {
+        console.error('jQuery is not loaded! Some features may not work.');
+        return;
+    }
+    
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
 
     // Enable tooltips globally
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

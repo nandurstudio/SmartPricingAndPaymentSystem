@@ -21,8 +21,7 @@
                         <div>
                             <a href="<?= base_url('services/edit/' . $service['intServiceID']) ?>" class="btn btn-warning btn-sm me-1">
                                 <i class="fas fa-edit"></i> Edit
-                            </a>
-                            <a href="<?= base_url('schedule?service_id=' . $service['intServiceID']) ?>" class="btn btn-primary btn-sm">
+                            </a>                            <a href="<?= base_url('schedules?service_id=' . $service['intServiceID']) ?>" class="btn btn-primary btn-sm">
                                 <i class="fas fa-calendar"></i> Schedules
                             </a>
                         </div>
@@ -37,7 +36,7 @@
                             </p>
                             <p class="mb-0">
                                 <span class="fw-bold">Tenant:</span> 
-                                <a href="<?= base_url('tenant/view/' . $service['intTenantID']) ?>"><?= esc($service['tenant_name'] ?? 'N/A') ?></a>
+                                <a href="<?= base_url('tenants/view/' . $service['intTenantID']) ?>"><?= esc($service['tenant_name'] ?? 'N/A') ?></a>
                             </p>
                             <p class="mb-0">
                                 <span class="fw-bold">Price:</span> Rp <?= number_format($service['decPrice'], 2) ?>
@@ -59,89 +58,22 @@
                         </div>
                         <div class="col-md-4 text-end">
                             <?php if (!empty($service['txtImagePath'])) : ?>
-                                <img src="<?= base_url('uploads/services/' . $service['txtImagePath']) ?>" alt="<?= esc($service['txtName']) ?>" class="img-fluid rounded">
+                                <img src="<?= base_url('uploads/services/' . $service['txtImagePath']) ?>" 
+                                     alt="<?= esc($service['txtName']) ?>" 
+                                     class="img-fluid rounded">
                             <?php else : ?>
-                                <div class="border rounded d-flex align-items-center justify-content-center text-muted" style="height: 150px;">
-                                    <div>No Image</div>
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                     style="height: 150px;">
+                                    <i class="fas fa-spa text-secondary" style="font-size: 3rem;"></i>
                                 </div>
                             <?php endif; ?>
                         </div>
                     </div>
 
                     <hr>
-                    <h6 class="fw-bold">Description</h6>
-                    <p><?= nl2br(esc($service['txtDescription'])) ?></p>
-                    
-                    <?php if (!empty($attributes)) : ?>
-                        <hr>
-                        <h6 class="fw-bold">Additional Information</h6>
-                        <ul class="list-group list-group-flush">
-                            <?php foreach ($attributes as $key => $value) : ?>
-                                <li class="list-group-item px-0">
-                                    <strong><?= esc($key) ?>:</strong> <?= esc($value) ?>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    <?php endif; ?>
-                </div>
-            </div>
 
-            <div class="card mb-4">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <i class="fas fa-calendar-week me-1"></i>
-                            Weekly Schedule
-                        </div>
-                        <a href="<?= base_url('schedule/create?service_id=' . $service['intServiceID']) ?>" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus-circle"></i> Add Schedule
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <?php if (!empty($schedules)) : ?>
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Day</th>
-                                        <th>Start Time</th>
-                                        <th>End Time</th>
-                                        <th>Slot Duration</th>
-                                        <th>Availability</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($schedules as $schedule) : ?>
-                                        <tr>
-                                            <td><?= esc($schedule['txtDay']) ?></td>
-                                            <td><?= date('h:i A', strtotime($schedule['dtmStartTime'])) ?></td>
-                                            <td><?= date('h:i A', strtotime($schedule['dtmEndTime'])) ?></td>
-                                            <td><?= $schedule['intSlotDuration'] ?> minutes</td>
-                                            <td>
-                                                <?php if ($schedule['bitIsAvailable'] == 1) : ?>
-                                                    <span class="badge bg-success">Available</span>
-                                                <?php else : ?>
-                                                    <span class="badge bg-danger">Not Available</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td>
-                                                <a href="<?= base_url('schedule/edit/' . $schedule['intScheduleID']) ?>" class="btn btn-warning btn-sm">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php else : ?>
-                        <div class="alert alert-info">
-                            No regular schedule has been set for this service. 
-                            <a href="<?= base_url('schedule/create?service_id=' . $service['intServiceID']) ?>">Create a schedule</a> to allow bookings.
-                        </div>
-                    <?php endif; ?>
+                    <h6 class="fw-bold">Description</h6>
+                    <p class="mb-0"><?= nl2br(esc($service['txtDescription'])) ?></p>
                 </div>
             </div>
         </div>
@@ -156,7 +88,7 @@
                     <?php if (!empty($bookings)) : ?>
                         <div class="list-group">
                             <?php foreach ($bookings as $booking) : ?>
-                                <a href="<?= base_url('booking/view/' . $booking['intBookingID']) ?>" class="list-group-item list-group-item-action">
+                                <a href="<?= base_url('bookings/view/' . $booking['intBookingID']) ?>" class="list-group-item list-group-item-action">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1"><?= esc($booking['customer_name'] ?? 'Guest') ?></h6>
                                         <small>
@@ -176,7 +108,7 @@
                             <?php endforeach; ?>
                         </div>
                         <div class="mt-3">
-                            <a href="<?= base_url('booking?service_id=' . $service['intServiceID']) ?>" class="btn btn-sm btn-outline-primary">View All Bookings</a>
+                            <a href="<?= base_url('bookings?service_id=' . $service['intServiceID']) ?>" class="btn btn-sm btn-outline-primary">View All Bookings</a>
                         </div>
                     <?php else : ?>
                         <div class="alert alert-info">
@@ -200,129 +132,17 @@
                             </div>
                             <small class="text-muted">Add holidays or special operating hours</small>
                         </a>
-                        <a href="<?= base_url('booking/create?service_id=' . $service['intServiceID']) ?>" class="list-group-item list-group-item-action">
+                        <a href="<?= base_url('bookings/create?service_id=' . $service['intServiceID']) ?>" class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between">
                                 <h6 class="mb-1">Create Booking</h6>
                                 <i class="fas fa-calendar-plus"></i>
                             </div>
                             <small class="text-muted">Add a new booking for this service</small>
                         </a>
-                        <a href="#" class="list-group-item list-group-item-action" data-bs-toggle="modal" data-bs-target="#availabilityModal">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">Check Availability</h6>
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <small class="text-muted">See available slots for a specific date</small>
-                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Availability Check Modal -->
-<div class="modal fade" id="availabilityModal" tabindex="-1" aria-labelledby="availabilityModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="availabilityModalLabel">Check Availability</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="check-date" class="form-label">Select Date</label>
-                    <input type="date" class="form-control" id="check-date" min="<?= date('Y-m-d') ?>">
-                </div>
-                <div id="availability-results" class="mt-3" style="display: none;">
-                    <h6 class="border-bottom pb-2">Available Time Slots</h6>
-                    <div id="time-slots" class="mt-3 d-flex flex-wrap gap-2"></div>
-                </div>
-                <div id="availability-loading" class="text-center mt-3" style="display: none;">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p>Checking availability...</p>
-                </div>
-                <div id="availability-error" class="alert alert-danger mt-3" style="display: none;"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="check-availability-btn">Check Availability</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const checkDateInput = document.getElementById('check-date');
-    const checkButton = document.getElementById('check-availability-btn');
-    const resultsDiv = document.getElementById('availability-results');
-    const timeSlotsDiv = document.getElementById('time-slots');
-    const loadingDiv = document.getElementById('availability-loading');
-    const errorDiv = document.getElementById('availability-error');
-    
-    // Set min date to today
-    checkDateInput.min = new Date().toISOString().split('T')[0];
-    checkDateInput.value = new Date().toISOString().split('T')[0];
-    
-    checkButton.addEventListener('click', function() {
-        const selectedDate = checkDateInput.value;
-        if (!selectedDate) {
-            errorDiv.textContent = 'Please select a date.';
-            errorDiv.style.display = 'block';
-            resultsDiv.style.display = 'none';
-            return;
-        }
-        
-        // Show loading, hide results and errors
-        loadingDiv.style.display = 'block';
-        resultsDiv.style.display = 'none';
-        errorDiv.style.display = 'none';
-        
-        // API call to check availability
-        fetch(`<?= base_url('api/check-availability/' . $service['intServiceID']) ?>?date=${selectedDate}`)
-            .then(response => response.json())
-            .then(data => {
-                loadingDiv.style.display = 'none';
-                
-                if (data.error) {
-                    errorDiv.textContent = data.error;
-                    errorDiv.style.display = 'block';
-                    return;
-                }
-                
-                // Display results
-                timeSlotsDiv.innerHTML = '';
-                
-                if (data.slots && data.slots.length > 0) {
-                    data.slots.forEach(slot => {
-                        const slotButton = document.createElement('button');
-                        slotButton.className = 'btn btn-outline-primary btn-sm';
-                        slotButton.textContent = slot.time;
-                        slotButton.title = `${slot.time} - ${slot.end_time}`;
-                        
-                        if (!slot.available) {
-                            slotButton.className = 'btn btn-outline-secondary btn-sm';
-                            slotButton.disabled = true;
-                        }
-                        
-                        timeSlotsDiv.appendChild(slotButton);
-                    });
-                } else {
-                    timeSlotsDiv.innerHTML = '<div class="alert alert-warning">No available slots for the selected date.</div>';
-                }
-                
-                resultsDiv.style.display = 'block';
-            })
-            .catch(error => {
-                loadingDiv.style.display = 'none';
-                errorDiv.textContent = 'Error checking availability. Please try again.';
-                errorDiv.style.display = 'block';
-                console.error('Error:', error);
-            });
-    });
-});
-</script>
 <?= $this->endSection() ?>

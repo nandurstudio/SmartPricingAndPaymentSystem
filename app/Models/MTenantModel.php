@@ -396,4 +396,18 @@ class MTenantModel extends Model
 
         return implode("\n\n", $css);
     }
+
+    /**
+     * Get tenant details with service type information and owner details
+     */
+    public function getTenantDetails(int $id)
+    {
+        return $this->db->table($this->table . ' t')
+            ->select('t.*, st.txtName as service_type_name, u.txtFullName as owner_name, u.txtEmail as owner_email')
+            ->join('m_service_types st', 't.intServiceTypeID = st.intServiceTypeID', 'left')
+            ->join('m_user u', 't.intOwnerID = u.intUserID', 'left')
+            ->where('t.intTenantID', $id)
+            ->get()
+            ->getRowArray();
+    }
 }

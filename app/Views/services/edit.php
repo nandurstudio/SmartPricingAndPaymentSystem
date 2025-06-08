@@ -26,7 +26,7 @@
                 </div>
             <?php endif ?>
 
-            <form action="<?= base_url('services/update/' . $service['id']) ?>" method="post">
+            <form action="<?= base_url('services/update/' . $service['intServiceID']) ?>" method="post" enctype="multipart/form-data">
                 <?= csrf_field() ?>
                 <?= $this->include('services/_form') ?>
             </form>

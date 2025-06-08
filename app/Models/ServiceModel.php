@@ -29,6 +29,27 @@ class ServiceModel extends Model
     protected $createdField = 'dtmCreatedDate';
     protected $updatedField = 'dtmUpdatedDate';
 
+    // Override insert to add logging
+    public function insert($data = null, bool $returnID = true)
+    {
+        // Log the insert attempt
+        log_message('debug', 'ServiceModel: Attempting to insert with data: ' . json_encode($data));
+        
+        try {
+            $result = parent::insert($data, $returnID);
+            log_message('debug', 'ServiceModel: Insert result: ' . json_encode($result));
+            
+            if (!$result) {
+                log_message('error', 'ServiceModel: Insert failed. DB Error: ' . json_encode($this->db->error()));
+            }
+            
+            return $result;
+        } catch (\Exception $e) {
+            log_message('error', 'ServiceModel: Exception during insert: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
     public function getServicesWithType($tenantId = null)
     {
         $builder = $this->db->table($this->table . ' s')
@@ -115,5 +136,20 @@ class ServiceModel extends Model
         }
         
         return $services;
+    }
+
+    /**
+     * Get all services with tenant and type information
+     */
+    public function getAllServicesWithTenant()
+    {
+        return $this->db->table($this->table . ' s')
+            ->select('s.*, st.txtName as type_name, t.txtTenantName as tenant_name')
+            ->join('m_service_types st', 's.intServiceTypeID = st.intServiceTypeID', 'left')
+            ->join('m_tenants t', 's.intTenantID = t.intTenantID', 'left')
+            ->orderBy('t.txtTenantName', 'ASC')
+            ->orderBy('s.txtName', 'ASC')
+            ->get()
+            ->getResultArray();
     }
 }

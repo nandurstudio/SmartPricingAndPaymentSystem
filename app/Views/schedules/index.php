@@ -31,34 +31,20 @@
                             <i class="fas fa-calendar-week me-1"></i>
                             Regular Weekly Schedule
                         </div>
-                        <a href="<?= base_url('schedule/create' . (isset($_GET['service_id']) ? '?service_id=' . $_GET['service_id'] : '')) ?>" class="btn btn-primary btn-sm">
+                        <a href="<?= base_url('schedules/create' . (isset($_GET['service_id']) ? '?service_id=' . $_GET['service_id'] : '')) ?>" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus-circle"></i> Add Schedule
                         </a>
                     </div>
                 </div>
                 <div class="card-body">
-                    <?php if (isset($tenants) && count($tenants) > 1) : ?>
-                    <div class="mb-3">
-                        <label for="tenant-filter" class="form-label">Filter by Tenant:</label>
-                        <select class="form-select" id="tenant-filter">
-                            <option value="">All Tenants</option>
-                            <?php foreach ($tenants as $tenant) : ?>
-                                <option value="<?= $tenant['id'] ?>" <?= (isset($_GET['tenant_id']) && $_GET['tenant_id'] == $tenant['id']) ? 'selected' : '' ?>>
-                                    <?= esc($tenant['name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <?php endif; ?>
-                    
                     <?php if (isset($services) && count($services) > 0) : ?>
                     <div class="mb-3">
                         <label for="service-filter" class="form-label">Filter by Service:</label>
                         <select class="form-select" id="service-filter">
                             <option value="">All Services</option>
                             <?php foreach ($services as $service) : ?>
-                                <option value="<?= $service['id'] ?>" <?= (isset($_GET['service_id']) && $_GET['service_id'] == $service['id']) ? 'selected' : '' ?>>
-                                    <?= esc($service['name']) ?>
+                                <option value="<?= $service['intServiceID'] ?>" <?= (isset($_GET['service_id']) && $_GET['service_id'] == $service['intServiceID']) ? 'selected' : '' ?>>
+                                    <?= esc($service['txtName']) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -104,10 +90,13 @@
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <a href="<?= base_url('schedule/edit/' . $schedule['id']) ?>" class="btn btn-warning btn-sm">
+                                                <a href="<?= base_url('schedules/edit/' . $schedule['intScheduleID']) ?>" class="btn btn-warning btn-sm">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <button type="button" class="btn btn-danger btn-sm delete-schedule" data-id="<?= $schedule['id'] ?>" data-day="<?= $schedule['day'] ?>" data-service="<?= $schedule['service_name'] ?>">
+                                                <button type="button" class="btn btn-danger btn-sm delete-schedule" 
+                                                    data-id="<?= $schedule['intScheduleID'] ?>" 
+                                                    data-day="<?= $schedule['txtDay'] ?>" 
+                                                    data-service="<?= $schedule['txtServiceName'] ?>">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </td>
@@ -152,7 +141,7 @@
                         Services need schedules to be bookable. If a service has no schedule for a particular day, customers cannot book it on that day.
                     </div>
                     
-                    <a href="<?= base_url('schedule/special' . (isset($_GET['service_id']) ? '?service_id=' . $_GET['service_id'] : '')) ?>" class="btn btn-outline-primary mt-3">
+                    <a href="<?= base_url('schedules/special' . (isset($_GET['service_id']) ? '?service_id=' . $_GET['service_id'] : '')) ?>" class="btn btn-outline-primary mt-3">
                         <i class="fas fa-calendar-day me-1"></i> Manage Special Dates
                     </a>
                 </div>
@@ -169,7 +158,7 @@
                 <h5 class="modal-title" id="deleteScheduleModalLabel">Delete Schedule</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('schedule/delete') ?>" method="post">
+            <form action="<?= base_url('schedules/delete') ?>" method="post">
                 <?= csrf_field() ?>
                 <input type="hidden" id="schedule_id" name="id">
                 <div class="modal-body">
@@ -194,11 +183,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const applyFiltersBtn = document.getElementById('apply-filters');
     if (applyFiltersBtn) {
         applyFiltersBtn.addEventListener('click', function() {
-            const tenantFilter = document.getElementById('tenant-filter')?.value || '';
             const serviceFilter = document.getElementById('service-filter')?.value || '';
             
-            let url = '<?= base_url('schedule') ?>?';
-            if (tenantFilter) url += `tenant_id=${tenantFilter}&`;
+            let url = '<?= base_url('schedules') ?>?';
             if (serviceFilter) url += `service_id=${serviceFilter}`;
             
             window.location.href = url;

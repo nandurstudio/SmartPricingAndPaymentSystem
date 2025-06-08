@@ -39,21 +39,15 @@ class Database extends Config
             'DBDriver'     => env('DB_DRIVER', 'MySQLi'),
             'DBPrefix'     => '',
             'pConnect'     => false,
-            'DBDebug'      => (ENVIRONMENT !== 'production'),
-            'charset'      => 'utf8mb4',
-            'DBCollat'     => 'utf8mb4_general_ci',
+            'DBDebug'      => true,
+            'charset'      => 'utf8',
+            'DBCollat'     => 'utf8_general_ci',
             'swapPre'      => '',
             'encrypt'      => false,
             'compress'     => false,
             'strictOn'     => false,
             'failover'     => [],
-            'port'         => (int) env('DB_PORT', 3306),
-            'numberNative' => false,
-            'dateFormat'   => [
-                'date'     => 'Y-m-d',
-                'datetime' => 'Y-m-d H:i:s',
-                'time'     => 'H:i:s',
-            ],
+            'port'         => 3306,
         ];
 
         // Ensure that we always set the database group to 'tests' if

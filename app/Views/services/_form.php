@@ -9,68 +9,150 @@ $description = isset($service['txtDescription']) ? $service['txtDescription'] : 
 $is_active = isset($service['bitActive']) ? $service['bitActive'] : 1;
 ?>
 
-<div class="form-group mb-3">    <label for="txtName" class="form-label">Service Name</label>
-    <input type="text" class="form-control <?= session('errors.txtName') ? 'is-invalid' : '' ?>" 
-           id="txtName" name="txtName" value="<?= old('txtName', $name) ?>" required>
-    <?php if (session('errors.txtName')) : ?>
-        <div class="invalid-feedback"><?= session('errors.txtName') ?></div>
-    <?php endif; ?>
-</div>
-
-<div class="form-group mb-3">    <label for="intServiceTypeID" class="form-label">Service Type</label>
-    <select class="form-control <?= session('errors.intServiceTypeID') ? 'is-invalid' : '' ?>" 
-            id="intServiceTypeID" name="intServiceTypeID" required>
-        <option value="">Select Service Type</option>
-        <?php foreach ($serviceTypes as $type): ?>
-            <option value="<?= $type['intServiceTypeID'] ?>" <?= old('intServiceTypeID', $type_id) == $type['intServiceTypeID'] ? 'selected' : '' ?>>
-                <?= esc($type['txtName']) ?>
+<?php if (isset($tenants) && count($tenants) > 0 && session()->get('roleID') == 1) : ?>
+<div class="mb-3">
+    <label for="intTenantID" class="form-label">Tenant <span class="text-danger">*</span></label>
+    <select class="form-select <?= session('errors.intTenantID') ? 'is-invalid' : '' ?>" 
+            id="intTenantID" name="intTenantID" required>
+        <option value="">Select Tenant</option>
+        <?php foreach ($tenants as $tenant) : ?>
+            <option value="<?= $tenant['intTenantID'] ?>" <?= old('intTenantID', $service['intTenantID'] ?? '') == $tenant['intTenantID'] ? 'selected' : '' ?>>
+                <?= esc($tenant['txtTenantName']) ?>
             </option>
         <?php endforeach; ?>
     </select>
-    <?php if (session('errors.intServiceTypeID')) : ?>
-        <div class="invalid-feedback"><?= session('errors.intServiceTypeID') ?></div>
+    <?php if (session('errors.intTenantID')) : ?>
+        <div class="invalid-feedback">
+            <?= session('errors.intTenantID') ?>
+        </div>
     <?php endif; ?>
 </div>
+<?php endif; ?>
 
-<div class="form-group mb-3">    <label for="decPrice" class="form-label">Price</label>
-    <div class="input-group">
-        <span class="input-group-text">Rp</span>
-        <input type="number" class="form-control <?= session('errors.decPrice') ? 'is-invalid' : '' ?>" 
-               id="decPrice" name="decPrice" value="<?= old('decPrice', $price) ?>" required min="0" step="0.01">
+<div class="row mb-3">
+    <div class="col-md-6">
+        <label for="txtName" class="form-label">Service Name <span class="text-danger">*</span></label>
+        <input type="text" class="form-control <?= session('errors.txtName') ? 'is-invalid' : '' ?>" 
+               id="txtName" name="txtName" value="<?= old('txtName', $name) ?>" required>
+        <?php if (session('errors.txtName')) : ?>
+            <div class="invalid-feedback">
+                <?= session('errors.txtName') ?>
+            </div>
+        <?php endif; ?>
     </div>
-    <?php if (session('errors.decPrice')) : ?>
-        <div class="invalid-feedback"><?= session('errors.decPrice') ?></div>
-    <?php endif; ?>
+    <div class="col-md-6">
+        <label for="intServiceTypeID" class="form-label">Service Type <span class="text-danger">*</span></label>
+        <select class="form-select <?= session('errors.intServiceTypeID') ? 'is-invalid' : '' ?>" 
+                id="intServiceTypeID" name="intServiceTypeID" required>
+            <option value="">Select Service Type</option>
+            <?php foreach ($serviceTypes as $type) : ?>
+                <option value="<?= $type['intServiceTypeID'] ?>" <?= old('intServiceTypeID', $type_id) == $type['intServiceTypeID'] ? 'selected' : '' ?>>
+                    <?= esc($type['txtName']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <?php if (session('errors.intServiceTypeID')) : ?>
+            <div class="invalid-feedback">
+                <?= session('errors.intServiceTypeID') ?>
+            </div>
+        <?php endif; ?>
+    </div>
 </div>
 
-<div class="form-group mb-3">    <label for="intDuration" class="form-label">Duration (minutes)</label>
-    <input type="number" class="form-control <?= session('errors.intDuration') ? 'is-invalid' : '' ?>" 
-           id="intDuration" name="intDuration" value="<?= old('intDuration', $duration) ?>" required min="1">
-    <?php if (session('errors.intDuration')) : ?>
-        <div class="invalid-feedback"><?= session('errors.intDuration') ?></div>
-    <?php endif; ?>
-</div>
-
-<div class="form-group mb-3">    <label for="intCapacity" class="form-label">Capacity (people)</label>
-    <input type="number" class="form-control <?= session('errors.intCapacity') ? 'is-invalid' : '' ?>" 
-           id="intCapacity" name="intCapacity" value="<?= old('intCapacity', $capacity) ?>" required min="1">
-    <?php if (session('errors.intCapacity')) : ?>
-        <div class="invalid-feedback"><?= session('errors.intCapacity') ?></div>
-    <?php endif; ?>
-</div>
-
-<div class="form-group mb-3">    <label for="txtDescription" class="form-label">Description</label>
+<div class="mb-3">
+    <label for="txtDescription" class="form-label">Description <span class="text-danger">*</span></label>
     <textarea class="form-control <?= session('errors.txtDescription') ? 'is-invalid' : '' ?>" 
               id="txtDescription" name="txtDescription" rows="3" required><?= old('txtDescription', $description) ?></textarea>
     <?php if (session('errors.txtDescription')) : ?>
-        <div class="invalid-feedback"><?= session('errors.txtDescription') ?></div>
+        <div class="invalid-feedback">
+            <?= session('errors.txtDescription') ?>
+        </div>
     <?php endif; ?>
 </div>
 
-<div class="form-check mb-3">    <input type="checkbox" class="form-check-input" id="bitActive" name="bitActive" value="1" 
-           <?= old('bitActive', $is_active) ? 'checked' : '' ?>>
-    <label class="form-check-label" for="bitActive">Active</label>
+<div class="row mb-3">
+    <div class="col-md-4">
+        <label for="decPrice" class="form-label">Price <span class="text-danger">*</span></label>
+        <div class="input-group">
+            <span class="input-group-text">Rp</span>
+            <input type="number" step="0.01" class="form-control <?= session('errors.decPrice') ? 'is-invalid' : '' ?>" 
+                   id="decPrice" name="decPrice" value="<?= old('decPrice', $price) ?>" required>
+            <?php if (session('errors.decPrice')) : ?>
+                <div class="invalid-feedback">
+                    <?= session('errors.decPrice') ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <label for="intDuration" class="form-label">Duration (minutes) <span class="text-danger">*</span></label>
+        <input type="number" class="form-control <?= session('errors.intDuration') ? 'is-invalid' : '' ?>" 
+               id="intDuration" name="intDuration" value="<?= old('intDuration', $duration) ?>" required>
+        <?php if (session('errors.intDuration')) : ?>
+            <div class="invalid-feedback">
+                <?= session('errors.intDuration') ?>
+            </div>
+        <?php endif; ?>
+    </div>
+    <div class="col-md-4">
+        <label for="intCapacity" class="form-label">Capacity</label>
+        <input type="number" class="form-control <?= session('errors.intCapacity') ? 'is-invalid' : '' ?>" 
+               id="intCapacity" name="intCapacity" value="<?= old('intCapacity', $capacity) ?>">
+        <?php if (session('errors.intCapacity')) : ?>
+            <div class="invalid-feedback">
+                <?= session('errors.intCapacity') ?>
+            </div>
+        <?php endif; ?>
+    </div>
 </div>
 
-<button type="submit" class="btn btn-primary">Save</button>
-<a href="<?= base_url('services') ?>" class="btn btn-secondary">Cancel</a>
+<div id="dynamic-fields" class="mb-3">
+    <!-- Fields will be populated via JavaScript based on service type -->
+</div>
+
+<div class="mb-3">
+    <label for="txtImagePath" class="form-label">Service Image</label>
+    <?php if (!empty($service['txtImagePath'])) : ?>
+        <div class="mb-2">
+            <img src="<?= base_url('uploads/services/' . $service['txtImagePath']) ?>" 
+                 alt="<?= esc($service['txtName']) ?>" 
+                 class="img-thumbnail" 
+                 style="max-height: 150px;">
+        </div>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="remove_image" name="remove_image" value="1">
+            <label class="form-check-label" for="remove_image">
+                Remove current image
+            </label>
+        </div>
+    <?php endif; ?>
+    <input type="file" class="form-control <?= session('errors.txtImagePath') ? 'is-invalid' : '' ?>" 
+           id="txtImagePath" name="txtImagePath" accept="image/*">
+    <div class="form-text">Upload a new image to update. (Max size: 2MB, Formats: JPG, PNG)</div>
+    <?php if (session('errors.txtImagePath')) : ?>
+        <div class="invalid-feedback">
+            <?= session('errors.txtImagePath') ?>
+        </div>
+    <?php endif; ?>
+</div>
+
+<div class="mb-3">
+    <label for="bitActive" class="form-label">Status</label>
+    <select class="form-select <?= session('errors.bitActive') ? 'is-invalid' : '' ?>" 
+            id="bitActive" name="bitActive">
+        <option value="1" <?= old('bitActive', $is_active) == 1 ? 'selected' : '' ?>>Active</option>
+        <option value="0" <?= old('bitActive', $is_active) == 0 ? 'selected' : '' ?>>Inactive</option>
+    </select>
+    <?php if (session('errors.bitActive')) : ?>
+        <div class="invalid-feedback">
+            <?= session('errors.bitActive') ?>
+        </div>
+    <?php endif; ?>
+</div>
+
+<div class="mb-3">
+    <button type="submit" class="btn btn-primary">
+        <?= $id ? 'Update Service' : 'Create Service' ?>
+    </button>
+    <a href="<?= base_url('services') ?>" class="btn btn-secondary">Cancel</a>
+</div>

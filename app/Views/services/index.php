@@ -39,10 +39,9 @@
                 <div class="mb-3">
                     <label for="tenant-filter" class="form-label">Filter by Tenant:</label>
                     <select class="form-select" id="tenant-filter">
-                        <option value="">All Tenants</option>
-                        <?php foreach ($tenants as $tenant) : ?>
-                            <option value="<?= $tenant['id'] ?>" <?= (isset($selected_tenant) && $selected_tenant == $tenant['id']) ? 'selected' : '' ?>>
-                                <?= esc($tenant['name']) ?>
+                        <option value="">All Tenants</option>                <?php foreach ($tenants as $tenant) : ?>
+                            <option value="<?= $tenant['intTenantID'] ?>" <?= (isset($selected_tenant) && $selected_tenant == $tenant['intTenantID']) ? 'selected' : '' ?>>
+                                <?= esc($tenant['txtName']) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -95,8 +94,7 @@
                                     </a>
                                     <a href="<?= base_url('services/edit/' . $service['intServiceID']) ?>" class="btn btn-warning btn-sm">
                                         <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a href="<?= base_url('schedule?service_id=' . $service['intServiceID']) ?>" class="btn btn-primary btn-sm">
+                                    </a>                                    <a href="<?= base_url('schedules?service_id=' . $service['intServiceID']) ?>" class="btn btn-primary btn-sm">
                                         <i class="fas fa-calendar"></i>
                                     </a>
                                 </td>

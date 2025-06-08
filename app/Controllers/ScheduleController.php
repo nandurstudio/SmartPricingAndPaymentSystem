@@ -3,18 +3,16 @@
 namespace App\Controllers;
 
 class ScheduleController extends BaseController
-{
-    protected $scheduleModel;
+{    protected $scheduleModel;
     protected $serviceModel;
     protected $bookingModel;
 
     public function __construct()
     {
         helper(['form', 'url', 'date']);
-        // Note: We'll need to create these models
-        // $this->scheduleModel = new \App\Models\ScheduleModel();
-        // $this->serviceModel = new \App\Models\ServiceModel();
-        // $this->bookingModel = new \App\Models\BookingModel();
+        $this->scheduleModel = new \App\Models\ScheduleModel();
+        $this->serviceModel = new \App\Models\ServiceModel();
+        $this->bookingModel = new \App\Models\BookingModel();
     }
 
     public function index()
@@ -36,58 +34,17 @@ class ScheduleController extends BaseController
         $roleId = session()->get('roleID');        if (!$tenantId && $roleId != 1) {
             // No tenant assigned to user, redirect to tenant creation
             return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage schedules.');
-        }
-
-        // Get services for filtering
-        // $data['services'] = $this->serviceModel->where('tenant_id', $tenantId)->findAll();
-        
-        // For now, use dummy data
-        $data['services'] = [
-            ['id' => 1, 'name' => 'Futsal Field A', 'type' => 'Futsal'],
-            ['id' => 2, 'name' => 'Villa Anggrek', 'type' => 'Villa'],
-            ['id' => 3, 'name' => 'Haircut & Styling', 'type' => 'Salon'],
-        ];
+        }        // Get services for filtering
+        $data['services'] = $this->serviceModel->where('intTenantID', $tenantId)->findAll();
         
         // Get service schedules
         $serviceId = $this->request->getGet('service_id');
-        $date = $this->request->getGet('date') ?: date('Y-m-d');
+        $data['schedules'] = $this->scheduleModel->getServiceSchedules($tenantId, $serviceId);
         
-        // $data['schedules'] = $this->scheduleModel->getServiceSchedules($tenantId, $serviceId, $date);
-        
-        // For now, use dummy data
-        $data['schedules'] = [
-            [
-                'id' => 1,
-                'service_id' => 1,
-                'service_name' => 'Futsal Field A',
-                'day' => 'Monday',
-                'start_time' => '08:00',
-                'end_time' => '22:00',
-                'is_available' => true,
-                'slot_duration' => 60, // minutes
-                'slots' => [
-                    ['start' => '08:00', 'end' => '09:00', 'status' => 'available'],
-                    ['start' => '09:00', 'end' => '10:00', 'status' => 'booked'],
-                    ['start' => '10:00', 'end' => '11:00', 'status' => 'available'],
-                    ['start' => '11:00', 'end' => '12:00', 'status' => 'available'],
-                    ['start' => '12:00', 'end' => '13:00', 'status' => 'available'],
-                    ['start' => '13:00', 'end' => '14:00', 'status' => 'booked'],
-                    ['start' => '14:00', 'end' => '15:00', 'status' => 'available'],
-                    ['start' => '15:00', 'end' => '16:00', 'status' => 'booked'],
-                    ['start' => '16:00', 'end' => '17:00', 'status' => 'booked'],
-                    ['start' => '17:00', 'end' => '18:00', 'status' => 'booked'],
-                    ['start' => '18:00', 'end' => '19:00', 'status' => 'available'],
-                    ['start' => '19:00', 'end' => '20:00', 'status' => 'available'],
-                    ['start' => '20:00', 'end' => '21:00', 'status' => 'available'],
-                    ['start' => '21:00', 'end' => '22:00', 'status' => 'available']
-                ]
-            ]
-        ];
-        
-        $data['currentDate'] = $date;
+        // Set selected service for filters
         $data['selectedServiceId'] = $serviceId;
 
-        return view('schedule/index', $data);
+        return view('schedules/index', $data);
     }
 
     public function create()
@@ -115,21 +72,16 @@ class ScheduleController extends BaseController
         ];
 
         // Get services for dropdown
-        // $data['services'] = $this->serviceModel->where('tenant_id', $tenantId)->findAll();
-        
-        // For now, use dummy data
-        $data['services'] = [
-            ['id' => 1, 'name' => 'Futsal Field A'],
-            ['id' => 2, 'name' => 'Villa Anggrek'],
-            ['id' => 3, 'name' => 'Haircut & Styling'],
-        ];
+        $data['services'] = $this->serviceModel->where('intTenantID', $tenantId)
+            ->where('bitActive', 1)
+            ->findAll();
 
         // Days of week for dropdown
         $data['days'] = [
             'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
         ];
 
-        return view('schedule/create', $data);
+        return view('schedules/create', $data);
     }
 
     public function store()
@@ -201,7 +153,7 @@ class ScheduleController extends BaseController
             // }
         }
 
-        return redirect()->to('/schedule?service_id=' . $serviceId)->with('success', 'Schedule created successfully.');
+        return redirect()->to('/schedules?service_id=' . $serviceId)->with('success', 'Schedule created successfully.');
     }
 
     public function edit($id)
@@ -322,7 +274,7 @@ class ScheduleController extends BaseController
         //     'updated_date' => date('Y-m-d H:i:s')
         // ]);
 
-        return redirect()->to('/schedule?service_id=' . $serviceId)->with('success', 'Schedule updated successfully.');
+        return redirect()->to('/schedules?service_id=' . $serviceId)->with('success', 'Schedule updated successfully.');
     }
 
     public function special()
@@ -448,7 +400,7 @@ class ScheduleController extends BaseController
         //     ]);
         // }
 
-        return redirect()->to('/schedule/special?service_id=' . $serviceId)->with('success', 'Special schedule added successfully.');
+        return redirect()->to('/schedules/special?service_id=' . $serviceId)->with('success', 'Special schedule added successfully.');
     }
 
     /**

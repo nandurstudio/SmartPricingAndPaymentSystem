@@ -299,22 +299,27 @@ class TenantsController extends BaseController
 
         $userId = session()->get('userID');
         $roleId = session()->get('roleID');
-        $tenant = $this->tenantModel->find($id);
 
-        // Check permissions
+        // Get tenant with service type details
+        $tenant = $this->tenantModel->getTenantDetails($id);
+        
         if (!$tenant || ($tenant['intOwnerID'] != $userId && $roleId != 1)) {
             return redirect()->to('/tenants')->with('error', 'You do not have permission to view this tenant.');
         }
 
-        $menus = $this->menuModel->getMenusByRole($roleId);
+        // Get services for this tenant
+        $serviceModel = new \App\Models\ServiceModel();
+        $services = $serviceModel->getServicesWithType($id);
 
-        return view('tenants/view', [
-            'title' => 'Tenant Details',
+        $data = [
+            'title' => 'View Tenant',
             'pageTitle' => 'Tenant Details',
-            'pageSubTitle' => 'View tenant information',
-            'icon' => 'info',
-            'menus' => $menus,
-            'tenant' => $tenant
-        ]);
+            'pageSubTitle' => 'View tenant information and services',
+            'icon' => 'info-circle',
+            'tenant' => $tenant,
+            'services' => $services
+        ];
+
+        return view('tenants/view', $data);
     }
 }

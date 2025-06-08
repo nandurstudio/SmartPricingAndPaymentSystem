@@ -5,7 +5,7 @@
     <h1 class="mt-4"><?= $pageTitle ?></h1>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="<?= base_url('schedule') ?>">Schedules</a></li>
+        <li class="breadcrumb-item"><a href="<?= base_url('schedules') ?>">Schedules</a></li>
         <li class="breadcrumb-item active"><?= $pageTitle ?></li>
     </ol>
     
@@ -27,48 +27,22 @@
                             </ul>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                    <?php endif; ?>
-
-                    <form action="<?= base_url('schedule/update/' . $schedule['id']) ?>" method="post">
+                    <?php endif; ?>                    <form action="<?= base_url('schedules/update/' . $schedule['id']) ?>" method="post">
                         <?= csrf_field() ?>
                         
                         <div class="mb-3">
                             <label class="form-label">Service</label>
                             <input type="text" class="form-control" value="<?= esc($schedule['service_name']) ?>" readonly>
-                            <input type="hidden" name="service_id" value="<?= $schedule['service_id'] ?>">
-                        </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="day" class="form-label">Day <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" value="<?= esc($schedule['day']) ?>" readonly>
-                                <input type="hidden" name="day" value="<?= $schedule['day'] ?>">
-                            </div>
-                            <div class="col-md-6">
-                                <label for="is_available" class="form-label">Status <span class="text-danger">*</span></label>
-                                <select class="form-select" id="is_available" name="is_available" required>
-                                    <option value="1" <?= (old('is_available') ?? $schedule['is_available']) == 1 ? 'selected' : '' ?>>Available</option>
-                                    <option value="0" <?= (old('is_available') ?? $schedule['is_available']) == 0 ? 'selected' : '' ?>>Not Available</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="start_time" class="form-label">Start Time <span class="text-danger">*</span></label>
-                                <input type="time" class="form-control" id="start_time" name="start_time" value="<?= old('start_time') ?? date('H:i', strtotime($schedule['start_time'])) ?>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="end_time" class="form-label">End Time <span class="text-danger">*</span></label>
-                                <input type="time" class="form-control" id="end_time" name="end_time" value="<?= old('end_time') ?? date('H:i', strtotime($schedule['end_time'])) ?>" required>
-                            </div>
+                            <input type="hidden" name="intServiceID" value="<?= $schedule['service_id'] ?>">
                         </div>
                         
                         <div class="mb-3">
-                            <label for="slot_duration" class="form-label">Slot Duration (minutes) <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" id="slot_duration" name="slot_duration" value="<?= old('slot_duration') ?? $schedule['slot_duration'] ?>" min="5" required>
-                            <div class="form-text">Set the duration for each booking slot.</div>
+                            <label class="form-label">Day</label>
+                            <input type="text" class="form-control" value="<?= esc($schedule['day']) ?>" readonly>
+                            <input type="hidden" name="txtDay" value="<?= $schedule['day'] ?>">
                         </div>
+                        
+                        <?= $this->include('schedules/_form', ['schedule' => $schedule]) ?>
                         
                         <div class="alert alert-info mb-4">
                             <div class="d-flex">
@@ -103,10 +77,9 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const startTimeInput = document.getElementById('start_time');
-    const endTimeInput = document.getElementById('end_time');
-    const slotDurationInput = document.getElementById('slot_duration');
+document.addEventListener('DOMContentLoaded', function() {    const startTimeInput = document.getElementById('dtmStartTime');
+    const endTimeInput = document.getElementById('dtmEndTime');
+    const slotDurationInput = document.getElementById('intSlotDuration');
     const slotCountSpan = document.getElementById('slot-count');
     const firstSlotSpan = document.getElementById('first-slot');
     const lastSlotSpan = document.getElementById('last-slot');

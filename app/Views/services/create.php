@@ -24,10 +24,16 @@
                     </ul>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            <?php endif ?>
-
-            <form action="<?= base_url('services/store') ?>" method="post">
+            <?php endif ?>            <?php
+            $tenantId = $_GET['tenant_id'] ?? null;
+            $formAction = base_url('services/store');
+            if ($tenantId) {
+                $formAction .= '?tenant_id=' . $tenantId;
+            }
+            ?>
+            <form action="<?= $formAction ?>" method="post" enctype="multipart/form-data">
                 <?= csrf_field() ?>
+                <input type="hidden" name="intTenantID" value="<?= $tenantId ?>">
                 <?= $this->include('services/_form') ?>
             </form>
         </div>
