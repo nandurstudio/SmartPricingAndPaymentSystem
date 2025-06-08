@@ -28,8 +28,7 @@
                 <div>
                     <i class="fas fa-calendar-alt me-1"></i>
                     <?= $pageTitle ?>
-                </div>
-                <a href="<?= base_url('booking/create') ?>" class="btn btn-primary btn-sm">
+                </div>                <a href="<?= base_url('bookings/create') ?>" class="btn btn-primary btn-sm">
                     <i class="fas fa-plus-circle"></i> Create New Booking
                 </a>
             </div>
@@ -136,8 +135,7 @@
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <div class="btn-group">
-                                            <a href="<?= base_url('booking/view/' . $booking['id']) ?>" class="btn btn-info btn-sm">
+                                        <div class="btn-group">                                            <a href="<?= base_url('bookings/view/' . $booking['id']) ?>" class="btn btn-info btn-sm">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             

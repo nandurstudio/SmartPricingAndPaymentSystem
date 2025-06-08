@@ -39,12 +39,13 @@ $description = $settings['description'] ?? '';
 <div class="mb-3">
     <label for="txtDomain" class="form-label">Domain Name <span class="text-danger">*</span></label>
     <div class="input-group">
-        <span class="input-group-text"><?= $baseUrl ?>/</span>
+        <span class="input-group-text">https://</span>
         <input type="text" class="form-control" id="txtDomain" name="txtDomain" 
                value="<?= old('txtDomain') ?? ($isEdit ? $tenant['txtDomain'] : '') ?>"
                placeholder="your-domain-name"
                <?= $isEdit ? 'readonly' : '' ?>
                required>
+        <span class="input-group-text">.<?= rtrim(preg_replace('#^https?://#', '', env('app.baseURL') ?: 'smartpricingandpaymentsystem.localhost.com'), '/') ?></span>
         <?php if (!$isEdit): ?>
         <button class="btn btn-outline-primary" type="button" id="checkDomain">Check Availability</button>
         <?php endif; ?>

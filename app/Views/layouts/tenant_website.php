@@ -10,8 +10,15 @@
     $theme = $settings['theme'] ?? 'light';
     $primaryColor = $settings['primaryColor'] ?? '#0d6efd';
     $headerStyle = $settings['headerStyle'] ?? 'default';
+    
+    // Get the current protocol and domain
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    $domain = $_SERVER['HTTP_HOST'];
     ?>
 
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="<?= $protocol ?>://<?= $domain ?>/manifest.json" crossorigin="use-credentials">
+    
     <!-- Favicon -->
     <?php if (!empty($tenant['txtLogo'])): ?>
         <link rel="icon" type="image/png" href="<?= get_tenant_logo_url($tenant['txtLogo']) ?>">
@@ -41,32 +48,36 @@
 <body class="theme-<?= $theme ?>">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-<?= $theme ?> bg-<?= $headerStyle === 'transparent' ? 'transparent' : ($theme === 'dark' ? 'dark' : 'light') ?> <?= $headerStyle === 'fixed' ? 'fixed-top' : '' ?>">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="/">
+        <div class="container">            <a class="navbar-brand d-flex align-items-center" href="<?= tenant_url('') ?>">
                 <?php if (!empty($tenant['txtLogo'])): ?>
                     <img src="<?= get_tenant_logo_url($tenant['txtLogo']) ?>" 
                          alt="<?= esc($tenant['txtTenantName']) ?>"
-                         height="40"
-                         class="me-2">
+                         class="me-2"
+                         style="height: 40px;">
+                <?php else: ?>
+                    <i class="fas fa-building me-2"></i>
                 <?php endif; ?>
                 <?= esc($tenant['txtTenantName']) ?>
             </a>
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
+            </button>            <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#services">Services</a>
+                        <a class="nav-link" href="<?= tenant_url('') ?>">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#about">About</a>
+                        <a class="nav-link" href="<?= tenant_url('services') ?>">Services</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#contact">Contact</a>
+                        <a class="nav-link" href="<?= tenant_url('bookings') ?>">Bookings</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link btn btn-primary text-white ms-2" href="/booking">Book Now</a>
+                        <a class="nav-link" href="<?= tenant_url('schedules') ?>">Schedules</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?= tenant_url('settings') ?>">Settings</a>
                     </li>
                 </ul>
             </div>

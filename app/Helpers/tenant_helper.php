@@ -7,28 +7,40 @@
  * @param string|null $baseDomain Optional base domain (defaults to app.baseURL or predefined domain)
  * @return string The full tenant website URL
  */
-function generate_tenant_url($subdomain, $baseDomain = null) {
-    if (empty($subdomain)) {
-        return '';
+function generate_tenant_url($path = '', $baseDomain = null) {
+    // Get current protocol and host
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    $currentHost = $_SERVER['HTTP_HOST'] ?? '';
+    
+    // If we're already on a tenant subdomain, just return the relative URL
+    if (strpos($currentHost, '.') !== false) {
+        return base_url($path);
     }
-
-    if ($baseDomain === null) {
-        // Get base domain, remove http/https and trailing slashes
+    
+    // Otherwise, need to construct full tenant URL
+    if (empty($baseDomain)) {
         $baseDomain = rtrim(preg_replace('#^https?://#', '', env('app.baseURL') ?: 'smartpricingandpaymentsystem.localhost.com'), '/');
     }
-
-    // Clean the base domain
-    $baseDomain = preg_replace('#^https?://#', '', $baseDomain);
-    $baseDomain = rtrim($baseDomain, '/');
-
+    
+    // Clean domain and current path
+    $baseDomain = rtrim(preg_replace('#^https?://#', '', $baseDomain), '/');
+    $path = ltrim($path, '/');
+    
+    // If this is a subdomain, extract it
+    $pathParts = explode('/', $path);
+    $subdomain = $pathParts[0];
+    $restOfPath = array_slice($pathParts, 1);
+    
     // Clean subdomain - only allow letters, numbers, and hyphens
     $subdomain = preg_replace('/[^a-zA-Z0-9-]/', '', $subdomain);
     
-    // Remove any domain parts from subdomain
-    $subdomain = explode('.', $subdomain)[0];
-
-    // Build the URL
-    return 'http://' . $subdomain . '.' . $baseDomain;
+    // Build URL
+    $url = $protocol . $subdomain . '.' . $baseDomain;
+    if (!empty($restOfPath)) {
+        $url .= '/' . implode('/', $restOfPath);
+    }
+    
+    return $url;
 }
 
 /**
@@ -53,4 +65,32 @@ function get_tenant_logo_url($logo) {
  */
 function get_tenant_css_url($tenantId) {
     return base_url('uploads/tenants/css/' . $tenantId . '_custom.css');
+}
+
+/**
+ * Check if current request is on a tenant domain
+ * 
+ * @return bool True if current domain is a tenant subdomain
+ */
+function is_tenant_domain() {
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    return strpos($host, '.') !== false && 
+           $host !== env('app.baseURL');
+}
+
+/**
+ * Get current tenant URL
+ * 
+ * @param string $path Path to append to tenant URL
+ * @return string Full tenant URL with path
+ */
+function tenant_url($path = '') {
+    $baseURLConfig = config('app.baseURL');
+    $baseURL = '';
+    if (is_string($baseURLConfig)) {
+        $baseURL = $baseURLConfig;
+    }
+    $baseURL = rtrim($baseURL, '/');
+    $path = ltrim($path, '/');
+    return $baseURL . '/' . $path;
 }

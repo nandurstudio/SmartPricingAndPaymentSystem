@@ -92,3 +92,16 @@ define('EVENT_PRIORITY_NORMAL', 100);
  * @deprecated Use \CodeIgniter\Events\Events::PRIORITY_HIGH instead.
  */
 define('EVENT_PRIORITY_HIGH', 10);
+
+/*
+ | --------------------------------------------------------------------------
+ | Domain Constants
+ | --------------------------------------------------------------------------
+ |
+ | These constants can be configured via environment variables to make the
+ | application more portable across different environments.
+ |
+ */
+defined('BASE_DOMAIN') || define('BASE_DOMAIN', getenv('BASE_DOMAIN') ?: 'smartpricingandpaymentsystem.localhost.com');
+defined('APP_PROTOCOL') || define('APP_PROTOCOL', getenv('APP_PROTOCOL') ?: 'http');
+defined('FULL_BASE_URL') || define('FULL_BASE_URL', APP_PROTOCOL . '://' . BASE_DOMAIN);

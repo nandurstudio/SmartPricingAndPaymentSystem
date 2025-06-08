@@ -15,9 +15,31 @@ class App extends BaseConfig
      * WITH a trailing slash:
      *
      * E.g., http://example.com/
+     */    public $baseURL = 'https://smartpricingandpaymentsystem.localhost.com/';
+      /**
+     * Override baseURL for tenant subdomains
      */
-    // public string $baseURL = 'http://localhost:8080/'; bawaan dari CI
-    public $baseURL = 'https://smartpricingandpaymentsystem.localhost.com/';
+    public function __construct()
+    {
+        parent::__construct();
+        
+        if (isset($_SERVER['HTTP_HOST'])) {
+            $host = $_SERVER['HTTP_HOST'];
+            $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+            
+            // Special handling for tenant subdomains
+            if (strpos($host, '.') !== false) {
+                $domain = explode('.', $host);
+                if (count($domain) > 2) {
+                    // It's a tenant subdomain
+                    $this->baseURL = $protocol . $host . '/';
+                }
+            } else {
+                // Main domain
+                $this->baseURL = $protocol . $host . '/';
+            }
+        }
+    }
 
     /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.

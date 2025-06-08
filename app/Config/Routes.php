@@ -9,6 +9,18 @@ $routes = Services::routes();
 // Payment callback route - no auth filter as it's called by payment gateway
 $routes->post('payment/callback', 'PaymentController::handleCallback');
 
+// Tenant Website Routes - Must be first
+$routes->group('', ['subdomain' => '(:any)'], function($routes) {
+    $routes->get('/', 'TenantWebsiteController::index/$1');
+    $routes->get('manifest.json', 'TenantWebsiteController::manifest/$1');
+    $routes->get('services', 'TenantWebsiteController::services/$1');
+    $routes->get('bookings', 'TenantWebsiteController::bookings/$1');
+    $routes->get('schedules', 'TenantWebsiteController::schedules/$1');
+    $routes->get('settings', 'TenantWebsiteController::settings/$1');
+    $routes->get('assets/(:any)', 'TenantWebsiteController::assets/$1/$2');
+    $routes->get('(:any)', 'TenantWebsiteController::page/$1/$2');
+});
+
 // Default route
 $routes->get('/', 'Auth::landingPage', ['filter' => 'auth']);
 $routes->get('landing', 'Auth::landingPage', ['filter' => 'auth']);
@@ -37,8 +49,13 @@ $routes->post('auth/updatePassword', 'Auth::updatePassword');
 // Tenant Website Routes - Must be before protected routes
 $routes->group('', ['subdomain' => '(:any)'], function($routes) {
     $routes->get('/', 'TenantWebsiteController::index/$1');
-    $routes->get('(:any)', 'TenantWebsiteController::page/$1/$2');
+    $routes->get('manifest.json', 'TenantWebsiteController::manifest/$1');
+    $routes->get('services', 'TenantWebsiteController::services/$1');
+    $routes->get('bookings', 'TenantWebsiteController::bookings/$1');
+    $routes->get('schedules', 'TenantWebsiteController::schedules/$1');
+    $routes->get('settings', 'TenantWebsiteController::settings/$1');
     $routes->get('assets/(:any)', 'TenantWebsiteController::assets/$1/$2');
+    $routes->get('(:any)', 'TenantWebsiteController::page/$1/$2');
 });
 
 // Protected routes
@@ -111,6 +128,15 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->post('toggle-status/(:num)', 'ServiceTypeController::toggleStatus/$1');
     });
 
+    // Service Attributes management
+    $routes->group('service-attributes', function ($routes) {
+        $routes->get('/', 'ServiceAttributeController::index');
+        $routes->get('create', 'ServiceAttributeController::create');
+        $routes->post('store', 'ServiceAttributeController::store');
+        $routes->get('edit/(:num)', 'ServiceAttributeController::edit/$1');
+        $routes->post('update/(:num)', 'ServiceAttributeController::update/$1');
+    });
+
     // Tenant management
     $routes->group('tenants', function ($routes) {
         $routes->get('/', 'TenantsController::index');
@@ -119,6 +145,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('view/(:num)', 'TenantsController::view/$1');
         $routes->get('edit/(:num)', 'TenantsController::edit/$1');
         $routes->post('update/(:num)', 'TenantsController::update/$1');
+        $routes->get('checkSubdomain', 'TenantsController::checkSubdomain');
     });
     
     // Redirect old tenant URLs to new ones
@@ -134,8 +161,10 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('edit/(:num)', 'ServiceController::edit/$1');
         $routes->post('update/(:num)', 'ServiceController::update/$1');
     });
-
-    // Booking management
+    
+    // Redirect old service URLs to new ones
+    $routes->addRedirect('service', 'services');
+    $routes->addRedirect('service/(:any)', 'services/$1');    // Booking management
     $routes->group('bookings', function ($routes) {
         $routes->get('/', 'BookingController::index');
         $routes->get('create', 'BookingController::create');
@@ -143,7 +172,15 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('view/(:num)', 'BookingController::view/$1');
         $routes->get('cancel/(:num)', 'BookingController::cancel/$1');
         $routes->get('payment/(:num)', 'BookingController::payment/$1');
+        $routes->get('receipt/(:num)', 'BookingController::receipt/$1');
     });
+    
+    // Redirect old booking URLs to new ones
+    $routes->addRedirect('booking', 'bookings');
+    $routes->addRedirect('booking/(:any)', 'bookings/$1');
+
+    // Booking Calendar
+    $routes->get('booking-calendar', 'BookingController::calendar');
 
     // Schedule management
     $routes->group('schedules', function ($routes) {

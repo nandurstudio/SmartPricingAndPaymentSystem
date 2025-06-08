@@ -29,7 +29,7 @@
                     <i class="fas fa-concierge-bell me-1"></i>
                     <?= $pageTitle ?>
                 </div>
-                <a href="<?= base_url('service/create') ?>" class="btn btn-primary btn-sm">
+                <a href="<?= base_url('services/create') ?>" class="btn btn-primary btn-sm">
                     <i class="fas fa-plus-circle"></i> Create New Service
                 </a>
             </div>
@@ -52,9 +52,9 @@
                     document.getElementById('tenant-filter').addEventListener('change', function() {
                         const tenantId = this.value;
                         if (tenantId) {
-                            window.location.href = '<?= base_url('service') ?>?tenant_id=' + tenantId;
+                            window.location.href = '<?= base_url('services') ?>?tenant_id=' + tenantId;
                         } else {
-                            window.location.href = '<?= base_url('service') ?>';
+                            window.location.href = '<?= base_url('services') ?>';
                         }
                     });
                 </script>
@@ -75,15 +75,14 @@
                 </thead>
                 <tbody>
                     <?php if (!empty($services)) : ?>
-                        <?php foreach ($services as $service) : ?>
-                            <tr>
-                                <td><?= $service['id'] ?></td>
-                                <td><?= esc($service['name']) ?></td>
+                        <?php foreach ($services as $service) : ?>                            <tr>
+                                <td><?= $service['intServiceID'] ?></td>
+                                <td><?= esc($service['txtName']) ?></td>
                                 <td><?= esc($service['type_name'] ?? 'N/A') ?></td>
-                                <td><?= number_format($service['price'], 2) ?></td>
-                                <td><?= $service['duration'] ?> minutes</td>
+                                <td><?= number_format($service['decPrice'], 2) ?></td>
+                                <td><?= $service['intDuration'] ?> minutes</td>
                                 <td>
-                                    <?php if ($service['is_active'] == 1) : ?>
+                                    <?php if ($service['bitActive'] == 1) : ?>
                                         <span class="badge bg-success">Active</span>
                                     <?php else : ?>
                                         <span class="badge bg-danger">Inactive</span>
@@ -91,13 +90,13 @@
                                 </td>
                                 <td><?= esc($service['tenant_name'] ?? 'N/A') ?></td>
                                 <td>
-                                    <a href="<?= base_url('service/view/' . $service['id']) ?>" class="btn btn-info btn-sm">
+                                    <a href="<?= base_url('services/view/' . $service['intServiceID']) ?>" class="btn btn-info btn-sm">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="<?= base_url('service/edit/' . $service['id']) ?>" class="btn btn-warning btn-sm">
+                                    <a href="<?= base_url('services/edit/' . $service['intServiceID']) ?>" class="btn btn-warning btn-sm">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="<?= base_url('schedule?service_id=' . $service['id']) ?>" class="btn btn-primary btn-sm">
+                                    <a href="<?= base_url('schedule?service_id=' . $service['intServiceID']) ?>" class="btn btn-primary btn-sm">
                                         <i class="fas fa-calendar"></i>
                                     </a>
                                 </td>

@@ -7,18 +7,28 @@ class ServiceController extends BaseController
     protected $serviceModel;
     protected $serviceTypeModel;
     protected $serviceAttributeModel;
+    protected $tenantModel;
+    protected $userModel;
 
     public function __construct()
     {
         helper(['form', 'url']);
-        // Note: We'll need to create these models
-        // $this->serviceModel = new \App\Models\ServiceModel();
-        // $this->serviceTypeModel = new \App\Models\ServiceTypeModel();
-        // $this->serviceAttributeModel = new \App\Models\ServiceAttributeModel();
+        $this->serviceModel = new \App\Models\ServiceModel();
+        $this->serviceTypeModel = new \App\Models\ServiceTypeModel();
     }
 
     public function index()
     {
+        // Check if we're on a tenant subdomain
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $baseDomain = env('app.baseURL') ?: 'smartpricingandpaymentsystem.localhost.com';
+        $baseDomain = rtrim(preg_replace('#^https?://#', '', $baseDomain), '/');
+        
+        if (strpos($host, '.') !== false && $host !== $baseDomain) {
+            // We're on a tenant subdomain, redirect to tenant website controller
+            return redirect()->to(current_url());
+        }
+
         // Check if user is logged in
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
@@ -29,46 +39,18 @@ class ServiceController extends BaseController
             'pageTitle' => 'Services Management',
             'pageSubTitle' => 'Create and manage your booking services',
             'icon' => 'briefcase'
-        ];        // Get tenant ID - in a multi-tenant app, we need to filter by tenant
-        $tenantId = $this->getTenantId();
+        ];
 
+        // Get tenant ID and check access
+        $tenantId = $this->getTenantId();
         if (!$tenantId) {
-            // No tenant assigned to user, redirect to tenant creation
             return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage services.');
         }
 
         // Get services for this tenant
-        // $data['services'] = $this->serviceModel->where('tenant_id', $tenantId)->findAll();
+        $data['services'] = $this->serviceModel->getServicesWithType($tenantId);
 
-        // For now, just return dummy data until we create the models
-        $data['services'] = [
-            [
-                'id' => 1,
-                'name' => 'Futsal Field A',
-                'type' => 'Futsal',
-                'price' => 150000,
-                'duration' => '60',
-                'is_active' => 1
-            ],
-            [
-                'id' => 2,
-                'name' => 'Villa Anggrek',
-                'type' => 'Villa',
-                'price' => 1200000,
-                'duration' => '1440', // 24 hours in minutes
-                'is_active' => 1
-            ],
-            [
-                'id' => 3,
-                'name' => 'Haircut & Styling',
-                'type' => 'Salon',
-                'price' => 75000,
-                'duration' => '45',
-                'is_active' => 1
-            ]
-        ];
-
-        return view('service/index', $data);
+        return view('services/index', $data);
     }
 
     public function create()
@@ -78,9 +60,8 @@ class ServiceController extends BaseController
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
         }
 
-        // Get tenant ID
-        $tenantId = $this->getTenantId();        if (!$tenantId) {
-            // No tenant assigned to user, redirect to tenant creation
+        $tenantId = $this->getTenantId();
+        if (!$tenantId) {
             return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage services.');
         }
 
@@ -93,19 +74,9 @@ class ServiceController extends BaseController
         ];
 
         // Get service types for dropdown
-        // $data['serviceTypes'] = $this->serviceTypeModel->findAll();
-        
-        // For now, just return dummy data
-        $data['serviceTypes'] = [
-            ['id' => 1, 'name' => 'Futsal'],
-            ['id' => 2, 'name' => 'Villa'],
-            ['id' => 3, 'name' => 'Salon'],
-            ['id' => 4, 'name' => 'Workspace'],
-            ['id' => 5, 'name' => 'Restaurant'],
-            ['id' => 6, 'name' => 'Course'],
-        ];
+        $data['serviceTypes'] = $this->serviceTypeModel->getApprovedTypes();
 
-        return view('service/create', $data);
+        return view('services/create', $data);
     }
 
     public function store()
@@ -115,61 +86,48 @@ class ServiceController extends BaseController
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
         }
 
-        // Get tenant ID
-        $tenantId = $this->getTenantId();        if (!$tenantId) {
-            // No tenant assigned to user
+        $tenantId = $this->getTenantId();
+        if (!$tenantId) {
             return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage services.');
         }
 
         // Validate form input
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'name' => 'required|min_length[3]|max_length[100]',
-            'type_id' => 'required|numeric',
-            'price' => 'required|numeric',
-            'duration' => 'required|numeric',
-            'description' => 'required'
+            'txtName' => 'required|min_length[3]|max_length[100]',
+            'intServiceTypeID' => 'required|numeric',
+            'decPrice' => 'required|numeric',
+            'intDuration' => 'required|numeric|greater_than[0]',
+            'intCapacity' => 'required|numeric|greater_than[0]',
+            'txtDescription' => 'required'
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
 
-        // Prepare data for service creation
         $userId = session()->get('userID');
         $data = [
-            'name' => $this->request->getPost('name'),
-            'service_type_id' => $this->request->getPost('type_id'),
-            'price' => $this->request->getPost('price'),
-            'duration' => $this->request->getPost('duration'),
-            'description' => $this->request->getPost('description'),
-            'tenant_id' => $tenantId,
-            'is_active' => 1,
-            'created_by' => $userId,
-            'created_date' => date('Y-m-d H:i:s')
+            'txtGUID' => service('uuid')->uuid4()->toString(),
+            'txtName' => $this->request->getPost('txtName'),
+            'intServiceTypeID' => $this->request->getPost('intServiceTypeID'),
+            'decPrice' => $this->request->getPost('decPrice'),
+            'intDuration' => $this->request->getPost('intDuration'),
+            'intCapacity' => $this->request->getPost('intCapacity'),
+            'txtDescription' => $this->request->getPost('txtDescription'),
+            'intTenantID' => $tenantId,
+            'bitActive' => $this->request->getPost('bitActive') ? 1 : 0,
+            'txtCreatedBy' => session()->get('userName'),
+            'dtmCreatedDate' => date('Y-m-d H:i:s')
         ];
 
-        // Insert service data
-        // $this->serviceModel->insert($data);
-
-        // Process custom attributes
-        // $typeId = $this->request->getPost('type_id');
-        // $attributes = $this->serviceAttributeModel->where('service_type_id', $typeId)->findAll();
-        
-        // foreach ($attributes as $attr) {
-        //     $attributeValue = $this->request->getPost('attribute_' . $attr['id']);
-        //     if ($attributeValue) {
-        //         $this->serviceAttributeValueModel->insert([
-        //             'service_id' => $serviceId,
-        //             'attribute_id' => $attr['id'],
-        //             'value' => $attributeValue,
-        //             'created_by' => $userId,
-        //             'created_date' => date('Y-m-d H:i:s')
-        //         ]);
-        //     }
-        // }
-
-        return redirect()->to('/service')->with('success', 'Service created successfully.');
+        try {
+            $this->serviceModel->insert($data);
+            return redirect()->to('/services')->with('success', 'Service created successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()
+                ->with('error', 'Failed to create service: ' . $e->getMessage());
+        }
     }
 
     public function edit($id)
@@ -179,32 +137,16 @@ class ServiceController extends BaseController
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
         }
 
-        // Get tenant ID
         $tenantId = $this->getTenantId();
-        
         if (!$tenantId) {
-            // No tenant assigned to user
             return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage services.');
         }
 
-        // Fetch the service and verify it belongs to the tenant
-        // $service = $this->serviceModel->find($id);
-        
-        // For now, use dummy data
-        $service = [
-            'id' => $id,
-            'name' => 'Futsal Field A',
-            'service_type_id' => 1,
-            'price' => 150000,
-            'duration' => '60',
-            'description' => 'Professional futsal field with complete facilities',
-            'tenant_id' => $tenantId,
-            'is_active' => 1
-        ];
-
-        // if (!$service || $service['tenant_id'] != $tenantId) {
-        //     return redirect()->to('/service')->with('error', 'Service not found or you do not have permission to edit it.');
-        // }
+        $service = $this->serviceModel->getServiceDetails($id);
+        if (!$service || $service['intTenantID'] != $tenantId) {
+            return redirect()->to('/services')
+                ->with('error', 'Service not found or you do not have permission to edit it.');
+        }
 
         $data = [
             'title' => 'Edit Service',
@@ -212,23 +154,11 @@ class ServiceController extends BaseController
             'pageSubTitle' => 'Update your service details',
             'icon' => 'edit',
             'service' => $service,
-            'validation' => \Config\Services::validation()
+            'validation' => \Config\Services::validation(),
+            'serviceTypes' => $this->serviceTypeModel->getApprovedTypes()
         ];
 
-        // Get service types for dropdown
-        // $data['serviceTypes'] = $this->serviceTypeModel->findAll();
-        
-        // For now, use dummy data
-        $data['serviceTypes'] = [
-            ['id' => 1, 'name' => 'Futsal'],
-            ['id' => 2, 'name' => 'Villa'],
-            ['id' => 3, 'name' => 'Salon'],
-            ['id' => 4, 'name' => 'Workspace'],
-            ['id' => 5, 'name' => 'Restaurant'],
-            ['id' => 6, 'name' => 'Course'],
-        ];
-
-        return view('service/edit', $data);
+        return view('services/edit', $data);
     }
 
     public function update($id)
@@ -238,84 +168,49 @@ class ServiceController extends BaseController
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
         }
 
-        // Get tenant ID
         $tenantId = $this->getTenantId();
-
         if (!$tenantId) {
-            // No tenant assigned to user
             return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage services.');
         }
 
-        // Fetch the service and verify it belongs to the tenant
-        // $service = $this->serviceModel->find($id);
-        
-        // if (!$service || $service['tenant_id'] != $tenantId) {
-        //     return redirect()->to('/service')->with('error', 'Service not found or you do not have permission to update it.');
-        // }
+        $service = $this->serviceModel->find($id);
+        if (!$service || $service['intTenantID'] != $tenantId) {
+            return redirect()->to('/services')
+                ->with('error', 'Service not found or you do not have permission to update it.');
+        }
 
         // Validate form input
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'name' => 'required|min_length[3]|max_length[100]',
-            'type_id' => 'required|numeric',
-            'price' => 'required|numeric',
-            'duration' => 'required|numeric',
-            'description' => 'required'
+            'txtName' => 'required|min_length[3]|max_length[100]',
+            'intServiceTypeID' => 'required|numeric',
+            'decPrice' => 'required|numeric',
+            'intDuration' => 'required|numeric',
+            'txtDescription' => 'required'
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
 
-        // Prepare data for update
-        $userId = session()->get('userID');
         $data = [
-            'name' => $this->request->getPost('name'),
-            'service_type_id' => $this->request->getPost('type_id'),
-            'price' => $this->request->getPost('price'),
-            'duration' => $this->request->getPost('duration'),
-            'description' => $this->request->getPost('description'),
-            'updated_by' => $userId,
-            'updated_date' => date('Y-m-d H:i:s')
+            'txtName' => $this->request->getPost('txtName'),
+            'txtSlug' => url_title($this->request->getPost('txtName'), '-', true),
+            'intServiceTypeID' => $this->request->getPost('intServiceTypeID'),
+            'decPrice' => $this->request->getPost('decPrice'),
+            'intDuration' => $this->request->getPost('intDuration'),
+            'txtDescription' => $this->request->getPost('txtDescription'),
+            'txtUpdatedBy' => session()->get('userName'),
+            'dtmUpdatedDate' => date('Y-m-d H:i:s')
         ];
 
-        // Update service
-        // $this->serviceModel->update($id, $data);
-
-        // Process custom attributes
-        // $typeId = $this->request->getPost('type_id');
-        // $attributes = $this->serviceAttributeModel->where('service_type_id', $typeId)->findAll();
-        
-        // foreach ($attributes as $attr) {
-        //     $attributeValue = $this->request->getPost('attribute_' . $attr['id']);
-        //     if ($attributeValue) {
-        //         // Check if value exists
-        //         $existingValue = $this->serviceAttributeValueModel
-        //             ->where('service_id', $id)
-        //             ->where('attribute_id', $attr['id'])
-        //             ->first();
-                
-        //         if ($existingValue) {
-        //             // Update
-        //             $this->serviceAttributeValueModel->update($existingValue['id'], [
-        //                 'value' => $attributeValue,
-        //                 'updated_by' => $userId,
-        //                 'updated_date' => date('Y-m-d H:i:s')
-        //             ]);
-        //         } else {
-        //             // Insert
-        //             $this->serviceAttributeValueModel->insert([
-        //                 'service_id' => $id,
-        //                 'attribute_id' => $attr['id'],
-        //                 'value' => $attributeValue,
-        //                 'created_by' => $userId,
-        //                 'created_date' => date('Y-m-d H:i:s')
-        //             ]);
-        //         }
-        //     }
-        // }
-
-        return redirect()->to('/service')->with('success', 'Service updated successfully.');
+        try {
+            $this->serviceModel->update($id, $data);
+            return redirect()->to('/services')->with('success', 'Service updated successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()
+                ->with('error', 'Failed to update service: ' . $e->getMessage());
+        }
     }
 
     public function view($id)
@@ -325,46 +220,26 @@ class ServiceController extends BaseController
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
         }
 
-        // Get tenant ID
         $tenantId = $this->getTenantId();
-
         if (!$tenantId) {
-            // No tenant assigned to user
             return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage services.');
         }
 
-        // Fetch the service and verify it belongs to the tenant
-        // $service = $this->serviceModel->find($id);
-        
-        // For now, use dummy data
-        $service = [
-            'id' => $id,
-            'name' => 'Futsal Field A',
-            'type' => 'Futsal',
-            'price' => 150000,
-            'duration' => '60 minutes',
-            'description' => 'Professional futsal field with complete facilities',
-            'tenant_id' => $tenantId,
-            'is_active' => 1
-        ];
-        
-        // if (!$service || $service['tenant_id'] != $tenantId) {
-        //     return redirect()->to('/service')->with('error', 'Service not found or you do not have permission to view it.');
-        // }
-
-        // Get custom attributes for this service
-        // $serviceAttributes = $this->serviceAttributeValueModel->getServiceAttributes($id);
+        $service = $this->serviceModel->getServiceDetails($id);
+        if (!$service || $service['intTenantID'] != $tenantId) {
+            return redirect()->to('/services')
+                ->with('error', 'Service not found or you do not have permission to view it.');
+        }
 
         $data = [
             'title' => 'Service Details',
             'pageTitle' => 'Service Details',
             'pageSubTitle' => 'View service information',
             'icon' => 'info-circle',
-            'service' => $service,
-            // 'serviceAttributes' => $serviceAttributes
+            'service' => $service
         ];
 
-        return view('service/view', $data);
+        return view('services/view', $data);
     }
 
     /**
@@ -372,19 +247,70 @@ class ServiceController extends BaseController
      */
     private function getTenantId()
     {
-        // For admin, they may need to select a tenant or see all tenants
+        // 1. First check if we're on a tenant subdomain
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        if (strpos($host, '.') !== false) {
+            // Extract subdomain from host
+            $baseDomain = env('app.baseURL') ?: 'smartpricingandpaymentsystem.localhost.com';
+            $baseDomain = rtrim(preg_replace('#^https?://#', '', $baseDomain), '/');
+            $subdomain = str_replace('.' . $baseDomain, '', $host);
+            
+            // Load tenant model if not already initialized
+            if (!$this->tenantModel) {
+                $this->tenantModel = new \App\Models\MTenantModel();
+            }
+            
+            // Get tenant by subdomain
+            $tenant = $this->tenantModel->where('txtDomain', $subdomain)
+                                      ->where('bitActive', 1)
+                                      ->where('txtStatus', 'active')
+                                      ->first();
+            if ($tenant) {
+                return $tenant['intTenantID'];
+            }
+        }
+
+        // 2. For admin users, check URL parameter
         if (session()->get('roleID') == 1) {
-            // For now, return a dummy tenant ID for admin
-            return 1;
+            $tenantId = $this->request->getGet('tenant_id');
+            if ($tenantId) {
+                return $tenantId;
+            }
+            $selectedTenant = session()->get('selectedTenantID');
+            if ($selectedTenant) {
+                return $selectedTenant;
+            }
         }
         
-        // For tenant owner, get their tenant
+        // 3. For tenant owners, get their tenant
         $userId = session()->get('userID');
+        if (session()->get('roleID') == 2) { // Tenant owner role
+            if (!$this->tenantModel) {
+                $this->tenantModel = new \App\Models\MTenantModel();
+            }
+            
+            $tenant = $this->tenantModel->where('intOwnerID', $userId)
+                                      ->where('bitActive', 1)
+                                      ->where('txtStatus', 'active')
+                                      ->first();
+            
+            if ($tenant) {
+                return $tenant['intTenantID'];
+            }
+        }
         
-        // $tenant = $this->tenantModel->where('owner_id', $userId)->first();
-        // return $tenant ? $tenant['id'] : null;
+        // 4. For customers or other users, get their default tenant
+        if ($userId) {
+            if (!$this->userModel) {
+                $this->userModel = new \App\Models\MUserModel();
+            }
+            
+            $user = $this->userModel->find($userId);
+            if ($user && !empty($user['intDefaultTenantID'])) {
+                return $user['intDefaultTenantID'];
+            }
+        }
         
-        // For now, return a dummy tenant ID
-        return 1;
+        return null;
     }
 }

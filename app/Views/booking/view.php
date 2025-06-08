@@ -5,7 +5,7 @@
     <h1 class="mt-4"><?= $pageTitle ?></h1>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="<?= base_url('booking') ?>">Bookings</a></li>
+        <li class="breadcrumb-item"><a href="<?= base_url('bookings') ?>">Bookings</a></li>
         <li class="breadcrumb-item active"><?= $pageTitle ?></li>
     </ol>
     
@@ -163,8 +163,7 @@
                     <?php endif; ?>
                     
                     <?php if (in_array($booking['status'], ['pending', 'confirmed']) && $booking['payment_status'] != 'paid') : ?>
-                        <div class="d-grid gap-2 mt-3">
-                            <a href="<?= base_url('booking/payment/' . $booking['id']) ?>" class="btn btn-primary">
+                        <div class="d-grid gap-2 mt-3">                            <a href="<?= base_url('bookings/payment/' . $booking['id']) ?>" class="btn btn-primary">
                                 <i class="fas fa-credit-card me-1"></i> Process Payment
                             </a>
                             <?php if ($booking['payment_status'] == 'pending') : ?>
@@ -174,10 +173,9 @@
                             <?php endif; ?>
                         </div>
                     <?php elseif ($booking['payment_status'] == 'paid') : ?>
-                        <div class="d-grid gap-2 mt-3">
-                            <a href="<?= base_url('booking/receipt/' . $booking['id']) ?>" class="btn btn-outline-primary" target="_blank">
-                                <i class="fas fa-file-invoice me-1"></i> View Receipt
-                            </a>
+                        <div class="d-grid gap-2 mt-3">                                <a href="<?= base_url('bookings/receipt/' . $booking['id']) ?>" class="btn btn-outline-primary" target="_blank">
+                                    <i class="fas fa-file-invoice me-1"></i> View Receipt
+                                </a>
                             <?php if (session()->get('roleID') == 1) : ?>
                                 <button type="button" class="btn btn-outline-warning initiate-refund" data-id="<?= $booking['id'] ?>">
                                     <i class="fas fa-undo me-1"></i> Initiate Refund

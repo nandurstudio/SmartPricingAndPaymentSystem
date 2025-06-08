@@ -59,8 +59,7 @@
                                     <div>
                                         <h6 class="mb-0">Starting from</h6>
                                         <h4 class="mb-0 text-primary">Rp <?= number_format($service['decPrice'], 0, ',', '.') ?></h4>
-                                    </div>
-                                    <a href="<?= base_url("booking/create?service={$service['intServiceID']}") ?>" 
+                                    </div>                    <a href="<?= tenant_url("bookings/create?service={$service['intServiceID']}") ?>" 
                                        class="btn btn-primary"
                                        data-bs-toggle="tooltip"
                                        title="Book this service now">

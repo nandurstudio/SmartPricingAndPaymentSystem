@@ -7,43 +7,43 @@ use CodeIgniter\Model;
 class ScheduleModel extends Model
 {
     protected $table = 'm_schedules';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'intScheduleID';
     protected $allowedFields = [
-        'service_id',
-        'day',
-        'start_time',
-        'end_time',
-        'slot_duration', // in minutes
-        'is_available',
-        'created_by',
-        'created_date',
-        'updated_by',
-        'updated_date'
+        'intServiceID',
+        'txtDay',
+        'dtmStartTime',
+        'dtmEndTime',
+        'intSlotDuration', // in minutes
+        'bitIsAvailable',
+        'txtCreatedBy',
+        'dtmCreatedDate',
+        'txtUpdatedBy',
+        'dtmUpdatedDate'
     ];
 
     protected $useTimestamps = true;
-    protected $createdField = 'created_date';
-    protected $updatedField = 'updated_date';
+    protected $createdField = 'dtmCreatedDate';
+    protected $updatedField = 'dtmUpdatedDate';
 
     // Get schedules for a specific service
     public function getServiceSchedules($tenantId, $serviceId = null, $date = null)
     {
         $builder = $this->db->table($this->table . ' sch')
-            ->select('sch.*, s.name as service_name, s.tenant_id')
-            ->join('m_services s', 'sch.service_id = s.id', 'left');
+            ->select('sch.*, s.txtName as txtServiceName, s.intTenantID')
+            ->join('m_services s', 'sch.intServiceID = s.intServiceID', 'left');
         
         // Filter by tenant
-        $builder->where('s.tenant_id', $tenantId);
+        $builder->where('s.intTenantID', $tenantId);
         
         // Filter by service if provided
         if ($serviceId) {
-            $builder->where('sch.service_id', $serviceId);
+            $builder->where('sch.intServiceID', $serviceId);
         }
         
         // Get day of week if date is provided
         if ($date) {
             $dayOfWeek = date('l', strtotime($date));
-            $builder->where('sch.day', $dayOfWeek);
+            $builder->where('sch.txtDay', $dayOfWeek);
         }
         
         $schedules = $builder->get()->getResultArray();
@@ -52,16 +52,16 @@ class ScheduleModel extends Model
         foreach ($schedules as &$schedule) {
             // Get bookings for this service and date
             if ($date) {
-                $bookings = $this->getBookingsForDate($schedule['service_id'], $date);
+                $bookings = $this->getBookingsForDate($schedule['intServiceID'], $date);
                 $schedule['slots'] = $this->generateTimeSlots(
-                    $schedule['start_time'], 
-                    $schedule['end_time'], 
-                    $schedule['slot_duration'], 
+                    $schedule['dtmStartTime'], 
+                    $schedule['dtmEndTime'], 
+                    $schedule['intSlotDuration'], 
                     $bookings
                 );
                 
                 // Check for special schedule on this date
-                $special = $this->getSpecialSchedule($schedule['service_id'], $date);
+                $special = $this->getSpecialSchedule($schedule['intServiceID'], $date);
                 $schedule['special'] = $special;
             }
         }
@@ -80,10 +80,10 @@ class ScheduleModel extends Model
         $endDate = date('Y-m-t', strtotime($startDate));
         
         return $this->db->table('m_schedule_specials')
-            ->where('service_id', $serviceId)
-            ->where('date >=', $startDate)
-            ->where('date <=', $endDate)
-            ->orderBy('date', 'ASC')
+            ->where('intServiceID', $serviceId)
+            ->where('dtmDate >=', $startDate)
+            ->where('dtmDate <=', $endDate)
+            ->orderBy('dtmDate', 'ASC')
             ->get()
             ->getResultArray();
     }
@@ -92,8 +92,8 @@ class ScheduleModel extends Model
     private function getSpecialSchedule($serviceId, $date)
     {
         return $this->db->table('m_schedule_specials')
-            ->where('service_id', $serviceId)
-            ->where('date', $date)
+            ->where('intServiceID', $serviceId)
+            ->where('dtmDate', $date)
             ->get()
             ->getRowArray();
     }
@@ -101,15 +101,15 @@ class ScheduleModel extends Model
     // Get bookings for a date
     private function getBookingsForDate($serviceId, $date)
     {
-        return $this->db->table('m_bookings')
-            ->select('start_time, end_time')
-            ->where('service_id', $serviceId)
-            ->where('booking_date', $date)
-            ->where('status !=', 'cancelled')
+        return $this->db->table('tr_bookings')
+            ->select('dtmStartTime, dtmEndTime')
+            ->where('intServiceID', $serviceId)
+            ->where('dtmBookingDate', $date)
+            ->where('txtStatus !=', 'cancelled')
             ->get()
             ->getResultArray();
     }
-
+    
     // Generate time slots for a day with booked status
     private function generateTimeSlots($startTime, $endTime, $duration, $bookings)
     {
@@ -124,22 +124,19 @@ class ScheduleModel extends Model
             // Check if this slot is booked
             $isBooked = false;
             foreach ($bookings as $booking) {
-                $bookingStart = strtotime($booking['start_time']);
-                $bookingEnd = strtotime($booking['end_time']);
-                $slotStartTime = strtotime($slotStart);
-                $slotEndTime = strtotime($slotEnd);
+                $bookingStart = strtotime($booking['dtmStartTime']);
+                $bookingEnd = strtotime($booking['dtmEndTime']);
                 
-                // If booking overlaps with slot
-                if ($bookingStart < $slotEndTime && $bookingEnd > $slotStartTime) {
+                if ($current >= $bookingStart && $current < $bookingEnd) {
                     $isBooked = true;
                     break;
                 }
             }
             
             $slots[] = [
-                'start' => $slotStart,
-                'end' => $slotEnd,
-                'status' => $isBooked ? 'booked' : 'available'
+                'dtmStartTime' => $slotStart,
+                'dtmEndTime' => $slotEnd,
+                'txtStatus' => $isBooked ? 'booked' : 'available'
             ];
             
             $current += ($duration * 60);

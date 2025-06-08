@@ -8,7 +8,7 @@
     <h1 class="mt-4"><?= $pageTitle ?></h1>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="<?= base_url('booking') ?>">Bookings</a></li>
+        <li class="breadcrumb-item"><a href="<?= base_url('bookings') ?>">Bookings</a></li>
         <li class="breadcrumb-item active"><?= $pageTitle ?></li>
     </ol>
     
@@ -37,44 +37,73 @@
                             <?= session()->getFlashdata('warning') ?>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                    <?php endif; ?>
-
-                    <form id="bookingForm" action="<?= base_url('booking/store') ?>" method="post">
+                    <?php endif; ?>                    
+                    
+                    <form id="bookingForm" action="<?= base_url('bookings/store') ?>" method="post">
                         <?= csrf_field() ?>
+
+                        <?php 
+                        $isOnTenantSubdomain = strpos($_SERVER['HTTP_HOST'] ?? '', '.') !== false;
+                        $roleId = session()->get('roleID');
                         
-                        <?php if (isset($tenants) && count($tenants) > 1) : ?>
+                        // Show tenant dropdown only if:
+                        // 1. We're not on a tenant subdomain
+                        // 2. There are multiple tenants available
+                        // 3. User is an admin
+                        if (isset($tenants) && count($tenants) > 1 && !$isOnTenantSubdomain && $roleId == 1):
+                        ?>
                         <div class="mb-3">
                             <label for="tenant_id" class="form-label">Tenant <span class="text-danger">*</span></label>
                             <select class="form-select" id="tenant_id" name="tenant_id" required>
                                 <option value="" selected disabled>Select Tenant</option>
                                 <?php foreach ($tenants as $tenant) : ?>
-                                    <option value="<?= $tenant['id'] ?>" <?= (old('tenant_id') == $tenant['id'] || (isset($_GET['tenant_id']) && $_GET['tenant_id'] == $tenant['id'])) ? 'selected' : '' ?>>
-                                        <?= esc($tenant['name']) ?>
+                                    <option value="<?= $tenant['intTenantID'] ?>" 
+                                            <?= (old('tenant_id') == $tenant['intTenantID'] || 
+                                                (isset($_GET['tenant_id']) && $_GET['tenant_id'] == $tenant['intTenantID'])) ? 'selected' : '' ?>>
+                                        <?= esc($tenant['txtTenantName']) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
-                        </div>
-                        <?php else: ?>
-                        <input type="hidden" name="tenant_id" value="<?= isset($tenants[0]) ? $tenants[0]['id'] : '' ?>">
+                        </div>                        <?php else: 
+                            $tenantId = '';
+                            if (isset($tenants) && !empty($tenants)) {
+                                if (isset($tenants[0]['intTenantID'])) {
+                                    $tenantId = $tenants[0]['intTenantID'];
+                                } elseif (isset($tenants[0]->intTenantID)) {
+                                    $tenantId = $tenants[0]->intTenantID;
+                                }
+                            }
+                        ?>
+                        <input type="hidden" name="tenant_id" value="<?= $tenantId ?>">
                         <?php endif; ?>
                         
                         <div class="mb-3">
                             <label for="service_id" class="form-label">Service <span class="text-danger">*</span></label>
                             <select class="form-select" id="service_id" name="service_id" required>
-                                <?php if (empty($services)) : ?>
+                                <?php 
+                                if ((isset($tenants) && count($tenants) > 1 && !$isOnTenantSubdomain && $roleId == 1) && 
+                                    (!isset($_GET['tenant_id']) || empty($_GET['tenant_id']))) : 
+                                ?>
                                     <option value="" selected disabled>Please select a tenant first</option>
+                                <?php elseif (empty($services)) : ?>
+                                    <option value="" selected disabled>No services available for this tenant</option>
                                 <?php else : ?>
                                     <option value="" selected disabled>Select Service</option>
                                     <?php foreach ($services as $service) : ?>
-                                        <option value="<?= $service['id'] ?>" 
-                                                data-price="<?= $service['price'] ?>" 
-                                                data-duration="<?= $service['duration'] ?>"
-                                                <?= (old('service_id') == $service['id'] || (isset($_GET['service_id']) && $_GET['service_id'] == $service['id'])) ? 'selected' : '' ?>>
-                                            <?= esc($service['name']) ?> - Rp <?= number_format($service['price'], 2) ?>
+                                        <option value="<?= $service['intServiceID'] ?>" 
+                                                data-price="<?= $service['decPrice'] ?>" 
+                                                data-duration="<?= $service['intDuration'] ?>"
+                                                <?= (old('service_id') == $service['intServiceID'] || 
+                                                    (isset($_GET['service_id']) && $_GET['service_id'] == $service['intServiceID'])) ? 'selected' : '' ?>>
+                                            <?= esc($service['txtName']) ?>
+                                            (<?= number_format($service['decPrice'], 2) ?> - <?= $service['intDuration'] ?> minutes)
                                         </option>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </select>
+                            <div class="form-text">
+                                Please select a service to see available time slots and pricing.
+                            </div>
                         </div>
                         
                         <div class="row mb-3">
@@ -128,8 +157,7 @@
                                     <label for="customer_id" class="form-label">Select Customer <span class="text-danger">*</span></label>
                                     <select class="form-select" id="customer_id" name="customer_id">
                                         <option value="" selected disabled>Select a customer</option>
-                                        <?php foreach ($customers as $customer) : ?>
-                                            <option value="<?= $customer['intUserID'] ?>" <?= old('customer_id') == $customer['intUserID'] ? 'selected' : '' ?>>
+                                        <?php foreach ($customers as $customer) : ?>                                            <option value="<?= $customer['intCustomerID'] ?>" <?= old('customer_id') == $customer['intCustomerID'] ? 'selected' : '' ?>>
                                                 <?= esc($customer['txtFullName']) ?> (<?= esc($customer['txtEmail']) ?>)
                                             </option>
                                         <?php endforeach; ?>
@@ -207,7 +235,7 @@
                         
                         <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn btn-primary">Create Booking</button>
-                            <a href="<?= base_url('booking') ?>" class="btn btn-secondary">Cancel</a>
+                            <a href="<?= base_url('bookings') ?>" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>

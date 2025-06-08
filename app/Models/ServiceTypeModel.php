@@ -11,7 +11,7 @@ class ServiceTypeModel extends Model
     
     protected $allowedFields = [
         'txtGUID', 'txtName', 'txtSlug', 'txtDescription', 'txtIcon', 'txtCategory',
-        'bitIsSystem', 'bitIsApproved', 'intRequestedByID', 'intApprovedByID',
+        'bitIsSystem', 'bitIsApproved', 'intRequestedBy', 'intApprovedBy',
         'dtmApprovedDate', 'jsonDefaultAttributes', 'bitActive',
         'dtmCreatedDate', 'txtCreatedBy', 'dtmUpdatedDate', 'txtUpdatedBy'
     ];
@@ -23,21 +23,21 @@ class ServiceTypeModel extends Model
             $data['data']['txtGUID'] = uniqid('st_', true);
         }
         $data['data']['dtmCreatedDate'] = date('Y-m-d H:i:s');
-        $data['data']['bitActive'] = $data['data']['bitActive'] ?? true;
+        $data['data']['bitActive'] = $data['data']['bitActive'] ?? 1;
         return $data;
     }
 
     public function getApprovedTypes()
     {
-        return $this->where('is_approved', true)
-                   ->where('is_active', true)
+        return $this->where('bitIsApproved', 1)
+                   ->where('bitActive', 1)
                    ->findAll();
     }
 
     public function getPendingApprovals()
     {
-        return $this->where('is_approved', false)
-                   ->where('is_active', true)
+        return $this->where('bitIsApproved', 0)
+                   ->where('bitActive', 1)
                    ->findAll();
     }
 
@@ -45,33 +45,33 @@ class ServiceTypeModel extends Model
     {
         return $this->db->table($this->table . ' st')
             ->select('st.*, u.txtFullName as requested_by_name')
-            ->join('m_user u', 'st.requested_by = u.intUserID', 'left')
+            ->join('m_user u', 'st.intRequestedBy = u.intUserID', 'left')
             ->get()
             ->getResultArray();
     }
 
     public function getByCategory($category)
     {
-        return $this->where('category', $category)
-                    ->where('is_approved', true)
-                    ->where('is_active', true)
+        return $this->where('txtCategory', $category)
+                    ->where('bitIsApproved', 1)
+                    ->where('bitActive', 1)
                     ->findAll();
     }
 
     public function getBySlug($slug)
     {
-        return $this->where('slug', $slug)
-                    ->where('is_approved', true)
-                    ->where('is_active', true)
+        return $this->where('txtSlug', $slug)
+                    ->where('bitIsApproved', 1)
+                    ->where('bitActive', 1)
                     ->first();
     }
 
     public function getAllCategories()
     {
         return $this->db->table($this->table)
-                        ->select('DISTINCT category')
-                        ->where('is_approved', true)
-                        ->where('is_active', true)
+                        ->select('DISTINCT txtCategory')
+                        ->where('bitIsApproved', 1)
+                        ->where('bitActive', 1)
                         ->get()
                         ->getResultArray();
     }

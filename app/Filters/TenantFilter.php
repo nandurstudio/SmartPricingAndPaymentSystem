@@ -7,10 +7,12 @@ use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Filters\FilterInterface;
 
 class TenantFilter implements FilterInterface
-{    public function before(RequestInterface $request, $arguments = null)
+{    
+    public function before(RequestInterface $request, $arguments = null)
     {
         $host = $request->getServer('HTTP_HOST');
         $baseDomain = env('app.baseURL') ?: 'smartpricingandpaymentsystem.localhost.com';
+        $baseDomain = rtrim(preg_replace('#^https?://#', '', $baseDomain), '/');
 
         // Skip if it's not a tenant subdomain
         if ($host === $baseDomain || !str_contains($host, $baseDomain)) {
@@ -34,7 +36,7 @@ class TenantFilter implements FilterInterface
 
         // Load tenant settings and services
         $settings = json_decode($tenant['jsonSettings'] ?? '{}', true);
-        $serviceModel = model('MServiceModel');
+        $serviceModel = new \App\Models\ServiceModel();
         $services = $serviceModel->where('intTenantID', $tenant['intTenantID'])
                               ->where('bitActive', 1)
                               ->findAll();
@@ -43,15 +45,27 @@ class TenantFilter implements FilterInterface
         session()->set('current_tenant', $tenant);
         session()->set('tenant_services', $services);
 
-        // If this is the website homepage, show the tenant website view
-        if ($request->uri->getPath() === '/') {
-            return service('response')->setBody(
-                view('tenant_website/index', [
-                    'tenant' => $tenant,
-                    'settings' => $settings,
-                    'services' => $services
-                ])
-            );
+        // Get the current path
+        $path = $request->uri->getPath();
+
+        // Handle different pages for tenant website
+        switch ($path) {
+            case '/':
+                return service('response')->setBody(
+                    view('tenant_website/index', [
+                        'tenant' => $tenant,
+                        'settings' => $settings,
+                        'services' => $services
+                    ])
+                );
+            case 'services':
+                return service('response')->setBody(
+                    view('tenant_website/services', [
+                        'tenant' => $tenant,
+                        'services' => $services
+                    ])
+                );
+            // Add other paths as needed
         }
     }
 

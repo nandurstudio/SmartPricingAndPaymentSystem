@@ -1,0 +1,10 @@
+# Domain Configuration
+# -----------------
+# Base domain for the application (without http/https)
+BASE_DOMAIN = 'smartpricingandpaymentsystem.localhost.com'
+
+# Application Protocol (http or https)
+APP_PROTOCOL = 'http'
+
+# Full Base URL (automatically constructed from BASE_DOMAIN and APP_PROTOCOL)
+# app.baseURL = '${APP_PROTOCOL}://${BASE_DOMAIN}'

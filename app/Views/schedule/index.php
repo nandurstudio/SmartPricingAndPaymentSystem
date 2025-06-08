@@ -91,13 +91,13 @@
                                 <?php if (!empty($schedules)) : ?>
                                     <?php foreach ($schedules as $schedule) : ?>
                                         <tr>
-                                            <td><?= esc($schedule['service_name']) ?></td>
-                                            <td><?= esc($schedule['day']) ?></td>
-                                            <td><?= date('h:i A', strtotime($schedule['start_time'])) ?></td>
-                                            <td><?= date('h:i A', strtotime($schedule['end_time'])) ?></td>
-                                            <td><?= $schedule['slot_duration'] ?> minutes</td>
+                                            <td><?= esc($schedule['txtServiceName']) ?></td>
+                                            <td><?= esc($schedule['txtDay']) ?></td>
+                                            <td><?= date('h:i A', strtotime($schedule['dtmStartTime'])) ?></td>
+                                            <td><?= date('h:i A', strtotime($schedule['dtmEndTime'])) ?></td>
+                                            <td><?= $schedule['intSlotDuration'] ?> minutes</td>
                                             <td>
-                                                <?php if ($schedule['is_available'] == 1) : ?>
+                                                <?php if ($schedule['bitIsAvailable'] == 1) : ?>
                                                     <span class="badge bg-success">Available</span>
                                                 <?php else : ?>
                                                     <span class="badge bg-danger">Not Available</span>

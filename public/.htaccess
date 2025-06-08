@@ -15,6 +15,47 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
+# Add CORS Headers for static files
+<IfModule mod_headers.c>
+    # Dynamic Origin header based on the request
+    SetEnvIf Origin "^https?://([^.]+\.)?smartpricingandpaymentsystem\.localhost\.com$" ORIGIN=$0
+    
+    # First try to match specific file types
+    <FilesMatch "\.(ttf|otf|eot|woff|woff2)$">
+        Header set Access-Control-Allow-Origin "%{ORIGIN}e" env=ORIGIN
+        Header set Access-Control-Allow-Methods "GET, OPTIONS"
+        Header set Access-Control-Allow-Headers "Origin, Content-Type"
+        Header set Access-Control-Allow-Credentials "true"
+        Header set Vary "Origin"
+    </FilesMatch>
+
+    <FilesMatch "manifest\.json$">
+        Header set Access-Control-Allow-Origin "%{ORIGIN}e" env=ORIGIN
+        Header set Access-Control-Allow-Methods "GET, OPTIONS"
+        Header set Access-Control-Allow-Headers "Origin, Content-Type"
+        Header set Access-Control-Allow-Credentials "true"
+        Header set Vary "Origin"
+    </FilesMatch>
+
+    # For all other files
+    Header set Access-Control-Allow-Origin "%{ORIGIN}e" env=ORIGIN
+    Header set Access-Control-Allow-Methods "GET, OPTIONS"
+    Header set Access-Control-Allow-Headers "Origin, Content-Type, X-Requested-With"
+    Header set Access-Control-Allow-Credentials "true"
+    Header set Vary "Origin"
+    
+    # Special handling for OPTIONS requests
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ $1 [R=200,L]
+
+    # Set proper MIME types for fonts
+    AddType application/vnd.ms-fontobject .eot
+    AddType font/ttf .ttf
+    AddType font/otf .otf
+    AddType font/woff .woff
+    AddType font/woff2 .woff2
+</IfModule>
+
 # Mencegah Akses ke File Sensitif
 <FilesMatch "^\.">
     Require all denied

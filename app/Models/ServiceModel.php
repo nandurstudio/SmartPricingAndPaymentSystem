@@ -7,61 +7,61 @@ use CodeIgniter\Model;
 class ServiceModel extends Model
 {
     protected $table = 'm_services';
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'intServiceID';
     protected $allowedFields = [
-        'tenant_id',
-        'service_type_id',
-        'name',
-        'description',
-        'price',
-        'duration', // in minutes
-        'capacity',
-        'image',
-        'is_active',
-        'created_by',
-        'created_date',
-        'updated_by',
-        'updated_date'
+        'intTenantID',
+        'intServiceTypeID', 
+        'txtGUID',
+        'txtName',
+        'txtDescription',
+        'decPrice',
+        'intDuration',
+        'intCapacity',
+        'txtImage',
+        'bitActive',
+        'txtCreatedBy',
+        'dtmCreatedDate',
+        'txtUpdatedBy',
+        'dtmUpdatedDate'
     ];
 
     protected $useTimestamps = true;
-    protected $createdField = 'created_date';
-    protected $updatedField = 'updated_date';
+    protected $createdField = 'dtmCreatedDate';
+    protected $updatedField = 'dtmUpdatedDate';
 
     public function getServicesWithType($tenantId = null)
     {
         $builder = $this->db->table($this->table . ' s')
-            ->select('s.*, st.name as type_name')
-            ->join('m_service_types st', 's.service_type_id = st.id', 'left');
+            ->select('s.*, st.txtName as type_name')
+            ->join('m_service_types st', 's.intServiceTypeID = st.intServiceTypeID', 'left');
         
         if ($tenantId) {
-            $builder->where('s.tenant_id', $tenantId);
+            $builder->where('s.intTenantID', $tenantId);
         }
         
-        return $builder->orderBy('s.name', 'ASC')->get()->getResultArray();
+        return $builder->orderBy('s.txtName', 'ASC')->get()->getResultArray();
     }
 
     public function getServiceDetails($id)
     {
         return $this->db->table($this->table . ' s')
-            ->select('s.*, st.name as type_name, t.name as tenant_name')
-            ->join('m_service_types st', 's.service_type_id = st.id', 'left')
-            ->join('m_tenants t', 's.tenant_id = t.id', 'left')
-            ->where('s.id', $id)
+            ->select('s.*, st.txtName as type_name, t.txtTenantName as tenant_name')
+            ->join('m_service_types st', 's.intServiceTypeID = st.intServiceTypeID', 'left')
+            ->join('m_tenants t', 's.intTenantID = t.intTenantID', 'left')
+            ->where('s.intServiceID', $id)
             ->get()
             ->getRowArray();
     }
 
-    // Get all active services for a tenant with availability info for a date
     public function getServicesWithAvailability($tenantId, $date = null)
     {
         $date = $date ?: date('Y-m-d');
         
         $builder = $this->db->table($this->table . ' s')
-            ->select('s.*, st.name as type_name')
-            ->join('m_service_types st', 's.service_type_id = st.id', 'left')
-            ->where('s.tenant_id', $tenantId)
-            ->where('s.is_active', 1);
+            ->select('s.*, st.txtName as type_name')
+            ->join('m_service_types st', 's.intServiceTypeID = st.intServiceTypeID', 'left')
+            ->where('s.intTenantID', $tenantId)
+            ->where('s.bitActive', 1);
             
         $services = $builder->get()->getResultArray();
         
@@ -71,43 +71,43 @@ class ServiceModel extends Model
         foreach ($services as &$service) {
             // Get schedule for this day
             $scheduleBuilder = $this->db->table('m_schedules')
-                ->where('service_id', $service['id'])
-                ->where('day', $dayOfWeek);
+                ->where('intServiceID', $service['intServiceID'])
+                ->where('txtDay', $dayOfWeek);
                 
             $schedule = $scheduleBuilder->get()->getRowArray();
             
             if ($schedule) {
                 $service['has_schedule'] = true;
-                $service['start_time'] = $schedule['start_time'];
-                $service['end_time'] = $schedule['end_time'];
-                $service['slot_duration'] = $schedule['slot_duration'];
+                $service['dtmStartTime'] = $schedule['dtmStartTime'];
+                $service['dtmEndTime'] = $schedule['dtmEndTime'];
+                $service['intSlotDuration'] = $schedule['intSlotDuration'];
             } else {
                 $service['has_schedule'] = false;
             }
             
             // Check for special schedules
             $specialBuilder = $this->db->table('m_schedule_specials')
-                ->where('service_id', $service['id'])
-                ->where('date', $date);
+                ->where('intServiceID', $service['intServiceID'])
+                ->where('dtmDate', $date);
                 
             $special = $specialBuilder->get()->getRowArray();
             
             if ($special) {
                 $service['has_special'] = true;
-                $service['is_closed'] = $special['is_closed'];
-                if (!$special['is_closed']) {
-                    $service['special_start'] = $special['start_time'];
-                    $service['special_end'] = $special['end_time'];
+                $service['bitIsClosed'] = $special['bitIsClosed'];
+                if (!$special['bitIsClosed']) {
+                    $service['dtmSpecialStartTime'] = $special['dtmStartTime'];
+                    $service['dtmSpecialEndTime'] = $special['dtmEndTime'];
                 }
             } else {
                 $service['has_special'] = false;
             }
             
             // Get bookings for this service on this date
-            $bookingBuilder = $this->db->table('m_bookings')
-                ->where('service_id', $service['id'])
-                ->where('booking_date', $date)
-                ->where('status !=', 'cancelled');
+            $bookingBuilder = $this->db->table('tr_bookings')
+                ->where('intServiceID', $service['intServiceID'])
+                ->where('dtmBookingDate', $date)
+                ->where('txtStatus !=', 'cancelled');
                 
             $bookings = $bookingBuilder->get()->getResultArray();
             

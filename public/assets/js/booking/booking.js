@@ -119,13 +119,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     serviceSelect.innerHTML = '<option value="" selected disabled>Select Service</option>';
                     
-                    if (data.services && data.services.length > 0) {
-                        data.services.forEach(service => {
+                    if (data.services && data.services.length > 0) {                        data.services.forEach(service => {
                             const option = document.createElement('option');
-                            option.value = service.id;
-                            option.dataset.price = service.price;
-                            option.dataset.duration = service.duration;
-                            option.textContent = `${service.name} - Rp ${parseFloat(service.price).toLocaleString('id-ID', {
+                            option.value = service.intServiceID;
+                            option.dataset.price = service.decPrice;
+                            option.dataset.duration = service.intDuration;
+                            option.textContent = `${service.txtName} - Rp ${parseFloat(service.decPrice).toLocaleString('id-ID', {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2
                             })}`;

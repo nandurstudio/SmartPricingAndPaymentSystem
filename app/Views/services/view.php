@@ -5,7 +5,7 @@
     <h1 class="mt-4"><?= $pageTitle ?></h1>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="<?= base_url('service') ?>">Services</a></li>
+        <li class="breadcrumb-item"><a href="<?= base_url('services') ?>">Services</a></li>
         <li class="breadcrumb-item active"><?= $pageTitle ?></li>
     </ol>
     
@@ -19,10 +19,10 @@
                             Service Information
                         </div>
                         <div>
-                            <a href="<?= base_url('services/edit/' . $service['id']) ?>" class="btn btn-warning btn-sm me-1">
+                            <a href="<?= base_url('services/edit/' . $service['intServiceID']) ?>" class="btn btn-warning btn-sm me-1">
                                 <i class="fas fa-edit"></i> Edit
                             </a>
-                            <a href="<?= base_url('schedule?service_id=' . $service['id']) ?>" class="btn btn-primary btn-sm">
+                            <a href="<?= base_url('schedule?service_id=' . $service['intServiceID']) ?>" class="btn btn-primary btn-sm">
                                 <i class="fas fa-calendar"></i> Schedules
                             </a>
                         </div>
@@ -31,26 +31,26 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-8">
-                            <h5 class="card-title"><?= esc($service['name']) ?></h5>
+                            <h5 class="card-title"><?= esc($service['txtName']) ?></h5>
                             <p class="mb-0">
                                 <span class="fw-bold">Service Type:</span> <?= esc($service['type_name'] ?? 'N/A') ?>
                             </p>
                             <p class="mb-0">
                                 <span class="fw-bold">Tenant:</span> 
-                                <a href="<?= base_url('tenant/view/' . $service['tenant_id']) ?>"><?= esc($service['tenant_name'] ?? 'N/A') ?></a>
+                                <a href="<?= base_url('tenant/view/' . $service['intTenantID']) ?>"><?= esc($service['tenant_name'] ?? 'N/A') ?></a>
                             </p>
                             <p class="mb-0">
-                                <span class="fw-bold">Price:</span> Rp <?= number_format($service['price'], 2) ?>
+                                <span class="fw-bold">Price:</span> Rp <?= number_format($service['decPrice'], 2) ?>
                             </p>
                             <p class="mb-0">
-                                <span class="fw-bold">Duration:</span> <?= $service['duration'] ?> minutes
+                                <span class="fw-bold">Duration:</span> <?= $service['intDuration'] ?> minutes
                             </p>
                             <p class="mb-0">
-                                <span class="fw-bold">Capacity:</span> <?= $service['capacity'] ?? '1' ?> person(s)
+                                <span class="fw-bold">Capacity:</span> <?= $service['intCapacity'] ?? '1' ?> person(s)
                             </p>
                             <p class="mb-0">
                                 <span class="fw-bold">Status:</span>
-                                <?php if ($service['is_active'] == 1) : ?>
+                                <?php if ($service['bitActive'] == 1) : ?>
                                     <span class="badge bg-success">Active</span>
                                 <?php else : ?>
                                     <span class="badge bg-danger">Inactive</span>
@@ -58,8 +58,8 @@
                             </p>
                         </div>
                         <div class="col-md-4 text-end">
-                            <?php if (!empty($service['image'])) : ?>
-                                <img src="<?= base_url('uploads/services/' . $service['image']) ?>" alt="<?= esc($service['name']) ?>" class="img-fluid rounded">
+                            <?php if (!empty($service['txtImagePath'])) : ?>
+                                <img src="<?= base_url('uploads/services/' . $service['txtImagePath']) ?>" alt="<?= esc($service['txtName']) ?>" class="img-fluid rounded">
                             <?php else : ?>
                                 <div class="border rounded d-flex align-items-center justify-content-center text-muted" style="height: 150px;">
                                     <div>No Image</div>
@@ -70,7 +70,7 @@
 
                     <hr>
                     <h6 class="fw-bold">Description</h6>
-                    <p><?= nl2br(esc($service['description'])) ?></p>
+                    <p><?= nl2br(esc($service['txtDescription'])) ?></p>
                     
                     <?php if (!empty($attributes)) : ?>
                         <hr>
@@ -93,7 +93,7 @@
                             <i class="fas fa-calendar-week me-1"></i>
                             Weekly Schedule
                         </div>
-                        <a href="<?= base_url('schedule/create?service_id=' . $service['id']) ?>" class="btn btn-primary btn-sm">
+                        <a href="<?= base_url('schedule/create?service_id=' . $service['intServiceID']) ?>" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus-circle"></i> Add Schedule
                         </a>
                     </div>
@@ -115,19 +115,19 @@
                                 <tbody>
                                     <?php foreach ($schedules as $schedule) : ?>
                                         <tr>
-                                            <td><?= esc($schedule['day']) ?></td>
-                                            <td><?= date('h:i A', strtotime($schedule['start_time'])) ?></td>
-                                            <td><?= date('h:i A', strtotime($schedule['end_time'])) ?></td>
-                                            <td><?= $schedule['slot_duration'] ?> minutes</td>
+                                            <td><?= esc($schedule['txtDay']) ?></td>
+                                            <td><?= date('h:i A', strtotime($schedule['dtmStartTime'])) ?></td>
+                                            <td><?= date('h:i A', strtotime($schedule['dtmEndTime'])) ?></td>
+                                            <td><?= $schedule['intSlotDuration'] ?> minutes</td>
                                             <td>
-                                                <?php if ($schedule['is_available'] == 1) : ?>
+                                                <?php if ($schedule['bitIsAvailable'] == 1) : ?>
                                                     <span class="badge bg-success">Available</span>
                                                 <?php else : ?>
                                                     <span class="badge bg-danger">Not Available</span>
                                                 <?php endif; ?>
                                             </td>
                                             <td>
-                                                <a href="<?= base_url('schedule/edit/' . $schedule['id']) ?>" class="btn btn-warning btn-sm">
+                                                <a href="<?= base_url('schedule/edit/' . $schedule['intScheduleID']) ?>" class="btn btn-warning btn-sm">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                             </td>
@@ -139,7 +139,7 @@
                     <?php else : ?>
                         <div class="alert alert-info">
                             No regular schedule has been set for this service. 
-                            <a href="<?= base_url('schedule/create?service_id=' . $service['id']) ?>">Create a schedule</a> to allow bookings.
+                            <a href="<?= base_url('schedule/create?service_id=' . $service['intServiceID']) ?>">Create a schedule</a> to allow bookings.
                         </div>
                     <?php endif; ?>
                 </div>
@@ -156,27 +156,27 @@
                     <?php if (!empty($bookings)) : ?>
                         <div class="list-group">
                             <?php foreach ($bookings as $booking) : ?>
-                                <a href="<?= base_url('bookings/view/' . $booking['id']) ?>" class="list-group-item list-group-item-action">
+                                <a href="<?= base_url('booking/view/' . $booking['intBookingID']) ?>" class="list-group-item list-group-item-action">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h6 class="mb-1"><?= esc($booking['customer_name'] ?? 'Guest') ?></h6>
                                         <small>
-                                            <?php if ($booking['status'] == 'confirmed') : ?>
+                                            <?php if ($booking['txtStatus'] == 'confirmed') : ?>
                                                 <span class="badge bg-success">Confirmed</span>
-                                            <?php elseif ($booking['status'] == 'pending') : ?>
+                                            <?php elseif ($booking['txtStatus'] == 'pending') : ?>
                                                 <span class="badge bg-warning">Pending</span>
-                                            <?php elseif ($booking['status'] == 'cancelled') : ?>
+                                            <?php elseif ($booking['txtStatus'] == 'cancelled') : ?>
                                                 <span class="badge bg-danger">Cancelled</span>
-                                            <?php elseif ($booking['status'] == 'completed') : ?>
+                                            <?php elseif ($booking['txtStatus'] == 'completed') : ?>
                                                 <span class="badge bg-info">Completed</span>
                                             <?php endif; ?>
                                         </small>
                                     </div>
-                                    <small><?= date('M d, Y', strtotime($booking['booking_date'])) ?> at <?= date('h:i A', strtotime($booking['start_time'])) ?></small>
+                                    <small><?= date('M d, Y', strtotime($booking['dtmBookingDate'])) ?> at <?= date('h:i A', strtotime($booking['dtmStartTime'])) ?></small>
                                 </a>
                             <?php endforeach; ?>
                         </div>
                         <div class="mt-3">
-                            <a href="<?= base_url('booking?service_id=' . $service['id']) ?>" class="btn btn-sm btn-outline-primary">View All Bookings</a>
+                            <a href="<?= base_url('booking?service_id=' . $service['intServiceID']) ?>" class="btn btn-sm btn-outline-primary">View All Bookings</a>
                         </div>
                     <?php else : ?>
                         <div class="alert alert-info">
@@ -193,14 +193,14 @@
                 </div>
                 <div class="card-body">
                     <div class="list-group">
-                        <a href="<?= base_url('schedule/special?service_id=' . $service['id']) ?>" class="list-group-item list-group-item-action">
+                        <a href="<?= base_url('schedule/special?service_id=' . $service['intServiceID']) ?>" class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between">
                                 <h6 class="mb-1">Special Schedule Days</h6>
                                 <i class="fas fa-calendar-day"></i>
                             </div>
                             <small class="text-muted">Add holidays or special operating hours</small>
                         </a>
-                        <a href="<?= base_url('booking/create?service_id=' . $service['id']) ?>" class="list-group-item list-group-item-action">
+                        <a href="<?= base_url('booking/create?service_id=' . $service['intServiceID']) ?>" class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between">
                                 <h6 class="mb-1">Create Booking</h6>
                                 <i class="fas fa-calendar-plus"></i>
@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
         errorDiv.style.display = 'none';
         
         // API call to check availability
-        fetch(`<?= base_url('api/check-availability/' . $service['id']) ?>?date=${selectedDate}`)
+        fetch(`<?= base_url('api/check-availability/' . $service['intServiceID']) ?>?date=${selectedDate}`)
             .then(response => response.json())
             .then(data => {
                 loadingDiv.style.display = 'none';
