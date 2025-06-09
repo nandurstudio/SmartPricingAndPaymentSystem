@@ -28,10 +28,12 @@
     <!-- Other CSS -->
     <link rel="stylesheet" href="<?= base_url('assets/css/select2/select2.min.css') ?>" />
     <link rel="stylesheet" href="<?= base_url('assets/css/sweetalert2/sweetalert2.min.css') ?>" />
-    <link rel="stylesheet" href="<?= base_url('assets/css/flatpickr/flatpickr.min.css') ?>" />
-
+    <link rel="stylesheet" href="<?= base_url('assets/css/flatpickr/flatpickr.min.css') ?>" />    <!-- Theme CSS -->
+    <link rel="stylesheet" href="<?= base_url('assets/css/themes/default.css') ?>" />
+    
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="<?= base_url('assets/css/styles.css') ?>" />    <?php if (isset($tenant) && isset($tenant['intTenantID'])): ?>
+    <link rel="stylesheet" href="<?= base_url('assets/css/styles.css') ?>" />
+    <?php if (isset($tenant) && isset($tenant['intTenantID'])): ?>
         <?php
         // Load tenant custom CSS if exists
         $cssPath = FCPATH . 'uploads/tenants/css/' . ($tenant['intTenantID'] ?? '0') . '_custom.css';

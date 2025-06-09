@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 <head>
     <?= $this->include('layouts/head') ?>
     <title><?= $title ?? 'Smart Pricing System' ?></title>
     <?= $this->renderSection('css') ?>
+    <?= $this->renderSection('themes') ?>
 </head>
-<body class="nav-fixed">
+<body class="nav-fixed theme-light">
     <?= $this->include('layouts/nav') ?>
     
     <div id="layoutSidenav">

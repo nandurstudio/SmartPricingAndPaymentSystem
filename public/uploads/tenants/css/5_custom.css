@@ -1,0 +1,26 @@
+/* Auto-generated CSS for tenant Salon Ahoy */
+
+:root {
+    --tenant-primary: #6366f1;
+}
+
+.theme-light .navbar-brand,
+.theme-light .nav-link {
+    color: #1e293b;
+}
+
+.theme-light .card {
+    background-color: #ffffff;
+    border-color: rgba(0,0,0,0.1);
+}
+
+/* Custom Button Styles */
+.btn-primary {
+    background-color: var(--tenant-primary);
+    border-color: var(--tenant-primary);
+}
+
+.btn-primary:hover {
+    background-color: #595ce7;
+    border-color: #595ce7;
+}

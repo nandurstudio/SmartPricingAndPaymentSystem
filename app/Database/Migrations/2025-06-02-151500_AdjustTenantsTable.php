@@ -8,14 +8,17 @@ class AdjustTenantsTable extends Migration
 {
     public function up()
     {
+        /** @var ConnectionInterface $db */
+        $db = $this->db;
+
         // Temporarily disable foreign key checks
-        $this->db->query('SET FOREIGN_KEY_CHECKS = 0');
+        $db->query('SET FOREIGN_KEY_CHECKS = 0');
 
         // Drop existing table if exists
-        if ($this->db->tableExists('m_tenants')) {
+        if ($db->tableExists('m_tenants')) {
             $this->forge->dropTable('m_tenants', true);
         }
-        if ($this->db->tableExists('m_tenant')) {
+        if ($db->tableExists('m_tenant')) {
             $this->forge->dropTable('m_tenant', true);
         }
 

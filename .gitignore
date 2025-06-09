@@ -1,97 +1,16 @@
-# Environment Files
+# CodeIgniter 4 Environment Files
 .env
 .env.*
-*.env
-*.local.env
+!.env.example
 
 # CodeIgniter 4 System Files
 /system/*
-app/Config/Development/*
-app/Config/Testing/*
-
-# Application Files
-writable/cache/*
-writable/logs/*
-writable/session/*
-writable/uploads/*
-writable/debugbar/*
+/writable/cache/*
+/writable/logs/*
+/writable/session/*
+/writable/debugbar/*
+/writable/uploads/*
 !writable/*/index.html
-
-# Composer
-/vendor/
-
-# Node
-/node_modules/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
-package-lock.json
-
-# Ignore IDE/project specific files
-/.idea/
-.vscode/
-*.sublime-workspace
-*.sublime-project
-
-# Ignore MacOS specific files
-.DS_Store
-
-# Ignore Windows specific files
-Thumbs.db
-
-# Ignore PHPUnit configuration file (jika ada)
-phpunit.xml
-
-# Ignore build and deployment directories
-/build/
-dist/
-
-# Ignore temporary files
-*.log
-*.bak
-*.swp
-*.tmp
-
-# Ignore Email.php yang berisi konfigurasi sensitif
-/app/Config/Email.php
-/writable/session
-/writable/debugbar
-
-# Ignore cache folder CI4
-/writable/cache/
-/storage/
-
-# Ignore tests folder (jika ada)
-tests/
-
-# Ignore composer.lock jika diperlukan
-composer.lock
-
-# Build/Assets (jika hasil build, bukan sumber)
-public/assets/vendor/simple-datatables/
-public/assets/vendor/bootstrap/
-
-# Additional ignores for multi-tenant SaaS security and privacy
-
-# Uploaded files (user data, sensitive)
-/public/uploads/
-/writable/uploads/
-
-# Database SQL dumps and raw migration files
-/app/Database/sql/
-/migrations/
-
-# Extra: prevent accidental commit of local scripts
-*.sh
-*.ps1
-
-# Extra: prevent accidental commit of local dev/test files
-*.local.php
-*.local.env
-
-# Extra: prevent accidental commit of backup files
-*.bak
-*.old
 
 # Database Files
 /docs/sql/*                  # Manual/reference SQL scripts
@@ -100,13 +19,79 @@ public/assets/vendor/bootstrap/
 /app/Database/backups/*     # Database backups
 *.sql                      # Individual SQL files
 
+# Dependencies
+/vendor/*
+/node_modules/*
+composer.lock
+package-lock.json
+yarn.lock
+
+# IDE & Editor Files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.sublime-workspace
+*.sublime-project
+*.swp
+.DS_Store
+Thumbs.db
+
+# Generated Files & Logs
+*.log
+*.cache
+*.bak
+*.tmp
+/build/
+/dist/
+/storage/*.key
+
+# Testing & Development
+/phpunit.xml
+.phpunit.result.cache
+/tests/results/*
+*.local.php
+*.local.env
+
+# Configuration & Sensitive Data
+/app/Config/Development/*
+/app/Config/Testing/*
+/app/Config/Production/*
+/app/Config/Email.php       # Contains sensitive email settings
+/app/Config/Encryption.php  # Contains sensitive encryption keys
+
+# Multi-tenant Specific
+/public/uploads/*          # User uploaded content
+/public/tenants/*         # Tenant-specific files
+/storage/tenants/*        # Tenant storage
+!public/*/index.html
+!storage/*/index.html
+
 # Public Assets (build results)
 /public/assets/vendor/*
-/public/uploads/*
+/public/build/*
+/public/hot
+/public/css/*
+/public/js/*
 !public/*/index.html
 
-# Documentation and Reference
+# Documentation
 /docs/private/*
 *.pdf
 *.doc
 *.docx
+
+# Deployment & Build Scripts
+*.sh
+*.bat
+*.ps1
+!init-db.ps1             # Keep essential scripts
+!clean_writable.bat
+!reset-db.bat
+
+# Local Development
+.php-cs-fixer.cache
+.php_cs.cache
+.phpstorm.meta.php
+_ide_helper.php
+.env.backup
