@@ -15,8 +15,10 @@ class App extends BaseConfig
      * WITH a trailing slash:
      *
      * E.g., http://example.com/
-     */    public $baseURL = 'https://smartpricingandpaymentsystem.localhost.com/';
-      /**
+     */    
+    public $baseURL = 'https://smartpricingandpaymentsystem.localhost.com/';
+
+    /**
      * Override baseURL for tenant subdomains
      */
     public function __construct()
@@ -24,20 +26,11 @@ class App extends BaseConfig
         parent::__construct();
         
         if (isset($_SERVER['HTTP_HOST'])) {
-            $host = $_SERVER['HTTP_HOST'];
             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+            $host = $_SERVER['HTTP_HOST'];
             
-            // Special handling for tenant subdomains
-            if (strpos($host, '.') !== false) {
-                $domain = explode('.', $host);
-                if (count($domain) > 2) {
-                    // It's a tenant subdomain
-                    $this->baseURL = $protocol . $host . '/';
-                }
-            } else {
-                // Main domain
-                $this->baseURL = $protocol . $host . '/';
-            }
+            // Make sure we have a trailing slash
+            $this->baseURL = $protocol . $host . '/';
         }
     }
 

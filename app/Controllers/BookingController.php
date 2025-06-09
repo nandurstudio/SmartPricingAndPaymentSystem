@@ -100,60 +100,69 @@ class BookingController extends BaseController
             'pageSubTitle' => 'Book a service',
             'icon' => 'calendar-plus',
             'validation' => \Config\Services::validation()
-        ];        // Get tenant ID
+        ];
+
+        // Get tenant ID and user info
         $tenantId = $this->getTenantId();
         $userId = session()->get('userID');
         $roleId = session()->get('roleID');
 
         // Check if we're on a tenant subdomain
-        $isOnTenantSubdomain = strpos($_SERVER['HTTP_HOST'] ?? '', '.') !== false;
+        $host = $_SERVER['HTTP_HOST'] ?? '';
+        $isOnTenantSubdomain = strpos($host, '.') !== false;
+        $data['isOnTenantSubdomain'] = $isOnTenantSubdomain;
 
-        if (!$tenantId && $roleId != 1 && !$isOnTenantSubdomain) {
-            // No tenant assigned to user, redirect to tenant creation
-            return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage bookings.');
-        }
-
-        // Get services for dropdown based on tenant context
-        if ($roleId == 1 && !$isOnTenantSubdomain) {
-            // Admin can see all services or filter by tenant
-            if ($tenantId) {
-                // If tenant is selected or we're on tenant subdomain
-                $data['services'] = $this->serviceModel->where('intTenantID', $tenantId)
-                    ->where('bitActive', 1)
-                    ->findAll();
-                
-                // Get the selected tenant for dropdown
-                $this->tenantModel = new \App\Models\MTenantModel();
-                $selectedTenant = $this->tenantModel->find($tenantId);
-                if ($selectedTenant) {
-                    $data['tenants'] = [$selectedTenant];
-                }
-            } else {
-                // No tenant selected, show all services and tenants
-                $data['services'] = $this->serviceModel->where('bitActive', 1)->findAll();
-                $this->tenantModel = new \App\Models\MTenantModel();
-                $data['tenants'] = $this->tenantModel->where('bitActive', 1)
-                    ->where('txtStatus', 'active')
-                    ->findAll();
+        // For tenant subdomains or tenant owners, only show services from that tenant
+        if ($isOnTenantSubdomain || $roleId == 2) {
+            if (!$tenantId) {
+                return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage bookings.');
             }
-        } else {
-            // On tenant subdomain or tenant owner/customer - only see services for their tenant
-            $data['services'] = $this->serviceModel->where('intTenantID', $tenantId)
+
+            // Get tenant's active services
+            $data['services'] = $this->serviceModel
+                ->where('intTenantID', $tenantId)
                 ->where('bitActive', 1)
                 ->findAll();
-                
-            // Get the current tenant for the view
-            $this->tenantModel = new \App\Models\MTenantModel();
+
+            // Get current tenant info
+            if (!isset($this->tenantModel)) {
+                $this->tenantModel = new \App\Models\MTenantModel();
+            }
             $currentTenant = $this->tenantModel->find($tenantId);
             if ($currentTenant) {
                 $data['tenants'] = [$currentTenant];
             }
+        } 
+        // For admin, show all services or filter by tenant
+        else if ($roleId == 1) {
+            $selectedTenantId = $this->request->getGet('tenant_id');
+            if ($selectedTenantId) {
+                // If tenant is selected, show only their services
+                $data['services'] = $this->serviceModel
+                    ->where('intTenantID', $selectedTenantId)
+                    ->where('bitActive', 1)
+                    ->findAll();
+
+                // Get the selected tenant for dropdown
+                $selectedTenant = $this->tenantModel->find($selectedTenantId);
+                if ($selectedTenant) {
+                    $data['tenants'] = [$selectedTenant];
+                }
+            } else {
+                // No tenant selected, show all active services and tenants
+                $data['services'] = $this->serviceModel->where('bitActive', 1)->findAll();
+                if (!isset($this->tenantModel)) {
+                    $this->tenantModel = new \App\Models\MTenantModel();
+                }
+                $data['tenants'] = $this->tenantModel
+                    ->where('bitActive', 1)
+                    ->where('txtStatus', 'active')
+                    ->findAll();
+            }
         }
 
-        // If admin, they need to select a customer
-        if ($roleId == 1 || $roleId == 2) { // Admin or tenant owner
-            // $data['customers'] = $this->userModel->where('roleID', 3)->findAll();
-              // For now, use dummy data
+        // If admin or tenant owner, they need to select a customer
+        if ($roleId == 1 || $roleId == 2) {
             $data['customers'] = [
                 ['intCustomerID' => 101, 'txtFullName' => 'John Doe', 'txtEmail' => 'john@example.com'],
                 ['intCustomerID' => 102, 'txtFullName' => 'Jane Smith', 'txtEmail' => 'jane@example.com'],
@@ -510,12 +519,32 @@ class BookingController extends BaseController
         // Get services for filter dropdown
         if ($roleId == 1) {
             // Admin can see all services
-            $data['services'] = $this->serviceModel->findAll();
+            $data['services'] = array_map(function($service) {
+                return [
+                    'id' => $service['intServiceID'],
+                    'name' => $service['txtName']
+                ];
+            }, $this->serviceModel->findAll());
         } elseif ($roleId == 2 && $tenantId) {
             // Tenant owner sees their services
-            $data['services'] = $this->serviceModel->where('intTenantID', $tenantId)->findAll();
+            $data['services'] = array_map(function($service) {
+                return [
+                    'id' => $service['intServiceID'],
+                    'name' => $service['txtName']
+                ];
+            }, $this->serviceModel->where('intTenantID', $tenantId)->findAll());
         }
         // Customers don't need to filter by service
+
+        // Also handle tenants array format if it exists
+        if (isset($data['tenants'])) {
+            $data['tenants'] = array_map(function($tenant) {
+                return [
+                    'id' => $tenant['intTenantID'],
+                    'name' => $tenant['txtTenantName']
+                ];
+            }, $data['tenants']);
+        }
 
         return view('booking/calendar', $data);
     }

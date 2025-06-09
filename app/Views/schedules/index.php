@@ -43,7 +43,8 @@
                         <select class="form-select" id="service-filter">
                             <option value="">All Services</option>
                             <?php foreach ($services as $service) : ?>
-                                <option value="<?= $service['intServiceID'] ?>" <?= (isset($_GET['service_id']) && $_GET['service_id'] == $service['intServiceID']) ? 'selected' : '' ?>>
+                                <option value="<?= $service['intServiceID'] ?>" 
+                                    <?= (isset($selectedServiceId) && $selectedServiceId == $service['intServiceID']) ? 'selected' : '' ?>>
                                     <?= esc($service['txtName']) ?>
                                 </option>
                             <?php endforeach; ?>
@@ -177,52 +178,11 @@
     </div>
 </div>
 
+<?= $this->section('js') ?>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Filter functionality
-    const applyFiltersBtn = document.getElementById('apply-filters');
-    if (applyFiltersBtn) {
-        applyFiltersBtn.addEventListener('click', function() {
-            const serviceFilter = document.getElementById('service-filter')?.value || '';
-            
-            let url = '<?= base_url('schedules') ?>?';
-            if (serviceFilter) url += `service_id=${serviceFilter}`;
-            
-            window.location.href = url;
-        });
-    }
-    
-    // Delete schedule confirmation
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteScheduleModal'));
-    const deleteButtons = document.querySelectorAll('.delete-schedule');
-    
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const scheduleId = this.getAttribute('data-id');
-            const day = this.getAttribute('data-day');
-            const serviceName = this.getAttribute('data-service');
-            
-            document.getElementById('schedule_id').value = scheduleId;
-            document.getElementById('schedule-info').textContent = `${serviceName} on ${day}`;
-            
-            deleteModal.show();
-        });
-    });
-    
-    // If there's a service_id parameter in the URL, auto-select the service
-    const urlParams = new URLSearchParams(window.location.search);
-    const serviceId = urlParams.get('service_id');
-    if (serviceId) {
-        const serviceSelect = document.getElementById('service-filter');
-        if (serviceSelect) {
-            for (let i = 0; i < serviceSelect.options.length; i++) {
-                if (serviceSelect.options[i].value === serviceId) {
-                    serviceSelect.options[i].selected = true;
-                    break;
-                }
-            }
-        }
-    }
-});
+    // Base URL for API calls
+    const baseUrl = '<?= base_url() ?>';
 </script>
+<script src="<?= base_url('assets/js/pages/schedules/schedules.js') ?>"></script>
+<?= $this->endSection() ?>
 <?= $this->endSection() ?>

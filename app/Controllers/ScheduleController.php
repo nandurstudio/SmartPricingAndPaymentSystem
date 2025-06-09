@@ -89,27 +89,24 @@ class ScheduleController extends BaseController
         // Check if user is logged in
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
-        }
-
-        // Validate form input
+        }        // Validate form input
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'service_id' => 'required|numeric',
-            'days' => 'required',
-            'start_time' => 'required',
-            'end_time' => 'required',
-            'slot_duration' => 'required|numeric'
+            'intServiceID' => 'required|numeric',
+            'txtDay' => 'required',
+            'dtmStartTime' => 'required',
+            'dtmEndTime' => 'required',
+            'intSlotDuration' => 'required|numeric'
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
-        }
-
-        $serviceId = $this->request->getPost('service_id');
-        $days = $this->request->getPost('days');
-        $startTime = $this->request->getPost('start_time');
-        $endTime = $this->request->getPost('end_time');
-        $slotDuration = $this->request->getPost('slot_duration');
+        }        $serviceId = $this->request->getPost('intServiceID');
+        $day = $this->request->getPost('txtDay');
+        $startTime = $this->request->getPost('dtmStartTime');
+        $endTime = $this->request->getPost('dtmEndTime');
+        $slotDuration = $this->request->getPost('intSlotDuration');
+        $isAvailable = $this->request->getPost('bitIsAvailable');
         $userId = session()->get('userID');
 
         // Ensure service belongs to tenant
@@ -118,39 +115,36 @@ class ScheduleController extends BaseController
         
         // if (!$service || $service['tenant_id'] != $tenantId) {
         //     return redirect()->back()->with('error', 'Service not found or you do not have permission to manage its schedule.');
-        // }
-
-        // Create schedule for each selected day
-        foreach ($days as $day) {
-            // Check if schedule already exists
-            // $existingSchedule = $this->scheduleModel
-            //     ->where('service_id', $serviceId)
-            //     ->where('day', $day)
-            //     ->first();
-            
-            // if ($existingSchedule) {
-            //     // Update existing schedule
-            //     $this->scheduleModel->update($existingSchedule['id'], [
-            //         'start_time' => $startTime,
-            //         'end_time' => $endTime,
-            //         'slot_duration' => $slotDuration,
-            //         'is_available' => 1,
-            //         'updated_by' => $userId,
-            //         'updated_date' => date('Y-m-d H:i:s')
-            //     ]);
-            // } else {
-            //     // Insert new schedule
-            //     $this->scheduleModel->insert([
-            //         'service_id' => $serviceId,
-            //         'day' => $day,
-            //         'start_time' => $startTime,
-            //         'end_time' => $endTime,
-            //         'slot_duration' => $slotDuration,
-            //         'is_available' => 1,
-            //         'created_by' => $userId,
-            //         'created_date' => date('Y-m-d H:i:s')
-            //     ]);
-            // }
+        // }        // Check if schedule already exists
+        $existingSchedule = $this->scheduleModel
+            ->where('intServiceID', $serviceId)
+            ->where('txtDay', $day)
+            ->first();
+        
+        if ($existingSchedule) {
+            // Update existing schedule
+            $this->scheduleModel->update($existingSchedule['intScheduleID'], [
+                'dtmStartTime' => $startTime,
+                'dtmEndTime' => $endTime,
+                'intSlotDuration' => $slotDuration,
+                'bitIsAvailable' => $isAvailable,
+                'txtUpdatedBy' => $userId,
+                'dtmUpdatedDate' => date('Y-m-d H:i:s')
+            ]);
+        } else {
+            // Insert new schedule
+            $this->scheduleModel->insert([
+                'intServiceID' => $serviceId,
+                'txtDay' => $day,
+                'dtmStartTime' => $startTime,
+                'dtmEndTime' => $endTime,
+                'intSlotDuration' => $slotDuration,
+                'bitIsAvailable' => $isAvailable,
+                'txtCreatedBy' => $userId,
+                'dtmCreatedDate' => date('Y-m-d H:i:s'),
+                'txtUpdatedBy' => $userId,
+                'dtmUpdatedDate' => date('Y-m-d H:i:s')
+            ]);
         }
 
         return redirect()->to('/schedules?service_id=' . $serviceId)->with('success', 'Schedule created successfully.');
@@ -161,34 +155,16 @@ class ScheduleController extends BaseController
         // Check if user is logged in
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
+        }        // Fetch schedule data with service info
+        $schedule = $this->scheduleModel->getScheduleWithService($id);
+        
+        // If not found, redirect back with error
+        if (!$schedule) {
+            return redirect()->to('/schedules')->with('error', 'Schedule not found.');
         }
 
-        // Fetch the schedule
-        // $schedule = $this->scheduleModel->find($id);
-        
-        // For now, use dummy data
-        $schedule = [
-            'id' => $id,
-            'service_id' => 1,
-            'day' => 'Monday',
-            'start_time' => '08:00',
-            'end_time' => '22:00',
-            'slot_duration' => 60,
-            'is_available' => true
-        ];
-        
-        // Check if schedule exists
-        // if (!$schedule) {
-        //     return redirect()->to('/schedule')->with('error', 'Schedule not found.');
-        // }
-
-        // Ensure service belongs to tenant
-        // $service = $this->serviceModel->find($schedule['service_id']);
-        // $tenantId = $this->getTenantId();
-        
-        // if (!$service || $service['tenant_id'] != $tenantId) {
-        //     return redirect()->to('/schedule')->with('error', 'You do not have permission to edit this schedule.');
-        // }
+        // Get tenant ID
+        $tenantId = $this->getTenantId();
 
         $data = [
             'title' => 'Edit Schedule',
@@ -200,21 +176,11 @@ class ScheduleController extends BaseController
         ];
 
         // Get services for dropdown
-        // $data['services'] = $this->serviceModel->where('tenant_id', $tenantId)->findAll();
-        
-        // For now, use dummy data
-        $data['services'] = [
-            ['id' => 1, 'name' => 'Futsal Field A'],
-            ['id' => 2, 'name' => 'Villa Anggrek'],
-            ['id' => 3, 'name' => 'Haircut & Styling'],
-        ];
+        $data['services'] = $this->serviceModel->where('intTenantID', $tenantId)
+            ->where('bitActive', 1)
+            ->findAll();
 
-        // Days of week for dropdown
-        $data['days'] = [
-            'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
-        ];
-
-        return view('schedule/edit', $data);
+        return view('schedules/edit', $data);
     }
 
     public function update($id)
@@ -225,54 +191,46 @@ class ScheduleController extends BaseController
         }
 
         // Fetch the schedule
-        // $schedule = $this->scheduleModel->find($id);
+        $schedule = $this->scheduleModel->find($id);
         
-        // if (!$schedule) {
-        //     return redirect()->to('/schedule')->with('error', 'Schedule not found.');
-        // }
+        if (!$schedule) {
+            return redirect()->to('/schedules')->with('error', 'Schedule not found.');
+        }
 
         // Validate form input
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'service_id' => 'required|numeric',
-            'day' => 'required',
-            'start_time' => 'required',
-            'end_time' => 'required',
-            'slot_duration' => 'required|numeric',
-            'is_available' => 'required|in_list[0,1]'
+            'intServiceID' => 'required|numeric',
+            'txtDay' => 'required',
+            'dtmStartTime' => 'required',
+            'dtmEndTime' => 'required',
+            'intSlotDuration' => 'required|numeric',
+            'bitIsAvailable' => 'required|in_list[0,1]'
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
 
-        $serviceId = $this->request->getPost('service_id');
-        $day = $this->request->getPost('day');
-        $startTime = $this->request->getPost('start_time');
-        $endTime = $this->request->getPost('end_time');
-        $slotDuration = $this->request->getPost('slot_duration');
-        $isAvailable = $this->request->getPost('is_available');
+        $serviceId = $this->request->getPost('intServiceID');
+        $day = $this->request->getPost('txtDay');
+        $startTime = $this->request->getPost('dtmStartTime');
+        $endTime = $this->request->getPost('dtmEndTime');
+        $slotDuration = $this->request->getPost('intSlotDuration');
+        $isAvailable = $this->request->getPost('bitIsAvailable');
         $userId = session()->get('userID');
 
-        // Ensure service belongs to tenant
-        // $service = $this->serviceModel->find($serviceId);
-        // $tenantId = $this->getTenantId();
-        
-        // if (!$service || $service['tenant_id'] != $tenantId) {
-        //     return redirect()->back()->with('error', 'Service not found or you do not have permission to manage its schedule.');
-        // }
-
         // Update schedule
-        // $this->scheduleModel->update($id, [
-        //     'service_id' => $serviceId,
-        //     'day' => $day,
-        //     'start_time' => $startTime,
-        //     'end_time' => $endTime,
-        //     'slot_duration' => $slotDuration,
-        //     'is_available' => $isAvailable,
-        //     'updated_by' => $userId,
-        //     'updated_date' => date('Y-m-d H:i:s')
-        // ]);
+        $this->scheduleModel->update($id, [
+            'intServiceID' => $serviceId,
+            'txtDay' => $day,
+            'dtmStartTime' => $startTime,
+            'dtmEndTime' => $endTime,
+            'intSlotDuration' => $slotDuration,
+            'bitIsAvailable' => $isAvailable,
+            'txtUpdatedBy' => $userId,
+            'dtmUpdatedDate' => date('Y-m-d H:i:s')
+        ]);
 
         return redirect()->to('/schedules?service_id=' . $serviceId)->with('success', 'Schedule updated successfully.');
     }
@@ -317,19 +275,45 @@ class ScheduleController extends BaseController
         $year = $this->request->getGet('year') ?: date('Y');
         
         // $data['specialDates'] = $this->scheduleModel->getServiceSpecialDates($serviceId, $month, $year);
-        
-        // For now, use dummy data
+          // For now, use dummy data
         $data['specialDates'] = [
-            ['date' => '2025-06-01', 'is_closed' => true, 'note' => 'Public Holiday'],
-            ['date' => '2025-06-15', 'is_closed' => true, 'note' => 'Maintenance Day'],
-            ['date' => '2025-06-30', 'special_hours' => '10:00-16:00', 'note' => 'Early Closing']
+            [
+                'id' => 1,
+                'service_id' => 1,
+                'service_name' => 'Futsal Field A',
+                'date' => '2025-06-01',
+                'is_closed' => true,
+                'start_time' => null,
+                'end_time' => null,
+                'notes' => 'Public Holiday'
+            ],
+            [
+                'id' => 2,
+                'service_id' => 1,
+                'service_name' => 'Futsal Field A',
+                'date' => '2025-06-15',
+                'is_closed' => true,
+                'start_time' => null,
+                'end_time' => null,
+                'notes' => 'Maintenance Day'
+            ],
+            [
+                'id' => 3,
+                'service_id' => 1,
+                'service_name' => 'Futsal Field A',
+                'date' => '2025-06-30',
+                'is_closed' => false,
+                'start_time' => '10:00',
+                'end_time' => '16:00',
+                'notes' => 'Early Closing'
+            ]
         ];
         
         $data['currentMonth'] = $month;
         $data['currentYear'] = $year;
         $data['selectedServiceId'] = $serviceId;
 
-        return view('schedule/special', $data);
+        return view('schedules/special', $data);
     }
 
     public function storeSpecial()
@@ -342,63 +326,52 @@ class ScheduleController extends BaseController
         // Validate form input
         $validation = \Config\Services::validation();
         $validation->setRules([
-            'service_id' => 'required|numeric',
-            'special_date' => 'required|valid_date',
-            'is_closed' => 'permit_empty',
-            'start_time' => 'permit_empty',
-            'end_time' => 'permit_empty',
-            'note' => 'permit_empty|max_length[255]'
+            'intServiceID' => 'required|numeric',
+            'dtmDate' => 'required|valid_date',
+            'bitIsClosed' => 'permit_empty',
+            'dtmStartTime' => 'permit_empty',
+            'dtmEndTime' => 'permit_empty',
+            'txtNote' => 'permit_empty|max_length[255]'
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
 
-        $serviceId = $this->request->getPost('service_id');
-        $specialDate = $this->request->getPost('special_date');
-        $isClosed = $this->request->getPost('is_closed') ? 1 : 0;
-        $startTime = $this->request->getPost('start_time');
-        $endTime = $this->request->getPost('end_time');
-        $note = $this->request->getPost('note');
+        $serviceId = $this->request->getPost('intServiceID');
+        $specialDate = $this->request->getPost('dtmDate');
+        $isClosed = $this->request->getPost('bitIsClosed') ? 1 : 0;
+        $startTime = $this->request->getPost('dtmStartTime');
+        $endTime = $this->request->getPost('dtmEndTime');
+        $note = $this->request->getPost('txtNote');
         $userId = session()->get('userID');
 
-        // Ensure service belongs to tenant
-        // $service = $this->serviceModel->find($serviceId);
-        // $tenantId = $this->getTenantId();
-        
-        // if (!$service || $service['tenant_id'] != $tenantId) {
-        //     return redirect()->back()->with('error', 'Service not found or you do not have permission to manage its schedule.');
-        // }
-
         // Check if special date already exists
-        // $existing = $this->scheduleSpecialModel
-        //     ->where('service_id', $serviceId)
-        //     ->where('date', $specialDate)
-        //     ->first();
+        $existing = $this->scheduleModel->getSpecialSchedule($serviceId, $specialDate);
         
-        // if ($existing) {
-        //     // Update existing special date
-        //     $this->scheduleSpecialModel->update($existing['id'], [
-        //         'is_closed' => $isClosed,
-        //         'start_time' => $startTime,
-        //         'end_time' => $endTime,
-        //         'note' => $note,
-        //         'updated_by' => $userId,
-        //         'updated_date' => date('Y-m-d H:i:s')
-        //     ]);
-        // } else {
-        //     // Insert new special date
-        //     $this->scheduleSpecialModel->insert([
-        //         'service_id' => $serviceId,
-        //         'date' => $specialDate,
-        //         'is_closed' => $isClosed,
-        //         'start_time' => $startTime,
-        //         'end_time' => $endTime,
-        //         'note' => $note,
-        //         'created_by' => $userId,
-        //         'created_date' => date('Y-m-d H:i:s')
-        //     ]);
-        // }
+        if ($existing) {
+            // Update existing special date
+            $this->scheduleModel->update($existing['intScheduleID'], [
+                'bitIsClosed' => $isClosed,
+                'dtmStartTime' => $startTime,
+                'dtmEndTime' => $endTime,
+                'txtNote' => $note,
+                'txtUpdatedBy' => $userId,
+                'dtmUpdatedDate' => date('Y-m-d H:i:s')
+            ]);
+        } else {
+            // Insert new special date
+            $this->scheduleModel->insert([
+                'intServiceID' => $serviceId,
+                'dtmDate' => $specialDate,
+                'bitIsClosed' => $isClosed,
+                'dtmStartTime' => $startTime,
+                'dtmEndTime' => $endTime,
+                'txtNote' => $note,
+                'txtCreatedBy' => $userId,
+                'dtmCreatedDate' => date('Y-m-d H:i:s')
+            ]);
+        }
 
         return redirect()->to('/schedules/special?service_id=' . $serviceId)->with('success', 'Special schedule added successfully.');
     }

@@ -7,40 +7,16 @@
  * @param string|null $baseDomain Optional base domain (defaults to app.baseURL or predefined domain)
  * @return string The full tenant website URL
  */
-function generate_tenant_url($path = '', $baseDomain = null) {
-    // Get current protocol and host
+function generate_tenant_url($subdomain) {
+    // Get protocol
     $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
-    $currentHost = $_SERVER['HTTP_HOST'] ?? '';
     
-    // If we're already on a tenant subdomain, just return the relative URL
-    if (strpos($currentHost, '.') !== false) {
-        return base_url($path);
-    }
-    
-    // Otherwise, need to construct full tenant URL
-    if (empty($baseDomain)) {
-        $baseDomain = rtrim(preg_replace('#^https?://#', '', env('app.baseURL') ?: 'smartpricingandpaymentsystem.localhost.com'), '/');
-    }
-    
-    // Clean domain and current path
+    // Get base domain from config or default
+    $baseDomain = env('BASE_DOMAIN', 'smartpricingandpaymentsystem.localhost.com');
     $baseDomain = rtrim(preg_replace('#^https?://#', '', $baseDomain), '/');
-    $path = ltrim($path, '/');
     
-    // If this is a subdomain, extract it
-    $pathParts = explode('/', $path);
-    $subdomain = $pathParts[0];
-    $restOfPath = array_slice($pathParts, 1);
-    
-    // Clean subdomain - only allow letters, numbers, and hyphens
-    $subdomain = preg_replace('/[^a-zA-Z0-9-]/', '', $subdomain);
-    
-    // Build URL
-    $url = $protocol . $subdomain . '.' . $baseDomain;
-    if (!empty($restOfPath)) {
-        $url .= '/' . implode('/', $restOfPath);
-    }
-    
-    return $url;
+    // Generate URL with subdomain
+    return $protocol . $subdomain . '.' . $baseDomain;
 }
 
 /**
@@ -53,7 +29,6 @@ function get_tenant_logo_url($logo) {
     if (empty($logo)) {
         return '';
     }
-
     return base_url('uploads/tenants/' . $logo);
 }
 
@@ -74,23 +49,32 @@ function get_tenant_css_url($tenantId) {
  */
 function is_tenant_domain() {
     $host = $_SERVER['HTTP_HOST'] ?? '';
-    return strpos($host, '.') !== false && 
-           $host !== env('app.baseURL');
+    $baseDomain = env('BASE_DOMAIN', 'smartpricingandpaymentsystem.localhost.com');
+    return strpos($host, '.') !== false && strpos($host, $baseDomain) !== false;
 }
 
 /**
- * Get current tenant URL
+ * Get current tenant URL base
+ * Returns the base URL for tenant subdomains, with optional path appended
  * 
  * @param string $path Path to append to tenant URL
  * @return string Full tenant URL with path
  */
 function tenant_url($path = '') {
-    $baseURLConfig = config('app.baseURL');
-    $baseURL = '';
-    if (is_string($baseURLConfig)) {
-        $baseURL = $baseURLConfig;
-    }
-    $baseURL = rtrim($baseURL, '/');
+    // Get current host
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    
+    // Get protocol
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+    
+    // Base URL with protocol and host
+    $baseURL = $protocol . $host;
+    
+    // If path provided, append it
     $path = ltrim($path, '/');
-    return $baseURL . '/' . $path;
+    if (!empty($path)) {
+        return $baseURL . '/' . $path;
+    }
+    
+    return $baseURL;
 }

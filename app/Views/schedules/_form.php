@@ -73,51 +73,7 @@ $isEdit = isset($schedule);
 <div class="mb-3">
     <label for="intSlotDuration" class="form-label">Slot Duration (minutes) <span class="text-danger">*</span></label>
     <input type="number" class="form-control" id="intSlotDuration" name="intSlotDuration" 
-           value="<?= old('intSlotDuration', $schedule['intSlotDuration'] ?? '60') ?>" min="15" step="15" required>
-    <small class="form-text text-muted">Minimum duration: 15 minutes</small>
+           value="<?= old('intSlotDuration', $schedule['intSlotDuration'] ?? '60') ?>" min="15" step="15" required><small class="form-text text-muted">Minimum duration: 15 minutes</small>
 </div>
 
-<div class="d-grid gap-2 d-md-flex justify-content-md-end">
-    <a href="<?= base_url('schedules' . (isset($_GET['service_id']) ? '?service_id=' . $_GET['service_id'] : '')) ?>" class="btn btn-secondary me-md-2">
-        Cancel
-    </a>
-    <button type="submit" class="btn btn-primary">
-        <?= $isEdit ? 'Update' : 'Create' ?> Schedule
-    </button>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize service slot duration
-    const serviceSelect = document.getElementById('intServiceID');
-    const slotDurationInput = document.getElementById('intSlotDuration');
-    
-    function updateSlotDuration() {
-        const selectedOption = serviceSelect.options[serviceSelect.selectedIndex];
-        if (selectedOption && selectedOption.dataset.slotDuration) {
-            slotDurationInput.value = selectedOption.dataset.slotDuration;
-        }
-    }
-    
-    serviceSelect.addEventListener('change', updateSlotDuration);
-    
-    // Set initial slot duration if service is preselected
-    if (serviceSelect.value) {
-        updateSlotDuration();
-    }
-    
-    // Time validation
-    const startTimeInput = document.getElementById('dtmStartTime');
-    const endTimeInput = document.getElementById('dtmEndTime');
-    const form = document.querySelector('form');
-    
-    form.addEventListener('submit', function(e) {
-        const startTime = startTimeInput.value;
-        const endTime = endTimeInput.value;
-        
-        if (startTime >= endTime) {
-            e.preventDefault();
-            alert('End time must be later than start time');
-        }
-    });
-});
+<!-- JavaScript functionality is handled in schedules.js -->

@@ -144,4 +144,15 @@ class ScheduleModel extends Model
         
         return $slots;
     }
+
+    // Get a schedule with its service information
+    public function getScheduleWithService($scheduleId)
+    {
+        return $this->db->table($this->table . ' sch')
+            ->select('sch.*, s.txtName as txtServiceName, s.intTenantID')
+            ->join('m_services s', 'sch.intServiceID = s.intServiceID', 'left')
+            ->where('sch.intScheduleID', $scheduleId)
+            ->get()
+            ->getRowArray();
+    }
 }

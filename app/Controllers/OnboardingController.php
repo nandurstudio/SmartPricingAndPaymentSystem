@@ -12,13 +12,17 @@ class OnboardingController extends BaseController
     protected $tenantModel;
     protected $serviceTypeModel;
     protected $db;
-    protected $menuModel;    public function __construct()
+    protected $menuModel;
+    protected $baseDomain;
+
+    public function __construct()
     {
         $this->userModel = new MUserModel();
         $this->tenantModel = new MTenantModel();
         $this->serviceTypeModel = new ServiceTypeModel();
         $this->db = \Config\Database::connect();
         $this->menuModel = new \App\Models\MenuModel();
+        $this->baseDomain = env('BASE_DOMAIN', 'smartpricingandpaymentsystem.localhost.com');
     }
 
     /**
@@ -73,34 +77,48 @@ class OnboardingController extends BaseController
         $userId = session()->get('userID');
         $subscriptionPlan = $this->request->getPost('subscription_plan');
 
-        // Generate tenant data
-        $tenantData = [            'txtTenantName' => $this->request->getPost('name'),
-            'intServiceTypeID' => $this->request->getPost('service_type_id'),
-            'txtSubscriptionPlan' => $subscriptionPlan,
-            'txtDomain' => $this->request->getPost('domain'),
-            'txtSlug' => $this->tenantModel->generateTenantSlug($this->request->getPost('name')),
-            'txtTenantCode' => strtoupper(substr(md5(time()), 0, 8)),
-            'intOwnerID' => $userId,
-            'txtStatus' => $subscriptionPlan === 'free' ? 'active' : 'pending',
-            'txtGUID' => uniqid('tenant_', true),
-            'txtCreatedBy' => $userId,
-            'dtmCreatedDate' => date('Y-m-d H:i:s'),
-            'jsonSettings' => json_encode(['theme' => 'default']),
-            'jsonPaymentSettings' => json_encode(['currency' => 'IDR']),
-            'dtmTrialEndsAt' => date('Y-m-d H:i:s', strtotime('+14 days')),
-            'bitActive' => 1
-        ];
-
         try {
+            // Generate normalized subdomain from business name
+            $normalizedSubdomain = $this->tenantModel->normalizeSubdomain($this->request->getPost('name'));
+            if (!$this->tenantModel->isSubdomainAvailable($normalizedSubdomain)) {
+                $normalizedSubdomain = $normalizedSubdomain . '-' . strtolower(substr(md5(time()), 0, 4));
+            }
+
+            // Generate tenant data
+            $tenantData = [
+                'txtTenantName' => $this->request->getPost('name'),
+                'intServiceTypeID' => $this->request->getPost('service_type_id'),
+                'txtSubscriptionPlan' => $subscriptionPlan,
+                'txtDomain' => $normalizedSubdomain,
+                'txtSlug' => $this->tenantModel->generateTenantSlug($this->request->getPost('name')),
+                'txtTenantCode' => strtoupper(substr(md5(time()), 0, 8)),
+                'intOwnerID' => $userId,
+                'txtStatus' => $subscriptionPlan === 'free' ? 'active' : 'pending',
+                'txtGUID' => uniqid('tenant_', true),
+                'txtCreatedBy' => $userId,
+                'dtmCreatedDate' => date('Y-m-d H:i:s'),
+                'jsonSettings' => json_encode([
+                    'description' => $this->request->getPost('description'),
+                    'theme' => 'default'
+                ]),
+                'jsonPaymentSettings' => json_encode(['currency' => 'IDR']),
+                'dtmTrialEndsAt' => date('Y-m-d H:i:s', strtotime('+14 days')),
+                'bitActive' => 1
+            ];
+
             // Start transaction
             $this->db->transStart();
 
             // Insert tenant
             $tenantId = $this->tenantModel->insert($tenantData);
+            
+            // Generate tenant URL with subdomain format
+            $tenantUrl = generate_tenant_url($normalizedSubdomain);
 
-            // Update user role to tenant owner and link to tenant
+            // Update user role to tenant owner
             $this->userModel->update($userId, [
-                'intRoleID' => 3, // Tenant Owner role                'intTenantID' => $tenantId,
+                'intRoleID' => 3, // Tenant Owner role
+                'intTenantID' => $tenantId,
                 'bitIsTenantOwner' => 1,
                 'intDefaultTenantID' => $tenantId
             ]);
@@ -114,10 +132,8 @@ class OnboardingController extends BaseController
 
             // Handle different subscription plans
             if ($subscriptionPlan === 'free') {
-                return view('onboarding/free_plan_success', [
-                    'title' => 'Free Plan Activated',
-                    'tenantId' => $tenantId
-                ]);
+                // Redirect to tenant subdomain since free plan is automatically activated
+                return redirect()->to($tenantUrl)->with('success', 'Business tenant created successfully!');
             } else {
                 // Get subscription pricing
                 $pricing = $this->getSubscriptionPricing($subscriptionPlan);
@@ -161,7 +177,8 @@ class OnboardingController extends BaseController
                         'tenantId' => $tenantId,
                         'snapToken' => $snapToken,
                         'plan' => $subscriptionPlan,
-                        'amount' => $pricing['amount']
+                        'amount' => $pricing['amount'],
+                        'tenantUrl' => $tenantUrl // Pass tenant URL to view for post-payment redirection
                     ]);
                 } catch (\Exception $e) {
                     log_message('error', '[Midtrans Payment] Error: ' . $e->getMessage());

@@ -27,19 +27,17 @@
                             </ul>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                    <?php endif; ?>                    <form action="<?= base_url('schedules/update/' . $schedule['id']) ?>" method="post">
+                    <?php endif; ?>                    <form action="<?= base_url('schedules/update/' . $schedule['intScheduleID']) ?>" method="post">
                         <?= csrf_field() ?>
                         
-                        <div class="mb-3">
-                            <label class="form-label">Service</label>
-                            <input type="text" class="form-control" value="<?= esc($schedule['service_name']) ?>" readonly>
-                            <input type="hidden" name="intServiceID" value="<?= $schedule['service_id'] ?>">
+                        <div class="mb-3">                            <label class="form-label">Service</label>
+                            <input type="text" class="form-control" value="<?= esc($schedule['txtServiceName'] ?? 'Service not found') ?>" readonly>
+                            <input type="hidden" name="intServiceID" value="<?= $schedule['intServiceID'] ?>">
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label">Day</label>
-                            <input type="text" class="form-control" value="<?= esc($schedule['day']) ?>" readonly>
-                            <input type="hidden" name="txtDay" value="<?= $schedule['day'] ?>">
+                            <label class="form-label">Day</label>                            <input type="text" class="form-control" value="<?= esc($schedule['txtDay']) ?>" readonly>
+                            <input type="hidden" name="txtDay" value="<?= $schedule['txtDay'] ?>">
                         </div>
                         
                         <?= $this->include('schedules/_form', ['schedule' => $schedule]) ?>
@@ -51,7 +49,7 @@
                                 </div>
                                 <div>
                                     <h5>Slot Information</h5>
-                                    <p class="mb-0">Based on your settings, this will create <span id="slot-count" class="fw-bold">0</span> slots for bookings every <span id="day-name"><?= $schedule['day'] ?></span>.</p>
+                                    <p class="mb-0">Based on your settings, this will create <span id="slot-count" class="fw-bold">0</span> slots for bookings every <span id="day-name"><?= $schedule['txtDay'] ?></span>.</p>
                                     <p class="mb-0">First slot: <span id="first-slot" class="fw-bold">-</span></p>
                                     <p class="mb-0">Last slot: <span id="last-slot" class="fw-bold">-</span></p>
                                 </div>
@@ -62,12 +60,15 @@
                             <div class="alert alert-warning">
                                 <i class="fas fa-exclamation-triangle me-1"></i>
                                 <strong>Warning:</strong> This schedule has <?= count($bookings) ?> existing bookings. Changing times may affect these bookings.
-                            </div>
-                        <?php endif; ?>
+                            </div>                        <?php endif; ?>
                         
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Update Schedule</button>
-                            <a href="<?= base_url('schedule') ?>" class="btn btn-secondary">Cancel</a>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="<?= base_url('schedules' . (isset($_GET['service_id']) ? '?service_id=' . $_GET['service_id'] : '')) ?>" class="btn btn-secondary me-md-2">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                Update Schedule
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -76,74 +77,11 @@
     </div>
 </div>
 
+<?= $this->section('js') ?>
 <script>
-document.addEventListener('DOMContentLoaded', function() {    const startTimeInput = document.getElementById('dtmStartTime');
-    const endTimeInput = document.getElementById('dtmEndTime');
-    const slotDurationInput = document.getElementById('intSlotDuration');
-    const slotCountSpan = document.getElementById('slot-count');
-    const firstSlotSpan = document.getElementById('first-slot');
-    const lastSlotSpan = document.getElementById('last-slot');
-    
-    // Calculate number of slots
-    function calculateSlots() {
-        const startTime = startTimeInput.value;
-        const endTime = endTimeInput.value;
-        const slotDuration = parseInt(slotDurationInput.value);
-        
-        if (!startTime || !endTime || !slotDuration || slotDuration <= 0) {
-            slotCountSpan.textContent = '0';
-            firstSlotSpan.textContent = '-';
-            lastSlotSpan.textContent = '-';
-            return;
-        }
-        
-        // Calculate slots
-        const start = new Date(`2000-01-01T${startTime}`);
-        const end = new Date(`2000-01-01T${endTime}`);
-        
-        if (start >= end) {
-            slotCountSpan.textContent = '0';
-            firstSlotSpan.textContent = '-';
-            lastSlotSpan.textContent = '-';
-            return;
-        }
-        
-        const diffMs = end - start;
-        const diffMinutes = Math.floor(diffMs / 60000);
-        const slots = Math.floor(diffMinutes / slotDuration);
-        
-        slotCountSpan.textContent = slots.toString();
-        
-        // Show first and last slot
-        const firstSlotStart = new Date(start);
-        const firstSlotEnd = new Date(firstSlotStart);
-        firstSlotEnd.setMinutes(firstSlotEnd.getMinutes() + slotDuration);
-        
-        const lastSlotStart = new Date(start);
-        lastSlotStart.setMinutes(lastSlotStart.getMinutes() + (slots - 1) * slotDuration);
-        const lastSlotEnd = new Date(lastSlotStart);
-        lastSlotEnd.setMinutes(lastSlotEnd.getMinutes() + slotDuration);
-        
-        firstSlotSpan.textContent = `${formatTime(firstSlotStart)} - ${formatTime(firstSlotEnd)}`;
-        lastSlotSpan.textContent = `${formatTime(lastSlotStart)} - ${formatTime(lastSlotEnd)}`;
-    }
-    
-    function formatTime(date) {
-        let hours = date.getHours();
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        hours = hours % 12;
-        hours = hours ? hours : 12; // the hour '0' should be '12'
-        return `${hours}:${minutes} ${ampm}`;
-    }
-    
-    // Update calculations when any input changes
-    startTimeInput.addEventListener('change', calculateSlots);
-    endTimeInput.addEventListener('change', calculateSlots);
-    slotDurationInput.addEventListener('input', calculateSlots);
-    
-    // Initialize calculations
-    calculateSlots();
-});
+    // Base URL for API calls
+    const baseUrl = '<?= base_url() ?>';
 </script>
+<script src="<?= base_url('assets/js/pages/schedules/schedules.js') ?>"></script>
+<?= $this->endSection() ?>
 <?= $this->endSection() ?>

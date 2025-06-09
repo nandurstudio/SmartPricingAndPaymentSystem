@@ -9,12 +9,14 @@ class TenantsController extends BaseController
     protected $tenantModel;
     protected $menuModel;
     protected $serviceTypeModel;
+    protected $baseDomain;
 
     public function __construct()
     {
         $this->tenantModel = new MTenantModel();
         $this->menuModel = new \App\Models\MenuModel();
         $this->serviceTypeModel = new \App\Models\ServiceTypeModel();
+        $this->baseDomain = env('BASE_DOMAIN', 'smartpricingandpaymentsystem.localhost.com');
     }
 
     public function index()
@@ -94,6 +96,28 @@ class TenantsController extends BaseController
         ]);
     }
 
+    protected function prepareNewTenant($userId, $normalizedSubdomain)
+    {
+        return [
+            'txtTenantName' => $this->request->getPost('txtTenantName'),
+            'intServiceTypeID' => $this->request->getPost('intServiceTypeID'),
+            'txtSlug' => $this->tenantModel->generateTenantSlug($this->request->getPost('txtTenantName')),
+            'intOwnerID' => $userId,
+            'txtDomain' => $normalizedSubdomain,
+            'txtTenantCode' => strtoupper(substr(md5(time()), 0, 8)),
+            'txtSubscriptionPlan' => 'basic',
+            'txtSubscriptionStatus' => 'inactive',
+            'txtStatus' => 'active',
+            'dtmTrialEndsAt' => date('Y-m-d H:i:s', strtotime('+14 days')),
+            'jsonSettings' => json_encode(['theme' => 'default']),
+            'jsonPaymentSettings' => json_encode(['currency' => 'IDR']),
+            'txtTheme' => 'default',
+            'bitActive' => 1,
+            'txtCreatedBy' => session()->get('userName'),
+            'txtGUID' => uniqid('tenant_', true)
+        ];
+    }
+
     public function store()
     {
         if (!session()->get('isLoggedIn')) {
@@ -114,6 +138,7 @@ class TenantsController extends BaseController
         }
 
         // Handle logo upload
+        $data = ['txtLogo' => null];
         $logo = $this->request->getFile('txtLogo');
         if ($logo && $logo->isValid() && !$logo->hasMoved()) {
             $newName = $logo->getRandomName();
@@ -123,49 +148,33 @@ class TenantsController extends BaseController
 
         // Get and normalize subdomain
         $subdomain = $this->request->getPost('txtDomain');
-        $normalizedSubdomain = $this->tenantModel->normalizeSubdomain($subdomain);
+        $normalizedSubdomain = $this->tenantModel->normalizeSubdomain($subdomain ? $subdomain : $this->request->getPost('txtTenantName'));
 
         if (!$this->tenantModel->isSubdomainAvailable($normalizedSubdomain)) {
-            return redirect()->back()->withInput()->with('error', 'The subdomain is already taken. Please choose another one.');
+            return redirect()->back()->withInput()
+                ->with('error', 'The subdomain is already taken. Please choose another one.');
         }
 
-        // Prepare data
-        $data = [
-            'txtTenantName' => $this->request->getPost('txtTenantName'),
-            'intServiceTypeID' => $this->request->getPost('intServiceTypeID'),
-            'txtSlug' => $this->tenantModel->generateTenantSlug($this->request->getPost('txtTenantName')),
-            'intOwnerID' => $userId,
-            'txtDomain' => $normalizedSubdomain,
-            'txtWebsiteUrl' => generate_tenant_url($normalizedSubdomain),
-            'txtTenantCode' => $this->request->getPost('txtTenantCode') ?? strtoupper(substr(md5(time()), 0, 8)),
-            'txtSubscriptionPlan' => $this->request->getPost('txtSubscriptionPlan') ?? 'free',
-            'txtSubscriptionStatus' => 'inactive',
-            'txtStatus' => $this->request->getPost('txtStatus') ?? 'pending',
-            'dtmTrialEndsAt' => date('Y-m-d H:i:s', strtotime('+14 days')),
-            'jsonSettings' => json_encode([
-                'description' => $this->request->getPost('description'),
-                'theme' => $this->request->getPost('txtTheme') ?? 'default'
-            ]),
-            'jsonPaymentSettings' => json_encode(['currency' => 'IDR']),
-            'txtTheme' => $this->request->getPost('txtTheme') ?? 'default',
-            'bitActive' => $this->request->getPost('bitActive') ?? 1,
-            'txtCreatedBy' => session()->get('userName'),
-            'txtGUID' => uniqid('tenant_', true)
-        ];
-
-        // Insert data
+        // Prepare data and insert tenant
+        $data = array_merge($data, $this->prepareNewTenant($userId, $normalizedSubdomain));
         if ($tenantId = $this->tenantModel->insert($data)) {
             // Generate default CSS for the new tenant
             $this->tenantModel->generateDefaultCSS($tenantId);
+            
+            // Generate tenant URL with subdomain format and redirect
+            $tenantUrl = generate_tenant_url($normalizedSubdomain);
 
-            // Redirect to tenant website or listing depending on status
             if ($data['txtStatus'] === 'active') {
-                return redirect()->to(generate_tenant_url($normalizedSubdomain))->with('success', 'Tenant created successfully. Redirecting to your website...');
+                return redirect()->to($tenantUrl)
+                    ->with('success', 'Tenant created successfully. Redirecting to your website...');
             }
-            return redirect()->to('/tenants')->with('success', 'Tenant created successfully. Please wait for approval.');
+
+            return redirect()->to('/tenants')
+                ->with('success', 'Tenant created successfully. Please wait for approval.');
         }
 
-        return redirect()->back()->withInput()->with('errors', $this->tenantModel->errors());
+        return redirect()->back()->withInput()
+            ->with('errors', $this->tenantModel->errors());
     }
 
     public function edit($id)
@@ -228,6 +237,8 @@ class TenantsController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $data = [];
+
         // Handle logo removal
         if ($this->request->getPost('removeLogo') && $tenant['txtLogo']) {
             $logoPath = ROOTPATH . 'public/uploads/tenants/' . $tenant['txtLogo'];
@@ -236,7 +247,7 @@ class TenantsController extends BaseController
             }
             $data['txtLogo'] = null;
         }
-        // Handle logo upload if any
+        // Handle logo upload
         else {
             $logo = $this->request->getFile('txtLogo');
             if ($logo && $logo->isValid() && !$logo->hasMoved()) {
@@ -260,35 +271,49 @@ class TenantsController extends BaseController
             if (!empty($normalizedSubdomain) && $this->tenantModel->where('txtDomain', $normalizedSubdomain)
                                                              ->where('intTenantID !=', $id)
                                                              ->first()) {
-                return redirect()->back()->withInput()->with('error', 'The subdomain is already taken. Please choose another one.');
+                return redirect()->back()->withInput()
+                    ->with('error', 'The subdomain is already taken. Please choose another one.');
             }
             $data['txtDomain'] = $normalizedSubdomain;
-            $data['txtWebsiteUrl'] = generate_tenant_url($normalizedSubdomain);
         }
 
         // Prepare update data
-        $data['txtTenantName'] = $this->request->getPost('txtTenantName');
-        $data['intServiceTypeID'] = $this->request->getPost('intServiceTypeID');
-        $data['txtStatus'] = $this->request->getPost('txtStatus');
-        $data['txtSubscriptionPlan'] = $this->request->getPost('txtSubscriptionPlan');
-        $data['txtTheme'] = $this->request->getPost('txtTheme');
-        $data['bitActive'] = $this->request->getPost('bitActive') ?? 0;
-        $data['jsonSettings'] = $this->request->getPost('jsonSettings');
-        $data['jsonPaymentSettings'] = $this->request->getPost('jsonPaymentSettings');
-        $data['txtMidtransClientKey'] = $this->request->getPost('txtMidtransClientKey');
-        $data['txtMidtransServerKey'] = $this->request->getPost('txtMidtransServerKey');
-        $data['txtUpdatedBy'] = session()->get('userName');
+        $data = array_merge($data, [
+            'txtTenantName' => $this->request->getPost('txtTenantName'),
+            'intServiceTypeID' => $this->request->getPost('intServiceTypeID'),
+            'txtStatus' => $this->request->getPost('txtStatus'),
+            'txtSubscriptionPlan' => $this->request->getPost('txtSubscriptionPlan'),
+            'txtTheme' => $this->request->getPost('txtTheme'),
+            'bitActive' => $this->request->getPost('bitActive') ?? 0,
+            'jsonSettings' => $this->request->getPost('jsonSettings'),
+            'jsonPaymentSettings' => $this->request->getPost('jsonPaymentSettings'),
+            'txtMidtransClientKey' => $this->request->getPost('txtMidtransClientKey'),
+            'txtMidtransServerKey' => $this->request->getPost('txtMidtransServerKey'),
+            'txtUpdatedBy' => session()->get('userName')
+        ]);
 
         // Update data
         if ($this->tenantModel->update($id, $data)) {
             // Regenerate CSS if theme changed
-            if ($data['txtTheme'] !== $tenant['txtTheme']) {
+            if (isset($data['txtTheme']) && $data['txtTheme'] !== $tenant['txtTheme']) {
                 $this->tenantModel->generateDefaultCSS($id);
             }
-            return redirect()->to('/tenants')->with('success', 'Tenant updated successfully.');
+
+            // If subdomain changed and tenant is active, redirect to new subdomain
+            if (isset($data['txtDomain']) && 
+                $data['txtDomain'] !== $tenant['txtDomain'] && 
+                $data['txtStatus'] === 'active') {
+                $tenantUrl = generate_tenant_url($data['txtDomain']);
+                return redirect()->to($tenantUrl)
+                    ->with('success', 'Tenant updated successfully. Redirecting to new domain...');
+            }
+
+            return redirect()->to('/tenants')
+                ->with('success', 'Tenant updated successfully.');
         }
 
-        return redirect()->back()->withInput()->with('errors', $this->tenantModel->errors());
+        return redirect()->back()->withInput()
+            ->with('errors', $this->tenantModel->errors());
     }
 
     public function view($id)

@@ -15,6 +15,8 @@ $routes->group('', ['subdomain' => '(:any)'], function($routes) {
     $routes->get('manifest.json', 'TenantWebsiteController::manifest/$1');
     $routes->get('services', 'TenantWebsiteController::services/$1');
     $routes->get('bookings', 'TenantWebsiteController::bookings/$1');
+    $routes->get('bookings/create', 'TenantWebsiteController::createBooking/$1');
+    $routes->get('createapi/slots/available/(:num)', 'Api\TimeSlotController::getAvailableSlots/$1');
     $routes->get('schedules', 'TenantWebsiteController::schedules/$1');
     $routes->get('settings', 'TenantWebsiteController::settings/$1');
     $routes->get('assets/(:any)', 'TenantWebsiteController::assets/$1/$2');
@@ -52,6 +54,8 @@ $routes->group('', ['subdomain' => '(:any)'], function($routes) {
     $routes->get('manifest.json', 'TenantWebsiteController::manifest/$1');
     $routes->get('services', 'TenantWebsiteController::services/$1');
     $routes->get('bookings', 'TenantWebsiteController::bookings/$1');
+    $routes->get('bookings/create', 'TenantWebsiteController::createBooking/$1');
+    $routes->get('bookings/createapi/slots/available/(:num)', 'Api\TimeSlotController::getAvailableSlots/$1');
     $routes->get('schedules', 'TenantWebsiteController::schedules/$1');
     $routes->get('settings', 'TenantWebsiteController::settings/$1');
     $routes->get('assets/(:any)', 'TenantWebsiteController::assets/$1/$2');

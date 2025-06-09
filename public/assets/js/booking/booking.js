@@ -61,10 +61,12 @@ document.addEventListener('DOMContentLoaded', function() {
             timeSlotSelect.innerHTML = '<option value="" selected disabled>Select date and service first</option>';
             return;
         }
+          timeSlotSelect.innerHTML = '<option value="" selected disabled>Loading time slots...</option>';
         
-        timeSlotSelect.innerHTML = '<option value="" selected disabled>Loading time slots...</option>';
-        
-        fetch(`${document.baseURI}api/get-available-slots/${serviceId}?date=${date}`)
+        // Construct URL without duplicating path segments
+        const baseUrl = new URL(document.baseURI);
+        const apiPath = `/createapi/slots/available/${serviceId}?date=${date}`;
+        fetch(`${baseUrl.origin}${apiPath}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
