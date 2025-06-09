@@ -1,147 +1,331 @@
-## Important Notes
+# SmartPricingAndPaymentSystem
 
-Jangan lupa tambahkan .env file di folder local
+![CI4 Version](https://img.shields.io/badge/CodeIgniter-4.4.3-orange.svg)
+![PHP Version](https://img.shields.io/badge/PHP-%3E=8.1-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-# SmartPricingAndPaymentSystem (Multi-Tenant Booking SaaS)
+> Multi-tenant Booking SaaS Platform built with CodeIgniter 4
 
-## Tujuan
-Aplikasi booking multi-tenant (SaaS) berbasis CodeIgniter 4, Bootstrap 5, dan jQuery. Mendukung ratusan tenant (futsal, villa, salon, kursus, dsb.) dengan isolasi data tenant yang kuat.
+[English](#english) | [Bahasa Indonesia](#bahasa-indonesia)
 
-## Penting untuk Developer
-- **Baca instruksi pengembangan di `resources/INSTRUKSI_PENGEMBANGAN_APLIKASI_BOOKING_MULTI_TENANT.md` sebelum coding!**
+---
 
-### Keamanan & File Sensitif
-1. **Environment Files**:
-   - Wajib buat file `.env` di root project untuk konfigurasi lokal
-   - Jangan pernah commit file `.env` atau `.env.*` ke repository
-   - Gunakan `.env.example` sebagai template (sudah disediakan)
+## English
 
-2. **Database & Migrations**:
-   - File migration & seeder yang berisi struktur database & data master BOLEH dicommit
-   - File SQL manual, backup database, dan seeder dengan data sensitif TIDAK BOLEH dicommit
-   - Simpan SQL manual & backup di `/docs/sql/` (sudah di-ignore)
+### Overview
 
-3. **Kredensial & Konfigurasi**:
-   - Semua kredensial (API keys, passwords, dll) WAJIB di file `.env`
-   - Konfigurasi default di `/app/Config/` boleh dicommit
-   - Konfigurasi environment-specific taruh di `.env`
+SmartPricingAndPaymentSystem is a sophisticated multi-tenant SaaS booking platform designed to serve hundreds of business types (sports venues, accommodations, salons, courses, etc.) with robust tenant data isolation and modern payment integration.
 
-## Alur Kerja Pengembangan (Singkat)
-1. Desain database & ERD: semua tabel utama wajib ada `tenant_id`.
-2. Migration & Seeder: gunakan CI4 migration di `app/Database/Migrations/` dan seeder di `app/Database/Seeds/`.
-3. Model: pastikan query utama selalu filter `tenant_id`.
-4. Controller: CRUD, proteksi data per role & tenant.
-5. View: Bootstrap 5, jQuery, form dinamis sesuai custom field per tenant.
-6. Booking & Pembayaran: integrasi Midtrans, webhook, validasi slot.
-7. Notifikasi: Email & WhatsApp.
-8. Role & Permission: owner, admin, customer, proteksi route & data.
-9. UGC: tenant bisa ajukan tipe layanan baru, admin moderasi.
-10. Dokumentasi API: Swagger/OpenAPI.
-11. Audit & Keamanan: semua perubahan penting tercatat, data antar tenant terisolasi.
-12. Multi-language & Scalability: siap scaling dan multi-bahasa.
+### Key Features
 
-## CLI & Database Pipeline
-
-### Initial Setup
-```bash
-# 1. Setup environment
-cp .env.example .env
-nano .env  # Edit sesuai environment local
-
-# 2. Install dependencies
-composer install
-npm install
-
-# 3. Initialize database
-php spark migrate
-php spark db:seed InitialSetupSeeder  # Data master wajib
-php spark db:seed DevelopmentSeeder   # Data dummy untuk development
-```
-
-### Database Maintenance
-```bash
-# Update database structure
-php spark migrate            # Jalankan migration baru
-php spark migrate:rollback   # Rollback migration terakhir
-php spark migrate:refresh    # Reset & rerun semua migration
-
-# Seeding data
-php spark db:seed MroleSeeder        # Role & permission
-php spark db:seed MultiTenantSeeder  # Sample tenant data
-
-# Tools
-php spark db:maintenance     # Menu interaktif maintenance
-```
-
-## Struktur Project
-- **Migration & Seeder**
-  - `/app/Database/Migrations/` - File migration (commit ke repo)
-  - `/app/Database/Seeds/` - File seeder data master (commit ke repo)
-  - `/docs/sql/` - SQL manual & backup (jangan commit)
-
-- **Konfigurasi**
-  - `.env` - Environment variables & kredensial (jangan commit)
-  - `/app/Config/` - Konfigurasi default (commit ke repo)
+- 🏢 **Multi-tenant Architecture**
+  - Strong data isolation per tenant
+  - Customizable booking flows
+  - Tenant-specific configurations
   
-- **Dokumentasi**
-  - `/resources/` - Dokumentasi teknis & panduan
-  - `/docs/` - Dokumentasi tambahan & referensi
+- 💳 **Payment Integration**
+  - Midtrans payment gateway integration 
+  - Multiple payment methods
+  - Automatic reconciliation
+  
+- 📱 **Modern UI/UX**
+  - Responsive Bootstrap 5 design
+  - Dynamic form generation
+  - Real-time availability updates
+  
+- 🔐 **Advanced Security**
+  - Role-based access control
+  - Tenant data isolation
+  - Activity audit logging
 
-## Framework: CodeIgniter 4
+### Prerequisites
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+- PHP 8.1 or higher
+- MySQL 5.7+ / MariaDB 10.3+
+- Composer
+- Node.js & npm
+- Git
 
-This repository holds the distributable version of the framework.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+Required PHP Extensions:
+- intl
+- json
+- mbstring
+- mysqlnd
+- xml
+- curl
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+### Quick Start
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+1. **Clone & Install Dependencies**
+   ```powershell
+   # Clone repository
+   git clone https://your-repository-url.git
+   cd SmartPricingAndPaymentSystem
 
-## Important Change with index.php
+   # Install dependencies
+   composer install
+   npm install
+   ```
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+2. **Environment Setup**
+   ```powershell
+   # Create environment file
+   Copy-Item .env.example .env
+   
+   # Generate encryption key
+   php spark key:generate
+   ```
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+3. **Configure Environment**
+   Edit `.env` file with your database and Midtrans credentials:
+   ```ini
+   database.default.hostname = localhost
+   database.default.database = your_database
+   database.default.username = your_username
+   database.default.password = your_password
 
-**Please** read the user guide for a better explanation of how CI4 works!
+   MIDTRANS_SERVER_KEY = your_server_key
+   MIDTRANS_CLIENT_KEY = your_client_key
+   ```
 
-## Repository Management
+4. **Initialize Database**
+   ```powershell
+   # Run database migrations and seed initial data
+   php spark migrate
+   php spark db:seed InitialSetupSeeder
+   ```
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+### Development Workflow
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+1. **Database Changes**
+   ```powershell
+   # Create new migration
+   php spark make:migration AddNewFeature
+   
+   # Run migrations
+   php spark migrate
+   
+   # Rollback if needed
+   php spark migrate:rollback
+   ```
 
-## Contributing
+2. **Adding Features**
+   - Follow MVC pattern
+   - Use CI4 Models for data access
+   - Implement tenant filtering
+   - Write unit tests
 
-We welcome contributions from the community.
+3. **Testing**
+   ```powershell
+   # Run all tests
+   vendor/bin/phpunit
+   
+   # Run specific test suite
+   vendor/bin/phpunit --testsuite unit
+   ```
 
-Please read the [*Contributing to CodeIgniter*](https://github.com/codeigniter4/CodeIgniter4/blob/develop/CONTRIBUTING.md) section in the development repository.
+### Project Structure
 
-## Server Requirements
+```
+📦 SmartPricingAndPaymentSystem
+├── 📂 app                    # Application source code
+│   ├── Config               # Configuration files
+│   ├── Controllers          # MVC Controllers
+│   ├── Models              # Database Models
+│   ├── Entities            # Entity classes
+│   └── Views               # Template files
+├── 📂 public               # Web root directory
+│   ├── assets             # Compiled assets
+│   └── uploads            # User uploads
+├── 📂 resources           # Development resources
+│   └── documentation      # Technical documentation
+└── 📂 writable            # Writable directory for logs, cache
+```
 
-PHP version 8.1 or higher is required, with the following extensions installed:
+### Deployment
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+1. **Production Setup**
+   - Set `CI_ENVIRONMENT = production` in `.env`
+   - Configure secure database credentials
+   - Enable HTTPS
+   - Set proper file permissions
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> - The end of life date for PHP 8.1 will be December 31, 2025.
+2. **Web Server Configuration**
+   - Point DocumentRoot to `/public` directory
+   - Enable URL rewriting
+   - Configure PHP-FPM (recommended)
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+### Contributing
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add AmazingFeature'`)
+4. Push branch (`git push origin feature/AmazingFeature`)
+5. Open Pull Request
+
+---
+
+## Bahasa Indonesia
+
+### Gambaran Umum
+
+SmartPricingAndPaymentSystem adalah platform SaaS booking multi-tenant yang dirancang untuk melayani ratusan jenis bisnis (lapangan olahraga, akomodasi, salon, kursus, dll.) dengan isolasi data tenant yang kuat dan integrasi pembayaran modern.
+
+### Fitur Utama
+
+- 🏢 **Arsitektur Multi-tenant**
+  - Isolasi data yang kuat per tenant
+  - Alur booking yang dapat disesuaikan
+  - Konfigurasi spesifik per tenant
+  
+- 💳 **Integrasi Pembayaran**
+  - Integrasi payment gateway Midtrans
+  - Multiple metode pembayaran
+  - Rekonsiliasi otomatis
+  
+- 📱 **UI/UX Modern**
+  - Desain responsif dengan Bootstrap 5
+  - Generasi form dinamis
+  - Update ketersediaan real-time
+  
+- 🔐 **Keamanan Tingkat Lanjut**
+  - Kontrol akses berbasis peran
+  - Isolasi data tenant
+  - Pencatatan audit aktivitas
+
+### Prasyarat Sistem
+
+- PHP 8.1 atau lebih tinggi
+- MySQL 5.7+ / MariaDB 10.3+
+- Composer
+- Node.js & npm
+- Git
+
+Ekstensi PHP yang diperlukan:
+- intl
+- json
+- mbstring
+- mysqlnd
+- xml
+- curl
+
+### Panduan Cepat Memulai
+
+1. **Clone & Install Dependensi**
+   ```powershell
+   # Clone repository
+   git clone https://your-repository-url.git
+   cd SmartPricingAndPaymentSystem
+
+   # Install dependensi
+   composer install
+   npm install
+   ```
+
+2. **Setup Environment**
+   ```powershell
+   # Buat file environment
+   Copy-Item .env.example .env
+   
+   # Generate kunci enkripsi
+   php spark key:generate
+   ```
+
+3. **Konfigurasi Environment**
+   Edit file `.env` dengan kredensial database dan Midtrans Anda:
+   ```ini
+   database.default.hostname = localhost
+   database.default.database = your_database
+   database.default.username = your_username
+   database.default.password = your_password
+
+   MIDTRANS_SERVER_KEY = your_server_key
+   MIDTRANS_CLIENT_KEY = your_client_key
+   ```
+
+4. **Inisialisasi Database**
+   ```powershell
+   # Jalankan migrasi database dan seed data awal
+   php spark migrate
+   php spark db:seed InitialSetupSeeder
+   ```
+
+### Alur Kerja Pengembangan
+
+1. **Perubahan Database**
+   ```powershell
+   # Buat migrasi baru
+   php spark make:migration AddNewFeature
+   
+   # Jalankan migrasi
+   php spark migrate
+   
+   # Rollback jika diperlukan
+   php spark migrate:rollback
+   ```
+
+2. **Menambah Fitur**
+   - Ikuti pola MVC
+   - Gunakan CI4 Models untuk akses data
+   - Implementasikan filter tenant
+   - Tulis unit test
+
+3. **Testing**
+   ```powershell
+   # Jalankan semua test
+   vendor/bin/phpunit
+   
+   # Jalankan suite test tertentu
+   vendor/bin/phpunit --testsuite unit
+   ```
+
+### Struktur Proyek
+
+```
+📦 SmartPricingAndPaymentSystem
+├── 📂 app                    # Kode sumber aplikasi
+│   ├── Config               # File konfigurasi
+│   ├── Controllers          # MVC Controllers
+│   ├── Models              # Model database
+│   ├── Entities            # Kelas entitas
+│   └── Views               # File template
+├── 📂 public               # Direktori web root
+│   ├── assets             # Asset terkompilasi
+│   └── uploads            # Upload pengguna
+├── 📂 resources           # Resource pengembangan
+│   └── documentation      # Dokumentasi teknis
+└── 📂 writable            # Direktori writable untuk log, cache
+```
+
+### Deployment
+
+1. **Setup Produksi**
+   - Set `CI_ENVIRONMENT = production` di `.env`
+   - Konfigurasi kredensial database yang aman
+   - Aktifkan HTTPS
+   - Atur permission file dengan benar
+
+2. **Konfigurasi Web Server**
+   - Arahkan DocumentRoot ke direktori `/public`
+   - Aktifkan URL rewriting
+   - Konfigurasi PHP-FPM (direkomendasikan)
+
+### Kontribusi
+
+1. Fork repository
+2. Buat branch fitur (`git checkout -b feature/FiturKeren`)
+3. Commit perubahan (`git commit -m 'Tambah FiturKeren'`)
+4. Push branch (`git push origin feature/FiturKeren`)
+5. Buat Pull Request
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [CodeIgniter](https://codeigniter.com) - The web framework used
+- [Midtrans](https://midtrans.com) - Payment gateway integration
+- [Bootstrap](https://getbootstrap.com) - Frontend framework

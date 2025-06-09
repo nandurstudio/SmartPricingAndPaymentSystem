@@ -6,6 +6,7 @@ use App\Models\MUserModel;
 use App\Models\MTenantModel;
 use App\Models\ServiceTypeModel;
 use App\Services\MidtransService;
+use App\Entities\MidtransNotification;
 
 class OnboardingController extends BaseController
 {
@@ -271,20 +272,21 @@ class OnboardingController extends BaseController
             \Midtrans\Config::$isProduction = getenv('MIDTRANS_IS_PRODUCTION') == 'true';
             
             $transactionData = \Midtrans\Transaction::status($transactionId);
+            $notification = new MidtransNotification((array)$transactionData);
             
-            if ($transactionData->transaction_status === 'settlement' || 
-                $transactionData->transaction_status === 'capture') {
+            if ($notification->transaction_status === 'settlement' || 
+                $notification->transaction_status === 'capture') {
                 
                 // Activate tenant subscription
-                $this->tenantModel->activateSubscription($tenantId, (array)$transactionData);
+                $this->tenantModel->activateSubscription($tenantId, $notification->toArray());
                 
                 return view('onboarding/payment_success', [
                     'title' => 'Payment Successful',
                     'tenantId' => $tenantId,
-                    'transaction' => $transactionData
+                    'transaction' => $notification->toArray()
                 ]);
             } else {
-                throw new \Exception('Payment verification failed. Status: ' . $transactionData->transaction_status);
+                throw new \Exception('Payment verification failed. Status: ' . $notification->transaction_status);
             }
             
         } catch (\Exception $e) {
@@ -318,7 +320,8 @@ class OnboardingController extends BaseController
             \Midtrans\Config::$serverKey = getenv('MIDTRANS_SERVER_KEY');
             \Midtrans\Config::$isProduction = getenv('MIDTRANS_IS_PRODUCTION') == 'true';
 
-            $notification = new \Midtrans\Notification();
+            $midtransNotification = new \Midtrans\Notification();
+            $notification = new MidtransNotification((array)$midtransNotification);
             
             $transactionStatus = $notification->transaction_status;
             $orderId = $notification->order_id;
@@ -337,10 +340,11 @@ class OnboardingController extends BaseController
                     // Do nothing, wait for manual verification
                     $this->tenantModel->update($tenantId, ['txtStatus' => 'pending_verification']);
                 } else if ($fraudStatus == 'accept') {
-                    $this->tenantModel->activateSubscription($tenantId, (array)$notification);
+                    $this->tenantModel->activateSubscription($tenantId, $notification->toArray());
                 }
             } else if ($transactionStatus == 'settlement') {
-                $this->tenantModel->activateSubscription($tenantId, (array)$notification);            } else if ($transactionStatus == 'cancel' || 
+                $this->tenantModel->activateSubscription($tenantId, $notification->toArray());
+            } else if ($transactionStatus == 'cancel' || 
                       $transactionStatus == 'deny' || 
                       $transactionStatus == 'expire') {
                 $this->tenantModel->update($tenantId, ['txtStatus' => 'payment_failed']);

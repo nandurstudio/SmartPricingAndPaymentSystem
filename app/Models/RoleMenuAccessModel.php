@@ -6,7 +6,7 @@ use CodeIgniter\Model;
 
 class RoleMenuAccessModel extends Model
 {
-    protected $table = 'trRoleMenuAccess';
+    protected $table = 'm_role_menu';
     protected $primaryKey = 'intRoleMenuAccessID';
     protected $allowedFields = [
         'intRoleID',

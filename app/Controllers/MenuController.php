@@ -19,9 +19,12 @@ class MenuController extends Controller
     public function index()
     {
         if ($redirect = checkLogin()) return $redirect;  // Cek login
-        $menus = getRoleMenus();  // Ambil menu berdasarkan role
+        
+        // Get all menus instead of role-filtered menus
+        $menus = $this->menuModel->findAll();
 
         return view('menu/index', [
+            'title' => 'Menu Management',
             'menus' => $menus,
             'icon' => 'users',
             'pageTitle' => 'Master Menu',
@@ -32,11 +35,15 @@ class MenuController extends Controller
 
     public function create()
     {
-        if ($redirect = checkLogin()) return $redirect;  // Cek login
-        $menus = getRoleMenus();  // Ambil menu berdasarkan role
+        if ($redirect = checkLogin()) return $redirect;
+        
+        // Get parent menus for the dropdown
+        $parentMenus = $this->menuModel->where('intParentID', null)
+                                     ->orWhere('intParentID', 0)
+                                     ->findAll();
 
         return view('menu/create', [
-            'menus' => $menus,
+            'title' => 'Create Menu',
             'menu' => [
                 'intMenuID' => null,
                 'txtMenuName' => '',
@@ -45,12 +52,13 @@ class MenuController extends Controller
                 'intParentID' => null,
                 'intSortOrder' => null,
                 'txtDesc' => '',
-                'bitActive' => false
+                'bitActive' => true
             ],
-            'icon' => 'users',
-            'pageTitle' => 'Master Menu',
-            'pageSubTitle' => 'Menampilkan daftar Menu',
-            'cardTitle' => 'Menu'
+            'parentMenus' => $parentMenus,
+            'icon' => 'menu',
+            'pageTitle' => 'Menu Management',
+            'pageSubTitle' => 'Create new menu item',
+            'cardTitle' => 'Create Menu'
         ]);
     }
 
@@ -71,21 +79,33 @@ class MenuController extends Controller
 
         $this->menuModel->save($data);
         return redirect()->to('/menu')->with('success', 'Menu successfully created.');
-    }
-
-    public function edit($id)
+    }    public function edit($id)
     {
-        if ($redirect = checkLogin()) return $redirect;  // Cek login
-        $menus = getRoleMenus();  // Ambil menu berdasarkan role
-        $data['menu'] = $this->menuModel->find($id); // Ambil data menu berdasarkan ID
+        if ($redirect = checkLogin()) return $redirect;
+        $menu = $this->menuModel->find($id);
+
+        if (!$menu) {
+            return redirect()->to('/menu')->with('error', 'Menu not found');
+        }
+
+        // Set default values for nullable fields
+        $menu['txtDesc'] = $menu['txtDesc'] ?? '';
+        $menu['bitActive'] = $menu['bitActive'] ?? 1;
+
+        // Get parent menus for the dropdown, excluding the current menu
+        $parentMenus = $this->menuModel->where('intParentID', null)
+                                     ->orWhere('intParentID', 0)
+                                     ->where('intMenuID !=', $id)
+                                     ->findAll();
 
         return view('menu/edit', [
-            'menus' => $menus,
-            'menu' => $data['menu'], // Memastikan hanya data menu yang dikirim
-            'icon' => 'users',
-            'pageTitle' => 'Master Menu',
-            'pageSubTitle' => 'Menampilkan daftar Menu',
-            'cardTitle' => 'Menu'
+            'title' => 'Edit Menu',
+            'menu' => $menu,
+            'parentMenus' => $parentMenus,
+            'icon' => 'menu',
+            'pageTitle' => 'Menu Management',
+            'pageSubTitle' => 'Edit menu details',
+            'cardTitle' => 'Edit Menu'
         ]);
     }
 

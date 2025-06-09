@@ -7,15 +7,16 @@ use CodeIgniter\Model;
 class MenuModel extends Model
 {
     protected $table = 'm_menu';
-    protected $primaryKey = 'intMenuID';
-    protected $allowedFields = [
+    protected $primaryKey = 'intMenuID';    protected $allowedFields = [
         'txtMenuName',
         'txtMenuLink',
         'intParentID',
         'intSortOrder',
         'txtIcon',
-        'bitActive'
-    ];    
+        'bitActive',
+        'txtDesc',
+        'txtGUID'
+    ];
     
     // Fungsi untuk mengambil menu berdasarkan Role ID    
     public function getMenusByRole($intRoleID)
