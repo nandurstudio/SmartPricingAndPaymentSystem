@@ -142,6 +142,15 @@
                             <span class="badge bg-<?= $tenant['txtSubscriptionStatus'] == 'active' ? 'success' : 'warning' ?>">
                                 <?= ucfirst($tenant['txtSubscriptionStatus'] ?? 'inactive') ?>
                             </span>
+                            <?php if ($tenant['txtSubscriptionStatus'] != 'active'): ?>
+                                <div class="mt-3">
+                                    <a href="<?= base_url('tenants/activate-subscription/' . $tenant['intTenantID']) ?>" 
+                                       class="btn btn-primary btn-sm">
+                                        <i class="fas fa-credit-card me-1"></i> 
+                                        Activate Subscription
+                                    </a>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
 

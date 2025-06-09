@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\MUserModel;
 use App\Models\MTenantModel;
 use App\Models\ServiceTypeModel;
+use App\Services\MidtransService;
 
 class OnboardingController extends BaseController
 {
@@ -14,6 +15,7 @@ class OnboardingController extends BaseController
     protected $db;
     protected $menuModel;
     protected $baseDomain;
+    protected $midtransService;
 
     public function __construct()
     {
@@ -23,6 +25,7 @@ class OnboardingController extends BaseController
         $this->db = \Config\Database::connect();
         $this->menuModel = new \App\Models\MenuModel();
         $this->baseDomain = env('BASE_DOMAIN', 'smartpricingandpaymentsystem.localhost.com');
+        $this->midtransService = new MidtransService();
     }
 
     /**
@@ -137,45 +140,37 @@ class OnboardingController extends BaseController
             } else {
                 // Get subscription pricing
                 $pricing = $this->getSubscriptionPricing($subscriptionPlan);
-                
-                // Setup Midtrans payment
-                \Midtrans\Config::$serverKey = getenv('MIDTRANS_SERVER_KEY');
-                \Midtrans\Config::$isProduction = getenv('MIDTRANS_IS_PRODUCTION') == 'true';
-                \Midtrans\Config::$isSanitized = true;
-                \Midtrans\Config::$is3ds = true;
-
-                $transactionDetails = [
-                    'order_id' => 'TENANT-' . $tenantId . '-' . time(),
-                    'gross_amount' => $pricing['amount']
-                ];
-
-                $customerDetails = [
-                    'first_name' => session()->get('userFullName'),
-                    'email' => session()->get('userEmail')
-                ];
-
-                $itemDetails = [
-                    [
-                        'id' => 'SUBSCRIPTION-' . strtoupper($subscriptionPlan),
-                        'price' => $pricing['amount'],
-                        'quantity' => 1,
-                        'name' => ucfirst($subscriptionPlan) . ' Plan Subscription'
-                    ]
-                ];
-
-                $midtransParams = [
-                    'transaction_details' => $transactionDetails,
-                    'customer_details' => $customerDetails,
-                    'item_details' => $itemDetails
-                ];
-
+                  // Setup Midtrans payment
                 try {
-                    $snapToken = \Midtrans\Snap::getSnapToken($midtransParams);
+                    $orderId = 'TENANT-' . $tenantId . '-' . time();
+                    
+                    $params = [
+                        'transaction_details' => [
+                            'order_id' => $orderId,
+                            'gross_amount' => $pricing['amount']
+                        ],
+                        'customer_details' => [
+                            'first_name' => session()->get('userFullName'),
+                            'email' => session()->get('userEmail')
+                        ],
+                        'item_details' => [
+                            [
+                                'id' => 'SUBSCRIPTION-' . strtoupper($subscriptionPlan),
+                                'price' => $pricing['amount'],
+                                'quantity' => 1,
+                                'name' => ucfirst($subscriptionPlan) . ' Plan Subscription'
+                            ]
+                        ]
+                    ];
 
-                    return view('onboarding/payment', [
-                        'title' => 'Complete Subscription Payment',
+                    $result = $this->midtransService->createPaymentToken($params);
+                    if (!$result['success']) {
+                        throw new \Exception($result['message']);
+                    }
+
+                    return view('onboarding/payment', [                        'title' => 'Complete Subscription Payment',
                         'tenantId' => $tenantId,
-                        'snapToken' => $snapToken,
+                        'snapToken' => $result['token'],
                         'plan' => $subscriptionPlan,
                         'amount' => $pricing['amount'],
                         'tenantUrl' => $tenantUrl // Pass tenant URL to view for post-payment redirection
@@ -366,5 +361,34 @@ class OnboardingController extends BaseController
         }
     }
     
-    // ... existing methods ...
+    protected function setupPaymentGateway($orderId, $amount, $customer)
+    {
+        try {
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $orderId,
+                    'gross_amount' => $amount
+                ],
+                'customer_details' => $customer,
+                'enabled_payments' => [
+                    'credit_card', 'mandiri_clickpay', 'cimb_clicks',
+                    'bca_klikbca', 'bca_klikpay', 'bri_epay', 'echannel', 'permata_va',
+                    'bca_va', 'bni_va', 'bri_va', 'other_va', 'gopay', 'indomaret',
+                    'alfamart', 'danamon_online', 'akulaku'
+                ]
+            ];
+
+            $result = $this->midtransService->createPaymentToken($params);
+            
+            if (!$result['success']) {
+                throw new \Exception($result['message']);
+            }
+
+            return $result['token'];
+
+        } catch (\Exception $e) {
+            log_message('error', '[OnboardingController::setupPaymentGateway] Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
 }

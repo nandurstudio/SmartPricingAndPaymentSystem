@@ -139,9 +139,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->post('store', 'ServiceAttributeController::store');
         $routes->get('edit/(:num)', 'ServiceAttributeController::edit/$1');
         $routes->post('update/(:num)', 'ServiceAttributeController::update/$1');
-    });
-
-    // Tenant management
+    });    // Tenant management
     $routes->group('tenants', function ($routes) {
         $routes->get('/', 'TenantsController::index');
         $routes->get('create', 'TenantsController::create');
@@ -150,6 +148,10 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('edit/(:num)', 'TenantsController::edit/$1');
         $routes->post('update/(:num)', 'TenantsController::update/$1');
         $routes->get('checkSubdomain', 'TenantsController::checkSubdomain');
+        $routes->get('activate-subscription/(:num)', 'TenantsController::activateSubscription/$1');
+        $routes->get('payment-success/(:num)', 'TenantsController::paymentSuccess/$1');
+        $routes->get('payment-pending/(:num)', 'TenantsController::paymentPending/$1');
+        $routes->get('payment-failed/(:num)', 'TenantsController::paymentFailed/$1');
     });
     
     // Redirect old tenant URLs to new ones

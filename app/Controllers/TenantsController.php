@@ -347,4 +347,196 @@ class TenantsController extends BaseController
 
         return view('tenants/view', $data);
     }
+
+    /**
+     * Initialize payment for tenant subscription activation
+     */
+    public function activateSubscription($id)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
+        }
+
+        $userId = session()->get('userID');
+        $roleId = session()->get('roleID');
+        $tenant = $this->tenantModel->find($id);
+
+        // Check permissions
+        if (!$tenant || ($tenant['intOwnerID'] != $userId && $roleId != 1)) {
+            return redirect()->to('/tenants')->with('error', 'You do not have permission to activate this tenant.');
+        }
+
+        if ($tenant['txtSubscriptionStatus'] === 'active') {
+            return redirect()->to('/tenants/view/' . $id)->with('info', 'Subscription is already active.');
+        }
+
+        try {
+            // Get subscription pricing for the tenant's plan
+            $pricing = $this->getSubscriptionPricing($tenant['txtSubscriptionPlan']);            // Update tenant status to pending_payment
+            $this->tenantModel->update($id, [
+                'txtStatus' => 'pending_payment',
+                'txtUpdatedBy' => session()->get('userID'),
+                'dtmUpdatedDate' => date('Y-m-d H:i:s')
+            ]);
+            
+            // Setup Midtrans payment
+            $orderId = 'TENANT-' . $tenant['intTenantID'] . '-' . time();
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $orderId,
+                    'gross_amount' => $pricing['amount']
+                ],
+                'customer_details' => [
+                    'first_name' => session()->get('userFullName'),
+                    'email' => session()->get('userEmail')
+                ],
+                'item_details' => [
+                    [
+                        'id' => 'SUBSCRIPTION-' . strtoupper($tenant['txtSubscriptionPlan']),
+                        'price' => $pricing['amount'],
+                        'quantity' => 1,
+                        'name' => ucfirst($tenant['txtSubscriptionPlan']) . ' Plan Subscription'
+                    ]
+                ],
+                'enabled_payments' => [
+                    'credit_card', 'mandiri_clickpay', 'cimb_clicks',
+                    'bca_klikbca', 'bca_klikpay', 'bri_epay', 'echannel', 'permata_va',
+                    'bca_va', 'bni_va', 'bri_va', 'other_va', 'gopay', 'indomaret',
+                    'alfamart', 'danamon_online', 'akulaku'
+                ]
+            ];
+
+            // Initialize Midtrans configuration
+            \Midtrans\Config::$serverKey = getenv('MIDTRANS_SERVER_KEY');
+            \Midtrans\Config::$isProduction = getenv('MIDTRANS_IS_PRODUCTION') == 'true';
+            \Midtrans\Config::$isSanitized = true;
+            \Midtrans\Config::$is3ds = true;
+
+            // Get Snap Token
+            $snapToken = \Midtrans\Snap::getSnapToken($params);
+
+            return view('tenants/payment', [
+                'title' => 'Complete Subscription Payment',
+                'pageTitle' => 'Activate Subscription',
+                'pageSubTitle' => 'Complete payment to activate your subscription',
+                'tenant' => $tenant,
+                'snapToken' => $snapToken,
+                'plan' => $tenant['txtSubscriptionPlan'],
+                'amount' => $pricing['amount']
+            ]);
+
+        } catch (\Exception $e) {
+            log_message('error', '[TenantsController::activateSubscription] Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to setup payment. ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Handle successful payment callback
+     */
+    public function paymentSuccess($id)
+    {
+        try {
+            $transactionId = $this->request->getGet('transaction_id');
+            if (!$transactionId) {
+                throw new \Exception('Transaction ID is required');
+            }
+
+            // Verify transaction status with Midtrans
+            \Midtrans\Config::$serverKey = getenv('MIDTRANS_SERVER_KEY');
+            \Midtrans\Config::$isProduction = getenv('MIDTRANS_IS_PRODUCTION') == 'true';
+            
+            $transactionStatus = \Midtrans\Transaction::status($transactionId);
+            $transactionData = json_decode(json_encode($transactionStatus), true);
+            
+            if (($transactionData['transaction_status'] ?? '') === 'settlement' || 
+                ($transactionData['transaction_status'] ?? '') === 'capture') {
+                
+                // Activate tenant subscription
+                $this->tenantModel->activateSubscription($id, $transactionData);
+                
+                return view('tenants/payment_success', [
+                    'title' => 'Payment Successful',
+                    'pageTitle' => 'Payment Successful',
+                    'pageSubTitle' => 'Your subscription has been activated',
+                    'tenantId' => $id,
+                    'transaction' => $transactionData
+                ]);
+            }
+            
+            throw new \Exception('Payment verification failed. Status: ' . ($transactionData['transaction_status'] ?? 'unknown'));
+            
+        } catch (\Exception $e) {
+            log_message('error', '[Payment Verification] Error: ' . $e->getMessage());
+            return redirect()->to('/tenants/payment-failed/' . $id)
+                ->with('error', 'Payment verification failed. Please contact support.');
+        }
+    }
+
+    /**
+     * Handle pending payment status
+     */
+    public function paymentPending($id)
+    {
+        $tenant = $this->tenantModel->find($id);
+        
+        if (!$tenant) {
+            return redirect()->to('/tenants')->with('error', 'Tenant not found');
+        }
+
+        return view('tenants/payment_pending', [
+            'title' => 'Payment Pending',
+            'pageTitle' => 'Payment Pending',
+            'pageSubTitle' => 'Waiting for payment confirmation',
+            'tenant' => $tenant,
+            'transaction_id' => $this->request->getGet('transaction_id')
+        ]);
+    }
+
+    /**
+     * Handle failed payment
+     */
+    public function paymentFailed($id)
+    {
+        $tenant = $this->tenantModel->find($id);
+        
+        if (!$tenant) {
+            return redirect()->to('/tenants')->with('error', 'Tenant not found');
+        }
+
+        return view('tenants/payment_failed', [
+            'title' => 'Payment Failed',
+            'pageTitle' => 'Payment Failed',
+            'pageSubTitle' => 'There was a problem with your payment',
+            'tenant' => $tenant,
+            'error_message' => $this->request->getGet('message')
+        ]);
+    }
+
+    /**
+     * Get subscription pricing details
+     */
+    private function getSubscriptionPricing($plan)
+    {
+        $pricing = [
+            'basic' => [
+                'amount' => 99000,
+                'duration' => 1 // months
+            ],
+            'premium' => [
+                'amount' => 199000,
+                'duration' => 1
+            ],
+            'enterprise' => [
+                'amount' => 499000,
+                'duration' => 1
+            ]
+        ];
+
+        if (!isset($pricing[$plan])) {
+            throw new \Exception('Invalid subscription plan');
+        }
+
+        return $pricing[$plan];
+    }
 }
