@@ -108,20 +108,75 @@ class MenuController extends Controller
 
     public function update($id)
     {
-        $data = [
-            'txtMenuName'  => $this->request->getPost('txtMenuName'),
-            'txtMenuLink'  => $this->request->getPost('txtMenuLink'),
-            'txtIcon'      => $this->request->getPost('txtIcon'),
-            'intParentID'  => $this->request->getPost('intParentID'),
-            'intSortOrder' => $this->request->getPost('intSortOrder'),
-            'txtUpdatedBy' => session()->get('userID'),
-            'bitActive'    => $this->request->getPost('bitActive') ? 1 : 0, // Update bitActive dengan pengecekan
-        ];
+        // Start a transaction
+        $this->menuModel->db->transStart();
 
-        // Update data di database
-        $this->menuModel->update($id, $data);
+        try {
+            // Get current menu data
+            $currentMenu = $this->menuModel->find($id);
+            if (!$currentMenu) {
+                return redirect()->to('/menu')->with('error', 'Menu not found');
+            }
 
-        return redirect()->to('/menu')->with('success', 'Menu updated successfully');
+            // Get posted data
+            $intParentID = $this->request->getPost('intParentID');
+            
+            // Validate parent ID
+            if (!empty($intParentID)) {
+                // Check if parent exists
+                $parentMenu = $this->menuModel->find($intParentID);
+                if (!$parentMenu) {
+                    return redirect()->back()->withInput()
+                        ->with('error', 'Invalid parent menu selected');
+                }
+
+                // Check for circular reference
+                if ($intParentID == $id) {
+                    return redirect()->back()->withInput()
+                        ->with('error', 'A menu cannot be its own parent');
+                }
+
+                // Check if the selected parent is not a child of current menu
+                $children = $this->menuModel->where('intParentID', $id)->findAll();
+                $childIds = array_column($children, 'intMenuID');
+                if (in_array($intParentID, $childIds)) {
+                    return redirect()->back()->withInput()
+                        ->with('error', 'Cannot set a child menu as parent');
+                }
+            }
+
+            // Prepare update data
+            $data = [
+                'txtMenuName'  => $this->request->getPost('txtMenuName'),
+                'txtMenuLink'  => $this->request->getPost('txtMenuLink'),
+                'txtIcon'      => $this->request->getPost('txtIcon'),
+                'intParentID'  => empty($intParentID) ? null : $intParentID,
+                'intSortOrder' => $this->request->getPost('intSortOrder'),
+                'txtUpdatedBy' => session()->get('userID'),
+                'bitActive'    => $this->request->getPost('bitActive') ? 1 : 0,
+                'dtmUpdatedDate' => date('Y-m-d H:i:s')
+            ];
+
+            // Update data
+            if (!$this->menuModel->update($id, $data)) {
+                $errors = $this->menuModel->errors();
+                return redirect()->back()->withInput()
+                    ->with('error', 'Failed to update menu: ' . implode(', ', $errors));
+            }
+
+            // Commit transaction
+            $this->menuModel->db->transCommit();
+
+            return redirect()->to('/menu')->with('success', 'Menu updated successfully');
+
+        } catch (\Exception $e) {
+            // Rollback transaction on error
+            $this->menuModel->db->transRollback();
+            
+            log_message('error', '[MenuController::update] Error updating menu: ' . $e->getMessage());
+            return redirect()->back()->withInput()
+                ->with('error', 'An error occurred while updating the menu. Please try again.');
+        }
     }
 
     public function view($id)

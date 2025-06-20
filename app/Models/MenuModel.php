@@ -7,7 +7,11 @@ use CodeIgniter\Model;
 class MenuModel extends Model
 {
     protected $table = 'm_menu';
-    protected $primaryKey = 'intMenuID';    protected $allowedFields = [
+    protected $primaryKey = 'intMenuID';
+    protected $returnType = 'array';
+    protected $useSoftDeletes = false;
+
+    protected $allowedFields = [
         'txtMenuName',
         'txtMenuLink',
         'intParentID',
@@ -15,9 +19,83 @@ class MenuModel extends Model
         'txtIcon',
         'bitActive',
         'txtDesc',
-        'txtGUID'
+        'txtGUID',
+        'txtCreatedBy',
+        'dtmCreatedDate',
+        'txtUpdatedBy',
+        'dtmUpdatedDate'
     ];
-    
+
+    protected $validationRules = [
+        'txtMenuName' => 'required|min_length[3]|max_length[100]',
+        'txtIcon' => 'required',
+        'intSortOrder' => 'permit_empty|integer',
+        'intParentID' => 'permit_empty|integer'
+    ];
+
+    protected $validationMessages = [
+        'txtMenuName' => [
+            'required' => 'Menu name is required',
+            'min_length' => 'Menu name must be at least 3 characters long',
+            'max_length' => 'Menu name cannot exceed 100 characters'
+        ],
+        'txtIcon' => [
+            'required' => 'Menu icon is required'
+        ],
+        'intSortOrder' => [
+            'integer' => 'Sort order must be a valid number'
+        ],
+        'intParentID' => [
+            'integer' => 'Parent ID must be a valid number'
+        ]
+    ];
+
+    protected $skipValidation = false;
+    protected $cleanValidationRules = true;
+
+    // Before update callback to validate parent ID
+    protected $beforeUpdate = ['validateParentID'];
+
+    protected function validateParentID(array $data)
+    {
+        // If no parent ID is being set, return data as is
+        if (!isset($data['data']['intParentID'])) {
+            return $data;
+        }
+
+        $parentID = $data['data']['intParentID'];
+        $currentID = $data['id'];
+
+        // If parent ID is null or 0, it's valid
+        if (empty($parentID)) {
+            $data['data']['intParentID'] = null;
+            return $data;
+        }
+
+        // Check if parent exists
+        $parent = $this->find($parentID);
+        if (!$parent) {
+            $this->validation->setError('intParentID', 'Selected parent menu does not exist');
+            return false;
+        }
+
+        // Check for circular reference
+        if ($parentID == $currentID) {
+            $this->validation->setError('intParentID', 'A menu cannot be its own parent');
+            return false;
+        }
+
+        // Check if selected parent is not a child of current menu
+        $children = $this->where('intParentID', $currentID)->findAll();
+        $childIds = array_column($children, 'intMenuID');
+        if (in_array($parentID, $childIds)) {
+            $this->validation->setError('intParentID', 'Cannot set a child menu as parent');
+            return false;
+        }
+
+        return $data;
+    }
+
     // Fungsi untuk mengambil menu berdasarkan Role ID    
     public function getMenusByRole($intRoleID)
     {
