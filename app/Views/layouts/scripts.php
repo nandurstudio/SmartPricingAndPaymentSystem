@@ -10,8 +10,8 @@ if (typeof jQuery === 'undefined') {
 }
 </script>
 
-<!-- Font Awesome -->
-<script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+<!-- Bootstrap Icons -->
+<link rel="stylesheet" href="<?= base_url('assets/css/bootstrap/bootstrap-icons/font/bootstrap-icons.css') ?>">
 
 <!-- Bootstrap Bundle -->
 <script src="<?= base_url('assets/js/bootstrap/bootstrap.bundle.min.js'); ?>"></script>
@@ -35,17 +35,11 @@ if (typeof jQuery === 'undefined') {
 <script src="<?= base_url('assets/js/pdfmake/vfs_fonts.js'); ?>"></script>
 
 <!-- Other Utilities -->
-<script src="<?= base_url('assets/js/feather-icons/feather.min.js'); ?>"></script>
 <script src="<?= base_url('assets/js/chartjs/Chart.min.js'); ?>"></script>
 <script src="<?= base_url('assets/js/litepicker/bundle.js'); ?>"></script>
 
 <!-- Custom Scripts -->
 <script src="<?= base_url('assets/js/scripts.js'); ?>"></script>
-
-<!-- Initialize Feather Icons -->
-<script>
-    feather.replace();
-</script>
 
 <!-- Additional Scripts from Controller -->
 <?php if (!empty($scripts)) : ?>

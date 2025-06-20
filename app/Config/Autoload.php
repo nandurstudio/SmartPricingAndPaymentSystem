@@ -38,10 +38,8 @@ class Autoload extends AutoloadConfig
      * else you will need to modify all of those classes for this to work.
      *
      * @var array<string, list<string>|string>
-     */
-    public $psr4 = [
+     */    public $psr4 = [
         APP_NAMESPACE => APPPATH,
-        'App\Database' => APPPATH . 'Database',
     ];
 
     /**

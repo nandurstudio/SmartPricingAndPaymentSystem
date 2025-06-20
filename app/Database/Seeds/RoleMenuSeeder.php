@@ -28,7 +28,8 @@ class RoleMenuSeeder extends Seeder
                 '/tenants', '/tenant-services', '/services', '/schedules',
                 '/service-attributes', '/bookings', '/booking-calendar',
                 '/reports/bookings', '/reports/revenue', '/reports/usage',
-                '/settings/system', '/settings/profile'
+                '/settings/system', '/settings/profile', '/menu',
+                '/role-menu-access'
             ]],
             
             // Administrator - Limited Access

@@ -33,14 +33,14 @@ $isEdit = isset($menu);
 
     <div class="col-md-6">
         <div class="form-group">
-            <label for="txtIcon" class="form-label">Icon</label>
+            <label for="txtIcon" class="form-label">Icon (Bootstrap Icons)</label>
             <div class="input-group">
-                <span class="input-group-text"><i id="iconPreview" class="fas fa-icons"></i></span>
+                <span class="input-group-text"><i id="iconPreview" class="bi bi-file"></i></span>
                 <input type="text" class="form-control <?php if (session('errors.txtIcon')) : ?>is-invalid<?php endif ?>"
-                    id="txtIcon" name="txtIcon" placeholder="e.g. fas fa-home"
+                    id="txtIcon" name="txtIcon" placeholder="e.g. file-text or folder"
                     value="<?= old('txtIcon') ?? ($isEdit ? $menu['txtIcon'] : '') ?>">
                 <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#iconPickerModal">
-                    <i class="fas fa-search"></i> Browse
+                    <i class="bi bi-search"></i>
                 </button>
             </div>
             <?php if (session('errors.txtIcon')) : ?>
@@ -48,6 +48,9 @@ $isEdit = isset($menu);
                     <?= session('errors.txtIcon') ?>
                 </div>
             <?php endif ?>
+            <small class="form-text text-muted">
+                Enter the Bootstrap Icon name without 'bi-' prefix (e.g. 'file-text' or 'folder')
+            </small>
         </div>
     </div>
 
@@ -58,8 +61,7 @@ $isEdit = isset($menu);
                 id="intParentID" name="intParentID">
                 <option value="">None (Top Level)</option>
                 <?php foreach ($parentMenus as $parent) : ?>
-                    <option value="<?= $parent['intMenuID'] ?>"
-                        <?= (old('intParentID') ?? ($isEdit ? $menu['intParentID'] : '')) == $parent['intMenuID'] ? 'selected' : '' ?>>
+                    <option value="<?= $parent['intMenuID'] ?>" <?= (old('intParentID') ?? ($isEdit ? $menu['intParentID'] : '')) == $parent['intMenuID'] ? 'selected' : '' ?>>
                         <?= esc($parent['txtMenuName']) ?>
                     </option>
                 <?php endforeach; ?>
@@ -110,7 +112,7 @@ $isEdit = isset($menu);
                     <input type="text" class="form-control" id="iconSearch" placeholder="Search icons...">
                 </div>
                 <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-3" id="iconGrid">
-                    <!-- Icons will be loaded here via JavaScript -->
+                    <!-- Icons will be loaded here by JavaScript -->
                 </div>
             </div>
         </div>
@@ -128,8 +130,8 @@ document.addEventListener('DOMContentLoaded', function() {
         updateIconPreview(this.value);
     });
     
-    function updateIconPreview(iconClass) {
-        iconPreview.className = iconClass || 'fas fa-icons';
+    function updateIconPreview(iconName) {
+        iconPreview.className = `bi bi-${iconName || 'file'}`;
     }
     
     // Initialize icon preview
@@ -139,42 +141,43 @@ document.addEventListener('DOMContentLoaded', function() {
     const iconSearch = document.getElementById('iconSearch');
     const iconGrid = document.getElementById('iconGrid');
     
-    // FontAwesome icon list (you can extend this)
+    // Bootstrap Icons list (commonly used icons)
     const icons = [
-        'fas fa-home', 'fas fa-user', 'fas fa-cog', 'fas fa-users',
-        'fas fa-chart-bar', 'fas fa-calendar', 'fas fa-envelope',
-        'fas fa-bell', 'fas fa-file', 'fas fa-folder', 'fas fa-search',
-        'fas fa-star', 'fas fa-heart', 'fas fa-bookmark', 'fas fa-edit',
-        'fas fa-trash', 'fas fa-download', 'fas fa-upload', 'fas fa-link',
-        'fas fa-image', 'fas fa-video', 'fas fa-music', 'fas fa-comments',
-        'fas fa-tasks', 'fas fa-list', 'fas fa-check', 'fas fa-times',
-        'fas fa-plus', 'fas fa-minus', 'fas fa-info-circle', 'fas fa-question-circle'
+        'file-text', 'folder', 'house', 'person', 'gear', 'people',
+        'bar-chart', 'calendar', 'envelope', 'bell', 'search',
+        'star', 'heart', 'bookmark', 'pencil', 'trash', 'download',
+        'upload', 'link', 'image', 'camera', 'music', 'chat',
+        'list-check', 'list', 'check-circle', 'x-circle',
+        'plus-circle', 'dash-circle', 'info-circle', 'question-circle',
+        'grid', 'table', 'key', 'lock', 'unlock', 'shield',
+        'cart', 'bag', 'credit-card', 'cash', 'wallet', 'tag',
+        'tags', 'flag', 'bookmark-star', 'award', 'lightning',
+        'box', 'archive', 'folder-plus', 'folder-minus', 'file-plus',
+        'file-minus', 'file-excel', 'file-pdf', 'file-word',
+        'file-zip', 'clock', 'calendar-date', 'printer', 'eye',
+        'eye-slash', 'globe', 'map', 'pin-map', 'compass', 'graph-up',
+        'arrow-left', 'arrow-right', 'arrow-up', 'arrow-down',
+        'chevron-left', 'chevron-right', 'chevron-up', 'chevron-down'
     ];
     
     function renderIcons(filter = '') {
         iconGrid.innerHTML = '';
         icons.filter(icon => icon.includes(filter.toLowerCase()))
-            .forEach(icon => {
+             .forEach(icon => {
                 const div = document.createElement('div');
-                div.className = 'col text-center';
+                div.className = 'col text-center icon-item';
                 div.innerHTML = `
-                    <div class="p-3 border rounded icon-item" role="button" data-icon="${icon}">
-                        <i class="${icon} fa-2x mb-2"></i>
-                        <div class="small text-muted">${icon}</div>
-                    </div>
-                `;
+                    <div class="p-2 border rounded icon-preview" style="cursor: pointer">
+                        <i class="bi bi-${icon} fs-3"></i><br>
+                        <small class="text-muted">${icon}</small>
+                    </div>`;
+                div.onclick = () => {
+                    iconInput.value = icon;
+                    updateIconPreview(icon);
+                    bootstrap.Modal.getInstance(document.getElementById('iconPickerModal')).hide();
+                };
                 iconGrid.appendChild(div);
-            });
-        
-        // Add click handlers
-        document.querySelectorAll('.icon-item').forEach(item => {
-            item.addEventListener('click', function() {
-                const icon = this.dataset.icon;
-                iconInput.value = icon;
-                updateIconPreview(icon);
-                bootstrap.Modal.getInstance(document.getElementById('iconPickerModal')).hide();
-            });
-        });
+             });
     }
     
     // Initial render

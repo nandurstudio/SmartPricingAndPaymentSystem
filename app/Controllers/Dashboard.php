@@ -3,6 +3,8 @@
 namespace App\Controllers;
 
 use App\Models\MenuModel;
+use App\Models\MTenantModel;
+use App\Models\MUserModel;
 
 class Dashboard extends BaseController
 {
@@ -18,7 +20,19 @@ class Dashboard extends BaseController
         $menuModel = new MenuModel();
         $menus = $menuModel->getMenuByRole($roleID);
 
-        // Tampilkan halaman Home dengan menu
-        return view('/', ['menus' => $menus]);
+        // Ambil jumlah tenant
+        $tenantModel = new MTenantModel();
+        $tenantCount = $tenantModel->countAll();
+
+        // Ambil jumlah user
+        $userModel = new MUserModel();
+        $userCount = $userModel->countAll();
+
+        // Tampilkan halaman Home dengan menu dan statistik
+        return view('dashboard', [
+            'menus' => $menus,
+            'tenantCount' => $tenantCount,
+            'userCount' => $userCount
+        ]);
     }
 }

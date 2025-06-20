@@ -10,19 +10,19 @@ class MenuSeeder extends Seeder
     {
         // Disable foreign key checks to avoid issues with parent-child relationships
         $this->db->query('SET FOREIGN_KEY_CHECKS=0');
-        
+
         // Clear existing menu data to avoid duplicates
         $this->db->table('m_menu')->emptyTable();
-        
+
         $currentTime = date('Y-m-d H:i:s');
-        
+
         // Insert parent menus first
         $parentMenus = [
             [
                 'intMenuID' => 1,
                 'txtMenuName' => 'Dashboard',
                 'txtMenuLink' => '/dashboard',
-                'txtIcon' => 'activity',
+                'txtIcon' => 'house',
                 'intParentID' => null,
                 'intSortOrder' => 1,
                 'bitActive' => 1,
@@ -50,7 +50,7 @@ class MenuSeeder extends Seeder
                 'intMenuID' => 3,
                 'txtMenuName' => 'Tenant Management',
                 'txtMenuLink' => null,
-                'txtIcon' => 'briefcase',
+                'txtIcon' => 'building',
                 'intParentID' => null,
                 'intSortOrder' => 3,
                 'bitActive' => 1,
@@ -64,7 +64,7 @@ class MenuSeeder extends Seeder
                 'intMenuID' => 4,
                 'txtMenuName' => 'Service Management',
                 'txtMenuLink' => null,
-                'txtIcon' => 'package',
+                'txtIcon' => 'box-seam',
                 'intParentID' => null,
                 'intSortOrder' => 4,
                 'bitActive' => 1,
@@ -78,7 +78,7 @@ class MenuSeeder extends Seeder
                 'intMenuID' => 5,
                 'txtMenuName' => 'Booking Management',
                 'txtMenuLink' => null,
-                'txtIcon' => 'calendar',
+                'txtIcon' => 'calendar-event',
                 'intParentID' => null,
                 'intSortOrder' => 5,
                 'bitActive' => 1,
@@ -92,7 +92,7 @@ class MenuSeeder extends Seeder
                 'intMenuID' => 6,
                 'txtMenuName' => 'Reports',
                 'txtMenuLink' => null,
-                'txtIcon' => 'bar-chart-2',
+                'txtIcon' => 'bar-chart',
                 'intParentID' => null,
                 'intSortOrder' => 6,
                 'bitActive' => 1,
@@ -106,7 +106,7 @@ class MenuSeeder extends Seeder
                 'intMenuID' => 7,
                 'txtMenuName' => 'Settings',
                 'txtMenuLink' => null,
-                'txtIcon' => 'settings',
+                'txtIcon' => 'gear',
                 'intParentID' => null,
                 'intSortOrder' => 7,
                 'bitActive' => 1,
@@ -127,7 +127,7 @@ class MenuSeeder extends Seeder
                 'intMenuID' => 8,
                 'txtMenuName' => 'Users',
                 'txtMenuLink' => '/users',
-                'txtIcon' => 'users',
+                'txtIcon' => 'people',
                 'intParentID' => 2,
                 'intSortOrder' => 1,
                 'bitActive' => 1,
@@ -141,7 +141,7 @@ class MenuSeeder extends Seeder
                 'intMenuID' => 9,
                 'txtMenuName' => 'Roles',
                 'txtMenuLink' => '/roles',
-                'txtIcon' => 'shield',
+                'txtIcon' => 'shield-lock',
                 'intParentID' => 2,
                 'intSortOrder' => 2,
                 'bitActive' => 1,
@@ -165,13 +165,13 @@ class MenuSeeder extends Seeder
                 'txtUpdatedBy' => 'system',
                 'dtmUpdatedDate' => $currentTime
             ],
-            
+
             // Tenant Management children
             [
                 'intMenuID' => 11,
                 'txtMenuName' => 'All Tenants',
                 'txtMenuLink' => '/tenants',
-                'txtIcon' => 'grid',
+                'txtIcon' => 'grid-3x3-gap',
                 'intParentID' => 3,
                 'intSortOrder' => 1,
                 'bitActive' => 1,
@@ -185,7 +185,7 @@ class MenuSeeder extends Seeder
                 'intMenuID' => 12,
                 'txtMenuName' => 'Tenant Requests',
                 'txtMenuLink' => '/tenants/requests',
-                'txtIcon' => 'user-plus',
+                'txtIcon' => 'person-plus',
                 'intParentID' => 3,
                 'intSortOrder' => 2,
                 'bitActive' => 1,
@@ -195,13 +195,13 @@ class MenuSeeder extends Seeder
                 'txtUpdatedBy' => 'system',
                 'dtmUpdatedDate' => $currentTime
             ],
-            
+
             // Service Management children
             [
                 'intMenuID' => 13,
-                'txtMenuName' => 'Services',
+                'txtMenuName' => 'All Services',
                 'txtMenuLink' => '/services',
-                'txtIcon' => 'list',
+                'txtIcon' => 'collection',
                 'intParentID' => 4,
                 'intSortOrder' => 1,
                 'bitActive' => 1,
@@ -213,9 +213,9 @@ class MenuSeeder extends Seeder
             ],
             [
                 'intMenuID' => 14,
-                'txtMenuName' => 'Schedules',
+                'txtMenuName' => 'Service Schedules',
                 'txtMenuLink' => '/schedules',
-                'txtIcon' => 'clock',
+                'txtIcon' => 'calendar-week',
                 'intParentID' => 4,
                 'intSortOrder' => 2,
                 'bitActive' => 1,
@@ -229,7 +229,7 @@ class MenuSeeder extends Seeder
                 'intMenuID' => 15,
                 'txtMenuName' => 'Service Attributes',
                 'txtMenuLink' => '/service-attributes',
-                'txtIcon' => 'sliders',
+                'txtIcon' => 'card-checklist',
                 'intParentID' => 4,
                 'intSortOrder' => 3,
                 'bitActive' => 1,
@@ -239,13 +239,13 @@ class MenuSeeder extends Seeder
                 'txtUpdatedBy' => 'system',
                 'dtmUpdatedDate' => $currentTime
             ],
-            
+
             // Booking Management children
             [
                 'intMenuID' => 16,
                 'txtMenuName' => 'All Bookings',
                 'txtMenuLink' => '/bookings',
-                'txtIcon' => 'list',
+                'txtIcon' => 'list-ul',
                 'intParentID' => 5,
                 'intSortOrder' => 1,
                 'bitActive' => 1,
@@ -259,7 +259,7 @@ class MenuSeeder extends Seeder
                 'intMenuID' => 17,
                 'txtMenuName' => 'Calendar View',
                 'txtMenuLink' => '/booking-calendar',
-                'txtIcon' => 'calendar',
+                'txtIcon' => 'calendar-week',
                 'intParentID' => 5,
                 'intSortOrder' => 2,
                 'bitActive' => 1,
@@ -273,7 +273,7 @@ class MenuSeeder extends Seeder
                 'intMenuID' => 18,
                 'txtMenuName' => 'Payments',
                 'txtMenuLink' => '/payments',
-                'txtIcon' => 'credit-card',
+                'txtIcon' => 'credit-card-2-front',
                 'intParentID' => 5,
                 'intSortOrder' => 3,
                 'bitActive' => 1,
@@ -283,13 +283,13 @@ class MenuSeeder extends Seeder
                 'txtUpdatedBy' => 'system',
                 'dtmUpdatedDate' => $currentTime
             ],
-            
+
             // Reports children
             [
                 'intMenuID' => 19,
                 'txtMenuName' => 'Booking Reports',
                 'txtMenuLink' => '/reports/bookings',
-                'txtIcon' => 'file-text',
+                'txtIcon' => 'journal-text',
                 'intParentID' => 6,
                 'intSortOrder' => 1,
                 'bitActive' => 1,
@@ -303,7 +303,7 @@ class MenuSeeder extends Seeder
                 'intMenuID' => 20,
                 'txtMenuName' => 'Revenue Reports',
                 'txtMenuLink' => '/reports/revenue',
-                'txtIcon' => 'dollar-sign',
+                'txtIcon' => 'cash',
                 'intParentID' => 6,
                 'intSortOrder' => 2,
                 'bitActive' => 1,
@@ -315,9 +315,9 @@ class MenuSeeder extends Seeder
             ],
             [
                 'intMenuID' => 21,
-                'txtMenuName' => 'Service Usage',
+                'txtMenuName' => 'Usage Reports',
                 'txtMenuLink' => '/reports/usage',
-                'txtIcon' => 'bar-chart',
+                'txtIcon' => 'graph-up',
                 'intParentID' => 6,
                 'intSortOrder' => 3,
                 'bitActive' => 1,
@@ -327,13 +327,13 @@ class MenuSeeder extends Seeder
                 'txtUpdatedBy' => 'system',
                 'dtmUpdatedDate' => $currentTime
             ],
-            
+
             // Settings children
             [
                 'intMenuID' => 22,
                 'txtMenuName' => 'System Settings',
                 'txtMenuLink' => '/settings/system',
-                'txtIcon' => 'settings',
+                'txtIcon' => 'sliders2',
                 'intParentID' => 7,
                 'intSortOrder' => 1,
                 'bitActive' => 1,
@@ -347,9 +347,37 @@ class MenuSeeder extends Seeder
                 'intMenuID' => 23,
                 'txtMenuName' => 'Profile Settings',
                 'txtMenuLink' => '/settings/profile',
-                'txtIcon' => 'user',
+                'txtIcon' => 'person-gear',
                 'intParentID' => 7,
                 'intSortOrder' => 2,
+                'bitActive' => 1,
+                'txtGUID' => $this->db->query('SELECT UUID() as guid')->getRow()->guid,
+                'txtCreatedBy' => 'system',
+                'dtmCreatedDate' => $currentTime,
+                'txtUpdatedBy' => 'system',
+                'dtmUpdatedDate' => $currentTime
+            ],
+            [
+                'intMenuID' => 24,
+                'txtMenuName' => 'Menu Management',
+                'txtMenuLink' => '/menu',
+                'txtIcon' => 'list-check',
+                'intParentID' => 7,
+                'intSortOrder' => 3,
+                'bitActive' => 1,
+                'txtGUID' => $this->db->query('SELECT UUID() as guid')->getRow()->guid,
+                'txtCreatedBy' => 'system',
+                'dtmCreatedDate' => $currentTime,
+                'txtUpdatedBy' => 'system',
+                'dtmUpdatedDate' => $currentTime
+            ],
+            [
+                'intMenuID' => 25,
+                'txtMenuName' => 'Role Menu Access',
+                'txtMenuLink' => '/role-menu-access',
+                'txtIcon' => 'shield-check',
+                'intParentID' => 7,
+                'intSortOrder' => 4,
                 'bitActive' => 1,
                 'txtGUID' => $this->db->query('SELECT UUID() as guid')->getRow()->guid,
                 'txtCreatedBy' => 'system',
@@ -360,7 +388,7 @@ class MenuSeeder extends Seeder
         ];
 
         $this->db->table('m_menu')->insertBatch($childMenus);
-        
+
         // Re-enable foreign key checks
         $this->db->query('SET FOREIGN_KEY_CHECKS=1');
     }

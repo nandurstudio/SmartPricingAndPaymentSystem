@@ -66,11 +66,21 @@
             </div>
         </div>
     </div>
+    <div class="row mb-4">
+        <div class="col-xl-6 col-md-12 mb-4">
+            <div class="card border-0 shadow h-100 py-2">
+                <div class="card-body">
+                    <h5 class="mb-3">Statistik Platform</h5>
+                    <canvas id="statChart" height="120"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+<script src="<?= base_url('assets/vendor/chartjs/chart.min.js') ?>"></script>
 <script>
 // Sample chart data - replace with real data
 Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
@@ -145,6 +155,59 @@ var myLineChart = new Chart(ctx, {
             }],
         },
         legend: { display: false }
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    var canvas = document.getElementById('statChart');
+    var debugDiv = document.getElementById('canvas-debug');
+    if (!canvas) {
+        if (debugDiv) debugDiv.innerHTML = 'Canvas statChart TIDAK ditemukan di DOM!';
+        console.error('Canvas statChart TIDAK ditemukan di DOM!');
+        return;
+    } else {
+        if (debugDiv) debugDiv.innerHTML = 'Canvas statChart ditemukan. Inisialisasi chart...';
+    }
+    try {
+        var statChart = new Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: ['Tenants', 'Users'],
+                datasets: [{
+                    label: 'Total',
+                    data: [<?= isset($tenantCount) ? $tenantCount : 0 ?>, <?= isset($userCount) ? $userCount : 0 ?>],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(75, 192, 192, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(75, 192, 192, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                legend: { display: false },
+                title: {
+                    display: true,
+                    text: 'Platform Statistics'
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            precision: 0
+                        }
+                    }]
+                }
+            }
+        });
+        if (debugDiv) debugDiv.innerHTML += '<br>Chart berhasil diinisialisasi.';
+    } catch (e) {
+        if (debugDiv) debugDiv.innerHTML += '<br>Error saat inisialisasi chart: ' + e.message;
+        console.error(e);
     }
 });
 </script>

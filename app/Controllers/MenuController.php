@@ -51,7 +51,6 @@ class MenuController extends Controller
                 'txtIcon' => '',
                 'intParentID' => null,
                 'intSortOrder' => null,
-                'txtDesc' => '',
                 'bitActive' => true
             ],
             'parentMenus' => $parentMenus,
@@ -70,9 +69,8 @@ class MenuController extends Controller
             'txtMenuLink'    => $this->request->getPost('txtMenuLink'),
             'intParentID'    => $this->request->getPost('intParentID'),
             'intSortOrder'   => $this->request->getPost('intSortOrder'),
-            'txtIcon'        => $this->request->getPost('txtIcon'),   // Field Icon
-            'txtDesc'        => $this->request->getPost('txtDesc'),   // Field Deskripsi
-            'bitActive'      => $this->request->getPost('bitActive') ? 1 : 0, // Update bitActive dengan pengecekan
+            'txtIcon'        => $this->request->getPost('txtIcon'),
+            'bitActive'      => $this->request->getPost('bitActive') ? 1 : 0,
             'txtInsertedBy'  => $session->get('userID'),
             'txtGUID'        => uniqid()
         ];
@@ -89,7 +87,6 @@ class MenuController extends Controller
         }
 
         // Set default values for nullable fields
-        $menu['txtDesc'] = $menu['txtDesc'] ?? '';
         $menu['bitActive'] = $menu['bitActive'] ?? 1;
 
         // Get parent menus for the dropdown, excluding the current menu
@@ -117,7 +114,6 @@ class MenuController extends Controller
             'txtIcon'      => $this->request->getPost('txtIcon'),
             'intParentID'  => $this->request->getPost('intParentID'),
             'intSortOrder' => $this->request->getPost('intSortOrder'),
-            'txtDesc'      => $this->request->getPost('txtDesc'),
             'txtUpdatedBy' => session()->get('userID'),
             'bitActive'    => $this->request->getPost('bitActive') ? 1 : 0, // Update bitActive dengan pengecekan
         ];

@@ -58,18 +58,43 @@
                         <table id="datatablesSimple" class="table table-hover align-middle mb-0">
                             <thead class="bg-light">
                                 <tr>
+                                    <th class="border-0 text-center">Actions</th>
                                     <th class="border-0">Tenant</th>
                                     <th class="border-0">Type</th>
                                     <th class="border-0">Status</th>
                                     <th class="border-0">Subscription</th>
                                     <th class="border-0">Owner</th>
                                     <th class="border-0">Created</th>
-                                    <th class="border-0 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($tenants as $tenant) : ?>
                                     <tr>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                <a href="<?= base_url('tenants/view/' . $tenant['intTenantID']) ?>" 
+                                                   class="btn btn-light btn-sm" 
+                                                   data-bs-toggle="tooltip" 
+                                                   title="View Details">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="<?= base_url('tenants/edit/' . $tenant['intTenantID']) ?>" 
+                                                   class="btn btn-light btn-sm"
+                                                   data-bs-toggle="tooltip" 
+                                                   title="Edit Tenant">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <?php if ($tenant['txtDomain']): ?>
+                                                <a href="<?= generate_tenant_url($tenant['txtDomain']) ?>" 
+                                                   target="_blank"
+                                                   class="btn btn-light btn-sm"
+                                                   data-bs-toggle="tooltip" 
+                                                   title="Visit Website">
+                                                    <i class="fas fa-external-link-alt"></i>
+                                                </a>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <?php if (!empty($tenant['txtLogo'])): ?>
@@ -150,31 +175,6 @@
                                                 <small class="text-muted">
                                                     <?= date('h:i A', strtotime($tenant['dtmCreatedDate'])) ?>
                                                 </small>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="btn-group">
-                                                <a href="<?= base_url('tenants/view/' . $tenant['intTenantID']) ?>" 
-                                                   class="btn btn-light btn-sm" 
-                                                   data-bs-toggle="tooltip" 
-                                                   title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="<?= base_url('tenants/edit/' . $tenant['intTenantID']) ?>" 
-                                                   class="btn btn-light btn-sm"
-                                                   data-bs-toggle="tooltip" 
-                                                   title="Edit Tenant">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <?php if ($tenant['txtDomain']): ?>
-                                                <a href="<?= generate_tenant_url($tenant['txtDomain']) ?>" 
-                                                   target="_blank"
-                                                   class="btn btn-light btn-sm"
-                                                   data-bs-toggle="tooltip" 
-                                                   title="Visit Website">
-                                                    <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                                <?php endif; ?>
                                             </div>
                                         </td>
                                     </tr>

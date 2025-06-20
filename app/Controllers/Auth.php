@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\MTenantModel;
 use App\Models\MUserModel;
 use CodeIgniter\I18n\Time;
 use Google_Client;
@@ -157,7 +158,7 @@ class Auth extends BaseController
                     'intTenantID' => $user['intTenantID'] ?? null
                 ]);                // Cek apakah user perlu setup tenant
                 if (!$user['intTenantID'] && !$existingUser) {
-                    return redirect()->to('/onboarding/setup-tenant');
+                    return redirect()->to('/tenants/create');
                 }
 
                 // Redirect ke dashboard jika sudah punya tenant
@@ -285,13 +286,21 @@ class Auth extends BaseController
         $menuModel = new \App\Models\MenuModel();
         $menus = $menuModel->getMenusByRole($roleID);
 
+        // Ambil statistik tenant dan user
+        $tenantModel = new MTenantModel();
+        $tenantCount = $tenantModel->countAll();
+        $userModel = new MUserModel();
+        $userCount = $userModel->countAll();
+
         // Tampilkan halaman landing setelah login
         return view('dashboard-2', [
             'title' => 'Dashboard',
             'pageTitle' => 'Dashboard',
             'pageSubTitle' => 'Overview and statistics',
             'icon' => 'activity',
-            'menus' => $menus // Added menus for sidenav
+            'menus' => $menus,
+            'tenantCount' => $tenantCount,
+            'userCount' => $userCount
         ]);
     }
 

@@ -7,26 +7,12 @@ use CodeIgniter\Model;
 class RoleMenuAccessModel extends Model
 {
     protected $table = 'm_role_menu';
-    protected $primaryKey = 'intRoleMenuAccessID';
-    protected $allowedFields = [
+    protected $primaryKey = 'intRoleMenuAccessID';    protected $allowedFields = [
         'intRoleID',
         'intMenuID',
-        'bitCanView',
-        'bitCanAdd',
-        'bitCanEdit',
-        'bitCanDelete',
-        'txtInsertedBy',
-        'dtmInsertedDate',
-        'txtUpdatedBy',
-        'dtmUpdatedDate',
-        'txtGUID',
         'bitActive'
-    ];
-
-    protected $returnType = 'array';
-    protected $useTimestamps = true;
-    protected $createdField = 'dtmInsertedDate';
-    protected $updatedField = 'dtmUpdatedDate';
+    ];    protected $returnType = 'array';
+    protected $useTimestamps = false;
 
     public function getRoleMenuAccess($id = null)
     {

@@ -24,5 +24,6 @@
     </div>
     
     <?= $this->include('layouts/scripts') ?>
+    <?= $this->renderSection('scripts') ?>
 </body>
 </html>

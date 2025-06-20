@@ -22,11 +22,10 @@
                 </div>
             <?php endif ?>
 
-            <form action="<?= base_url('menu/create') ?>" method="post">
+            <form action="<?= base_url('menu/store') ?>" method="post">
                 <?= csrf_field() ?>
-
                 <?= $this->include('menu/_form') ?>
-
+                
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save me-1"></i> Save Menu
@@ -40,40 +39,3 @@
     </div>
 </div>
 <?= $this->endSection() ?>
-        </div>
-
-        <div class="mb-3">
-            <label for="txtMenuLink" class="form-label">Menu Link</label>
-            <input type="text" name="txtMenuLink" class="form-control" id="txtMenuLink">
-        </div>
-
-        <div class="mb-3">
-            <label for="txtIcon" class="form-label">Icon</label>
-            <input type="text" name="txtIcon" class="form-control" id="txtIcon">
-        </div>
-
-        <div class="mb-3">
-            <label for="intParentID" class="form-label">Parent ID</label>
-            <input type="number" name="intParentID" class="form-control" id="intParentID">
-        </div>
-
-        <div class="mb-3">
-            <label for="intSortOrder" class="form-label">Sort Order</label>
-            <input type="number" name="intSortOrder" class="form-control" id="intSortOrder" value="0">
-        </div>
-
-        <div class="mb-3">
-            <label for="txtDesc" class="form-label">Description</label>
-            <textarea name="txtDesc" class="form-control" id="txtDesc"></textarea>
-        </div>
-        <div class="form-check mb-3">
-            <input type="checkbox" name="bitActive" id="bitActive" class="form-check-input" checked>
-            <label class="form-check-label" for="bitActive">Active</label>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Create Menu</button>
-        <a href="<?= base_url('/menu') ?>" class="btn btn-secondary">Cancel</a>
-    </form>
-</div>
-
-<?= $this->endSection(); ?>

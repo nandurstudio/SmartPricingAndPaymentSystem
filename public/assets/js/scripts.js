@@ -9,10 +9,6 @@ window.addEventListener('DOMContentLoaded', event => {
         console.error('jQuery is not loaded! Some features may not work.');
         return;
     }
-    
-    if (typeof feather !== 'undefined') {
-        feather.replace();
-    }
 
     // Enable tooltips globally
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

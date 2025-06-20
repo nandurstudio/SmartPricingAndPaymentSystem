@@ -4,8 +4,8 @@ $(document).ready(function () {
         var status = $(data);
         var isActive = status.find('i').hasClass('text-success');
         return `<div class="status-badge ${isActive ? 'active' : 'inactive'}">
-                    <i data-feather="${isActive ? 'check-circle' : 'x-circle'}" 
-                       class="feather-icon"></i>
+                    <i class="bi ${isActive ? 'bi-check-circle-fill' : 'bi-x-circle-fill'} 
+                       ${isActive ? 'text-success' : 'text-danger'}"></i>
                     ${isActive ? 'Aktif' : 'Tidak Aktif'}
                 </div>`;
     }
@@ -77,8 +77,8 @@ $(document).ready(function () {
                 render: function (data) {
                     const status = parseInt(data) === 1;
                     return `<span class="status-badge">
-                        <i data-feather="${status ? 'check-circle' : 'x-circle'}" 
-                           class="feather-icon ${status ? 'text-success' : 'text-danger'}"></i>
+                        <i class="bi ${status ? 'bi-check-circle-fill' : 'bi-x-circle-fill'} 
+                           ${status ? 'text-success' : 'text-danger'}"></i>
                         ${status ? 'Active' : 'Inactive'}
                     </span>`;
                 },
@@ -174,10 +174,10 @@ $(document).ready(function () {
                     const cleanBaseUrl = baseUrl.replace(/\/+$/, '');
                     return `<div class="btn-group" role="group">
                         <a href="${cleanBaseUrl}/roles/view/${data}" class="btn btn-info btn-sm" title="View">
-                            <i data-feather="eye"></i>
+                            <i class="bi bi-eye-fill"></i>
                         </a>
                         <a href="${cleanBaseUrl}/roles/edit/${data}" class="btn btn-warning btn-sm" title="Edit">
-                            <i data-feather="edit"></i>
+                            <i class="bi bi-pencil-fill"></i>
                         </a>
                     </div>`;
                 }
@@ -202,25 +202,7 @@ $(document).ready(function () {
             }
         },
         drawCallback: function () {
-            if (typeof feather !== 'undefined') {
-                // Reinitialize feather icons
-                feather.replace({
-                    'stroke-width': 2,
-                    'width': 16,
-                    'height': 16,
-                    'class': 'feather-icon'
-                });
-
-                // Force redraw icons in mobile
-                setTimeout(function () {
-                    feather.replace({
-                        'stroke-width': 2,
-                        'width': 16,
-                        'height': 16,
-                        'class': 'feather-icon'
-                    });
-                }, 100);
-            }
+            // No need for icon initialization since Bootstrap Icons are font-based
         },
         initComplete: function () {
             this.api().rows().every(function () {

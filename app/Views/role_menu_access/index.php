@@ -31,7 +31,7 @@
                     Role Menu Access List
                 </div>
                 <div>
-                    <a href="<?= base_url('role_menu_access/create') ?>" class="btn btn-primary btn-sm">
+                    <a href="<?= base_url('role-menu-access/create') ?>" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus"></i> Add New Access
                     </a>
                 </div>
@@ -45,66 +45,56 @@
                             <th>Actions</th>
                             <th>Role</th>
                             <th>Menu</th>
-                            <th>View</th>
-                            <th>Add</th>
-                            <th>Edit</th>
-                            <th>Delete</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($roleMenuAccess as $access): ?>
+                            <?php                            // Safely get role name
+                            $roleName = 'Unknown';
+                            $roleId = $access['intRoleID'] ?? null;
+                            if ($roleId !== null) {
+                                foreach ($roles as $r) {
+                                    if ($r['intRoleID'] == $roleId) {
+                                        $roleName = $r['txtRoleName'];
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // Safely get menu name
+                            $menuName = 'Unknown';
+                            $menuId = $access['intMenuID'] ?? null;
+                            if ($menuId !== null) {
+                                foreach ($menus as $m) {
+                                    if ($m['intMenuID'] == $menuId) {
+                                        $menuName = $m['txtMenuName'];
+                                        break;
+                                    }
+                                }
+                            }
+                            ?>
                             <tr>
                                 <td>
                                     <div class="btn-group btn-group-sm">
-                                        <a href="<?= base_url('role_menu_access/edit/' . $access['intRoleMenuAccessID']) ?>" 
+                                        <a href="<?= base_url('role-menu-access/edit/' . ($access['intRoleMenuAccessID'] ?? '0')) ?>" 
                                            class="btn btn-primary" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button type="button" class="btn btn-danger delete-access" 
-                                                data-id="<?= $access['intRoleMenuAccessID'] ?>"
-                                                data-role="<?php
-                                                    $role = array_filter($roles, fn($r) => $r['intRoleID'] == $access['intRoleID']);
-                                                    echo !empty($role) ? reset($role)['txtRoleName'] : 'Unknown';
-                                                ?>"
-                                                data-menu="<?php
-                                                    $menu = array_filter($menus, fn($m) => $m['intMenuID'] == $access['intMenuID']);
-                                                    echo !empty($menu) ? reset($menu)['txtMenuName'] : 'Unknown';
-                                                ?>"
+                                                data-id="<?= $access['intRoleMenuAccessID'] ?? '' ?>"
+                                                data-role="<?= esc($roleName) ?>"
+                                                data-menu="<?= esc($menuName) ?>"
                                                 title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
                                 </td>
+                                <td><?= esc($roleName) ?></td>
+                                <td><?= esc($menuName) ?></td>
                                 <td>
-                                    <?php
-                                    $role = array_filter($roles, fn($r) => $r['intRoleID'] == $access['intRoleID']);
-                                    echo !empty($role) ? reset($role)['txtRoleName'] : 'Unknown';
-                                    ?>
-                                </td>
-                                <td>
-                                    <?php
-                                    $menu = array_filter($menus, fn($m) => $m['intMenuID'] == $access['intMenuID']);
-                                    echo !empty($menu) ? reset($menu)['txtMenuName'] : 'Unknown';
-                                    ?>
-                                </td>
-                                <td>
-                                    <span class="badge bg-<?= $access['bitCanView'] ? 'success' : 'danger' ?>">
-                                        <?= $access['bitCanView'] ? 'Yes' : 'No' ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-<?= $access['bitCanAdd'] ? 'success' : 'danger' ?>">
-                                        <?= $access['bitCanAdd'] ? 'Yes' : 'No' ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-<?= $access['bitCanEdit'] ? 'success' : 'danger' ?>">
-                                        <?= $access['bitCanEdit'] ? 'Yes' : 'No' ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-<?= $access['bitCanDelete'] ? 'success' : 'danger' ?>">
-                                        <?= $access['bitCanDelete'] ? 'Yes' : 'No' ?>
+                                    <span class="badge bg-<?= ($access['bitActive'] ?? 0) ? 'success' : 'danger' ?>">
+                                        <?= ($access['bitActive'] ?? 0) ? 'Active' : 'Inactive' ?>
                                     </span>
                                 </td>
                             </tr>
@@ -125,47 +115,51 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Are you sure you want to delete access for role "<span id="roleName"></span>" to menu "<span id="menuName"></span>"?
+                Are you sure you want to delete access for <strong><span id="deleteRoleName"></span></strong> 
+                to menu <strong><span id="deleteMenuName"></span></strong>?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form id="deleteForm" method="POST" style="display: inline;">
+                <form action="" method="post" id="deleteForm">
                     <?= csrf_field() ?>
                     <input type="hidden" name="_method" value="DELETE">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+<?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize DataTables
-    const table = new DataTable('#roleMenuAccessTable', {
-        order: [[1, 'asc']], // Sort by role name by default
-        columnDefs: [
-            { orderable: false, targets: [0] } // Disable sorting for actions column
-        ]
+    // Initialize DataTable
+    $('#roleMenuAccessTable').DataTable({
+        responsive: true,
+        order: [[1, 'asc']], // Sort by role name
+        pageLength: 25
     });
 
-    // Delete confirmation
+    // Delete modal functionality
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteRoleName = document.getElementById('deleteRoleName');
+    const deleteMenuName = document.getElementById('deleteMenuName');
+    const deleteForm = document.getElementById('deleteForm');
+
     document.querySelectorAll('.delete-access').forEach(button => {
         button.addEventListener('click', function() {
             const id = this.dataset.id;
             const role = this.dataset.role;
             const menu = this.dataset.menu;
-            
-            document.getElementById('roleName').textContent = role;
-            document.getElementById('menuName').textContent = menu;
-            document.getElementById('deleteForm').action = `<?= base_url('role_menu_access/delete/') ?>/${id}`;
-            
-            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+
+            deleteRoleName.textContent = role;
+            deleteMenuName.textContent = menu;
+            deleteForm.action = `<?= base_url('role-menu-access/delete') ?>/${id}`;
+
+            new bootstrap.Modal(deleteModal).show();
         });
     });
 });
 </script>
-<?= $this->endSection() ?>
-
 <?= $this->endSection() ?>

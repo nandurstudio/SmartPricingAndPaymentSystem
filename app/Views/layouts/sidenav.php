@@ -82,12 +82,12 @@
                                aria-controls="collapse<?= $menuId ?>"
                                <?php endif; ?>>
                                 <div class="nav-link-icon">
-                                    <i data-feather="<?= $menuIcon ?>"></i>
+                                    <i class="bi bi-<?= $menuIcon ?>"></i>
                                 </div>
                                 <?= $menuName ?>
                                 <?php if ($hasChildren): ?>
                                     <div class="sidenav-collapse-arrow">
-                                        <i class="fas fa-angle-down"></i>
+                                        <i class="bi bi-chevron-down"></i>
                                     </div>
                                 <?php endif; ?>
                             </a>
@@ -117,7 +117,7 @@
                                                href="<?= base_url($submenuLink) ?>">
                                                 <?php if (!empty($submenuIcon)): ?>
                                                     <div class="nav-link-icon">
-                                                        <i data-feather="<?= $submenuIcon ?>"></i>
+                                                        <i class="bi bi-<?= $submenuIcon ?>"></i>
                                                     </div>
                                                 <?php endif; ?>
                                                 <?= $submenuName ?>
@@ -139,7 +139,8 @@
         <!-- Sidenav Footer-->
         <div class="sidenav-footer">
             <div class="sidenav-footer-content">
-                <div class="sidenav-footer-subtitle">Logged in as:</div>                <?php if (session()->get('isLoggedIn')): ?>
+                <div class="sidenav-footer-subtitle">Logged in as:</div>                
+                <?php if (session()->get('isLoggedIn')): ?>
                     <div class="sidenav-footer-title"><?= esc(session()->get('userFullName')); ?></div>
                     <small class="text-muted">
                         <?php 
@@ -168,12 +169,3 @@
         </div>
     </nav>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Feather icons if available
-    if (typeof feather !== 'undefined') {
-        feather.replace();
-    }
-});
-</script>

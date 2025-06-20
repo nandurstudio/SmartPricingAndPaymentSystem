@@ -26,12 +26,12 @@
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <i class="fas fa-table me-1"></i>
+                    <i class="bi bi-table me-1"></i>
                     Menu List
                 </div>
                 <div>
                     <a href="<?= base_url('menu/create') ?>" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus"></i> Add New Menu
+                        <i class="bi bi-plus-circle"></i> Add New Menu
                     </a>
                 </div>
             </div>
@@ -61,13 +61,17 @@
                                     <div class="btn-group btn-group-sm">
                                         <a href="<?= base_url('menu/edit/' . $menu['intMenuID']) ?>" 
                                            class="btn btn-primary" title="Edit">
-                                            <i class="fas fa-edit"></i>
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <a href="<?= base_url('role-menu-access/create?menu=' . $menu['intMenuID']) ?>" 
+                                           class="btn btn-info" title="Assign to Role">
+                                            <i class="bi bi-person-lock"></i>
                                         </a>
                                         <button type="button" class="btn btn-danger delete-menu" 
                                                 data-id="<?= $menu['intMenuID'] ?>" 
                                                 data-name="<?= esc($menu['txtMenuName']) ?>"
                                                 title="Delete">
-                                            <i class="fas fa-trash"></i>
+                                            <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -75,7 +79,7 @@
                                 <td><?= esc($menu['txtMenuLink']) ?></td>
                                 <td>
                                     <?php if (!empty($menu['txtIcon'])) : ?>
-                                        <i data-feather="<?= esc($menu['txtIcon']) ?>"></i>
+                                        <i class="bi bi-<?= esc($menu['txtIcon']) ?>"></i>
                                         <span class="ms-1"><?= esc($menu['txtIcon']) ?></span>
                                     <?php endif; ?>
                                 </td>
@@ -132,11 +136,6 @@ document.addEventListener('DOMContentLoaded', function() {
             { orderable: false, targets: [0, 3] } // Disable sorting for actions and icon columns
         ]
     });
-
-    // Initialize Feather Icons
-    if (typeof feather !== 'undefined') {
-        feather.replace();
-    }
 
     // Delete confirmation
     document.querySelectorAll('.delete-menu').forEach(button => {

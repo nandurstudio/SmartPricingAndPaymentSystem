@@ -72,35 +72,53 @@ class RoleMenuAccessController extends BaseController
 
     public function create()
     {
-        $data = [
+        if ($redirect = checkLogin()) return $redirect;
+
+        // Get pre-selected menu from URL if any
+        $selectedMenuId = $this->request->getGet('menu');
+        
+        return view('role_menu_access/create', [
+            'title' => 'Create Role Menu Access',
             'roles' => $this->roleModel->findAll(),
             'menus' => $this->menuModel->findAll(),
-            'title' => 'Create Role Menu Access',
-            'pageTitle' => 'Create Role Menu Access',
-            'pageSubTitle' => 'Assign menu access permissions to a role',
-            'icon' => 'plus-circle'
-        ];
-        return view('role_menu_access/create', $data);
+            'selectedMenuId' => $selectedMenuId,
+            'icon' => 'lock',
+            'pageTitle' => 'Role Menu Access',
+            'pageSubTitle' => 'Assign menu access permissions to roles',
+            'cardTitle' => 'Create Role Menu Access'
+        ]);
     }
 
     public function store()
     {
-        $data = $this->request->getPost();
+        $session = session();
         
-        // Set default values for unchecked checkboxes
-        $data['bitCanView'] = isset($data['bitCanView']) ? 1 : 0;
-        $data['bitCanAdd'] = isset($data['bitCanAdd']) ? 1 : 0;
-        $data['bitCanEdit'] = isset($data['bitCanEdit']) ? 1 : 0;
-        $data['bitCanDelete'] = isset($data['bitCanDelete']) ? 1 : 0;
+        $intRoleID = $this->request->getPost('intRoleID');
+        $intMenuID = $this->request->getPost('intMenuID');
 
-        // Add metadata
-        $data['txtGUID'] = uniqid();
-        $data['bitActive'] = 1;
-        $data['txtCreatedBy'] = session()->get('userName') ?? 'system';
-        $data['dtmCreatedDate'] = date('Y-m-d H:i:s');
+        // Check if role-menu combination already exists
+        $existing = $this->roleMenuAccessModel->where([
+            'intRoleID' => $intRoleID,
+            'intMenuID' => $intMenuID
+        ])->first();
 
-        $this->roleMenuAccessModel->insert($data);
-        return redirect()->to('/role_menu_access')->with('success', 'Role menu access created successfully');
+        if ($existing) {
+            return redirect()->back()
+                           ->withInput()
+                           ->with('error', 'This role already has access to the selected menu. Please edit the existing access instead.');
+        }
+        
+        $data = [
+            'intRoleID' => $intRoleID,
+            'intMenuID' => $intMenuID,
+            'bitActive' => $this->request->getPost('bitActive') ? 1 : 0
+        ];
+
+        if ($this->roleMenuAccessModel->save($data)) {
+            return redirect()->to('role-menu-access')->with('success', 'Role Menu Access created successfully');
+        }
+
+        return redirect()->back()->withInput()->with('error', 'Failed to create Role Menu Access');
     }
 
     public function edit($id)

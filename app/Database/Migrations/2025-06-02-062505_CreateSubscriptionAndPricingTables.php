@@ -3,6 +3,7 @@
 namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
+use CodeIgniter\Database\RawSql;
 
 class CreateSubscriptionAndPricingTables extends Migration
 {
@@ -26,8 +27,7 @@ class CreateSubscriptionAndPricingTables extends Migration
             'txtCode' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 50,
-            ],
-            'decAmount' => [
+            ],            'decAmount' => [
                 'type'       => 'DECIMAL',
                 'constraint' => '12,2',
                 'default'    => 0.00,
@@ -55,11 +55,10 @@ class CreateSubscriptionAndPricingTables extends Migration
                 'type'       => 'VARCHAR',
                 'constraint' => 50,
                 'default'    => 'system',
-            ],
-            'dtmCreatedDate' => [
-                'type'    => 'DATETIME',
-                'null'    => true,
-                'default' => 'CURRENT_TIMESTAMP',
+            ],            'dtmCreatedDate' => [
+                'type'       => 'TIMESTAMP',
+                'default'    => new RawSql('CURRENT_TIMESTAMP'),
+                'null'       => false,
             ],
             'txtUpdatedBy' => [
                 'type'       => 'VARCHAR',
@@ -67,9 +66,9 @@ class CreateSubscriptionAndPricingTables extends Migration
                 'null'      => true,
             ],
             'dtmUpdatedDate' => [
-                'type' => 'DATETIME',
-                'null' => true,
-                'default' => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+                'type'       => 'TIMESTAMP',
+                'default'    => new RawSql('CURRENT_TIMESTAMP'),
+                'null'       => false,
             ],
         ]);
         $this->forge->addKey('intPlanID', true);
@@ -99,8 +98,7 @@ class CreateSubscriptionAndPricingTables extends Migration
             'txtDescription' => [
                 'type' => 'TEXT',
                 'null' => true,
-            ],
-            'bitActive' => [
+            ],            'bitActive' => [
                 'type'    => 'TINYINT',
                 'constraint' => 1,
                 'default' => 1,
@@ -111,9 +109,9 @@ class CreateSubscriptionAndPricingTables extends Migration
                 'default'    => 'system',
             ],
             'dtmCreatedDate' => [
-                'type'    => 'DATETIME',
-                'null'    => true,
-                'default' => 'CURRENT_TIMESTAMP',
+                'type'       => 'TIMESTAMP',
+                'default'    => new RawSql('CURRENT_TIMESTAMP'),
+                'null'       => false,
             ],
             'txtUpdatedBy' => [
                 'type'       => 'VARCHAR',
@@ -121,9 +119,9 @@ class CreateSubscriptionAndPricingTables extends Migration
                 'null'      => true,
             ],
             'dtmUpdatedDate' => [
-                'type' => 'DATETIME',
-                'null' => true,
-                'default' => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+                'type'       => 'TIMESTAMP',
+                'default'    => new RawSql('CURRENT_TIMESTAMP'),
+                'null'       => false,
             ],
         ]);
         $this->forge->addKey('intFeatureID', true);
@@ -150,8 +148,7 @@ class CreateSubscriptionAndPricingTables extends Migration
                 'type'    => 'JSON',
                 'null'    => true,
                 'comment' => 'Feature limits/quotas specific to this plan',
-            ],
-            'bitActive' => [
+            ],            'bitActive' => [
                 'type'    => 'TINYINT',
                 'constraint' => 1,
                 'default' => 1,
@@ -162,9 +159,9 @@ class CreateSubscriptionAndPricingTables extends Migration
                 'default'    => 'system',
             ],
             'dtmCreatedDate' => [
-                'type'    => 'DATETIME',
-                'null'    => true,
-                'default' => 'CURRENT_TIMESTAMP',
+                'type'       => 'TIMESTAMP',
+                'default'    => new RawSql('CURRENT_TIMESTAMP'),
+                'null'       => false,
             ],
             'txtUpdatedBy' => [
                 'type'       => 'VARCHAR',
@@ -172,9 +169,9 @@ class CreateSubscriptionAndPricingTables extends Migration
                 'null'      => true,
             ],
             'dtmUpdatedDate' => [
-                'type' => 'DATETIME',
-                'null' => true,
-                'default' => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+                'type'       => 'TIMESTAMP',
+                'default'    => new RawSql('CURRENT_TIMESTAMP'),
+                'null'       => false,
             ],
         ]);
         $this->forge->addKey('intPlanFeatureID', true);

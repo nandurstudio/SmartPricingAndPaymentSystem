@@ -17,7 +17,8 @@
         "laminas/laminas-escaper": "^2.13",
         "midtrans/midtrans-php": "^2.6",
         "monolog/monolog": "^2.0",
-        "psr/log": "^3.0"
+        "psr/log": "^3.0",
+        "twbs/bootstrap-icons": "^1.13"
     },
     "require-dev": {
         "codeigniter/coding-standard": "^1.7",

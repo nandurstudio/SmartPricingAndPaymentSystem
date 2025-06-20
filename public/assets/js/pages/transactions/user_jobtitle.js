@@ -27,7 +27,7 @@ $(document).ready(function () {
                         render: function (data) {
                             return `
                         <button class="btn btn-primary btn-select" data-id="${data.intDepartmentID}" data-name="${data.txtDepartmentName}">
-                            <i data-feather="check"></i>
+                            <i class="bi bi-check-circle-fill"></i>
                         </button>`;
                         },
                         orderable: false // Disable sorting for Action column
@@ -38,10 +38,7 @@ $(document).ready(function () {
                     { orderable: false, targets: [2] } // Disable sorting for Action column (column 2)
                 ],
                 order: [[0, 'asc']], // Default sorting by ID (column 0) in ascending order
-                responsive: true, // Enable responsive feature
-                drawCallback: function () {
-                    feather.replace(); // Refresh Feather Icons
-                }
+                responsive: true // Enable responsive feature
             });
         }
     }
@@ -133,8 +130,12 @@ $(document).ready(function () {
             <li>
                 <strong>${job.title}</strong> - Achieved: ${job.achieved}
                 <div class="mt-2">
-                    <a href="/transactions/user_jobtitle/details/${job.jobTitleID}" class="btn btn-info btn-sm">Details</a>
-                    <button class="btn btn-warning edit-btn btn-sm" data-id="${job.jobTitleID}">Edit</button>
+                    <a href="/transactions/user_jobtitle/details/${job.jobTitleID}" class="btn btn-info btn-sm">
+                        <i class="bi bi-info-circle-fill"></i> Details
+                    </a>
+                    <button class="btn btn-warning edit-btn btn-sm" data-id="${job.jobTitleID}">
+                        <i class="bi bi-pencil-fill"></i> Edit
+                    </button>
                 </div>
             </li>
         `).join('');
@@ -163,8 +164,12 @@ $(document).ready(function () {
                 "orderable": false,
                 "render": function (data, type, row) {
                     return `
-                        <a href="/transactions/user_jobtitle/details/${row.intUserID}" class="btn btn-info btn-sm">Details</a>
-                        <a href="/transactions/user_jobtitle/edit/${row.intUserID}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="/transactions/user_jobtitle/details/${row.intUserID}" class="btn btn-info btn-sm">
+                            <i class="bi bi-info-circle-fill"></i> Details
+                        </a>
+                        <a href="/transactions/user_jobtitle/edit/${row.intUserID}" class="btn btn-warning btn-sm">
+                            <i class="bi bi-pencil-fill"></i> Edit
+                        </a>
                     `;
                 },
                 "visible": false
@@ -184,12 +189,12 @@ $(document).ready(function () {
         buttons: [
             {
                 extend: 'collection',
-                text: '<i data-feather="printer"></i> Print Options', // Tambahkan ikon Feather
+                text: '<i class="bi bi-printer"></i> Print Options',
                 className: "btnArrow",
                 buttons: [
                     {
                         extend: "print",
-                        text: '<i data-feather="printer"></i> Print',
+                        text: '<i class="bi bi-printer"></i> Print',
                         exportOptions: {
                             columns: ':visible',
                             rows: ':visible'
@@ -197,7 +202,7 @@ $(document).ready(function () {
                     },
                     {
                         extend: "pdf",
-                        text: '<i data-feather="file"></i> Export to PDF',
+                        text: '<i class="bi bi-file-pdf"></i> Export to PDF',
                         exportOptions: {
                             columns: ':visible',
                             rows: ':visible'
@@ -205,14 +210,11 @@ $(document).ready(function () {
                     },
                     {
                         extend: 'excel',
-                        text: '<i data-feather="file-text"></i> Export to Excel', // Tambahkan ikon Feather
+                        text: '<i class="bi bi-file-spreadsheet"></i> Export to Excel',
                     },
                 ]
             }
         ],
-        initComplete: function () {
-            feather.replace(); // Inisialisasi ikon Feather
-        },
         processing: true,
         serverSide: true,
         responsive: true,
@@ -251,20 +253,16 @@ $(document).ready(function () {
                 data: 'bitAchieved',
                 render: function (data, type, row) {
                     return data == 1 ?
-                        '<i data-feather="check-circle" style="color: green;"></i>' :
-                        '<i data-feather="x-circle" style="color: red;"></i>';
+                        '<i class="bi bi-check-circle-fill text-success"></i>' :
+                        '<i class="bi bi-x-circle-fill text-danger"></i>';
                 }
             },
             {                                // Indeks 6 (Action)
                 data: null,
-                defaultContent: '<button class="btn btn-info btn-action">Details</button>'
+                defaultContent: '<button class="btn btn-info btn-action"><i class="bi bi-info-circle-fill"></i> Details</button>'
             }
         ],
         order: [[5, 'desc']] // Pastikan indeks sesuai dengan kolom 'bitAchieved'
-    });
-
-    tableAS.on('draw', function () {
-        feather.replace();
     });
 
     // Event handler untuk tombol Search

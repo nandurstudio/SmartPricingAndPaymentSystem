@@ -13,7 +13,7 @@
                             <div class="row align-items-center justify-content-between">
                                 <div class="col-auto mt-4">
                                     <h1 class="page-header-title">
-                                        <div class="page-header-icon"><i data-feather="activity"></i></div>
+                                        <div class="page-header-icon"><i class="bi bi-activity"></i></div>
                                         <?php if (session()->get('isLoggedIn')): ?>
                                             Hi, <?= esc(session()->get('userFullName')); ?>!
                                         <?php else: ?>
@@ -37,6 +37,57 @@
                 </header>
                 <!-- Main page content-->
                 <div class="container-xl px-4 mt-n10">
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-0 shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Total Tenants
+                                            </div>
+                                            <div class="h3 mb-0 font-weight-bold text-gray-800">
+                                                <?= isset($tenantCount) ? number_format($tenantCount) : 0 ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="bi bi-building text-gray-300" style="font-size: 2rem;"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-0 shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                Total Users
+                                            </div>
+                                            <div class="h3 mb-0 font-weight-bold text-gray-800">
+                                                <?= isset($userCount) ? number_format($userCount) : 0 ?>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="bi bi-people text-gray-300" style="font-size: 2rem;"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Tambahkan card statistik lain di sini jika diperlukan -->
+                    </div>
+                    <div class="row mb-4">
+                        <div class="col-xl-6 col-md-12 mb-4">
+                            <div class="card border-0 shadow h-100 py-2">
+                                <div class="card-body">
+                                    <h5 class="mb-3">Statistik Platform</h5>
+                                    <canvas id="statChart" height="120"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <!-- Example DataTable for Dashboard Demo-->
                         <div class="mb-4">
@@ -156,23 +207,25 @@
                                     <div class="dropdown no-caret">
                                         <button class="btn btn-transparent-dark btn-icon dropdown-toggle"
                                             id="dropdownMenuButton" type="button" data-bs-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false"><i class="text-gray-500"
-                                                data-feather="more-vertical"></i></button>
+                                            aria-haspopup="true" aria-expanded="false"><i class="bi bi-three-dots-vertical"></i></button>
                                         <div class="dropdown-menu dropdown-menu-end animated--fade-in-up"
                                             aria-labelledby="dropdownMenuButton">
                                             <a class="dropdown-item" href="#!">
-                                                <div class="dropdown-item-icon"><i class="text-gray-500"
-                                                        data-feather="list"></i></div>
+                                                <div class="dropdown-item-icon">
+                                                    <i class="bi bi-list"></i>
+                                                </div>
                                                 Manage Tasks
                                             </a>
                                             <a class="dropdown-item" href="#!">
-                                                <div class="dropdown-item-icon"><i class="text-gray-500"
-                                                        data-feather="plus-circle"></i></div>
+                                                <div class="dropdown-item-icon">
+                                                    <i class="bi bi-plus-circle"></i>
+                                                </div>
                                                 Add New Task
                                             </a>
                                             <a class="dropdown-item" href="#!">
-                                                <div class="dropdown-item-icon"><i class="text-gray-500"
-                                                        data-feather="minus-circle"></i></div>
+                                                <div class="dropdown-item-icon">
+                                                    <i class="bi bi-dash-circle"></i>
+                                                </div>
                                                 Delete Tasks
                                             </a>
                                         </div>
@@ -201,7 +254,7 @@
                                 <div class="card-footer position-relative">
                                     <div class="d-flex align-items-center justify-content-between small text-body">
                                         <a class="stretched-link text-body" href="#!">Visit Task Center</a>
-                                        <i class="fas fa-angle-right"></i>
+                                        <i class="bi bi-chevron-right"></i>
                                     </div>
                                 </div>
                             </div>
@@ -215,19 +268,19 @@
                                     Skill Matrix
                                     <div class="dropdown no-caret">
                                         <button class="btn btn-transparent-dark btn-icon dropdown-toggle" id="dropdownMenuButton" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="text-gray-500" data-feather="more-vertical"></i>
+                                            <i class="bi bi-three-dots-vertical"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end animated--fade-in-up" aria-labelledby="dropdownMenuButton">
                                             <a class="dropdown-item" href="#!">
-                                                <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="list"></i></div>
+                                                <div class="dropdown-item-icon"><i class="bi bi-list"></i></div>
                                                 Manage Tasks
                                             </a>
                                             <a class="dropdown-item" href="#!">
-                                                <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="plus-circle"></i></div>
+                                                <div class="dropdown-item-icon"><i class="bi bi-plus-circle"></i></div>
                                                 Add New Task
                                             </a>
                                             <a class="dropdown-item" href="#!">
-                                                <div class="dropdown-item-icon"><i class="text-gray-500" data-feather="minus-circle"></i></div>
+                                                <div class="dropdown-item-icon"><i class="bi bi-dash-circle"></i></div>
                                                 Delete Tasks
                                             </a>
                                         </div>
@@ -239,7 +292,7 @@
                                 <div class="card-footer position-relative">
                                     <div class="d-flex align-items-center justify-content-between small text-body">
                                         <a class="stretched-link text-body" href="#!">Visit Task Center</a>
-                                        <i class="fas fa-angle-right"></i>
+                                        <i class="bi bi-chevron-right"></i>
                                     </div>
                                 </div>
                             </div>
@@ -255,12 +308,12 @@
                                             <div class="text-white-75 small">Achievement 1</div>
                                             <div class="text-lg fw-bold">Coming Soon!</div>
                                         </div>
-                                        <i class="feather-xl text-white-50" data-feather="calendar"></i>
+                                        <i class="bi bi-calendar text-white-50" style="font-size: 2rem;"></i>
                                     </div>
                                 </div>
                                 <div class="card-footer d-flex align-items-center justify-content-between small">
                                     <a class="text-white stretched-link" href="#!">View Report</a>
-                                    <div class="text-white"><i class="fas fa-angle-right"></i></div>
+                                    <div class="text-white"><i class="bi bi-chevron-right"></i></div>
                                 </div>
                             </div>
                         </div>
@@ -272,12 +325,12 @@
                                             <div class="text-white-75 small">Achievement 2</div>
                                             <div class="text-lg fw-bold">Coming Soon!</div>
                                         </div>
-                                        <i class="feather-xl text-white-50" data-feather="dollar-sign"></i>
+                                        <i class="bi bi-currency-dollar text-white-50" style="font-size: 2rem;"></i>
                                     </div>
                                 </div>
                                 <div class="card-footer d-flex align-items-center justify-content-between small">
                                     <a class="text-white stretched-link" href="#!">View Report</a>
-                                    <div class="text-white"><i class="fas fa-angle-right"></i></div>
+                                    <div class="text-white"><i class="bi bi-chevron-right"></i></div>
                                 </div>
                             </div>
                         </div>
@@ -289,12 +342,12 @@
                                             <div class="text-white-75 small">Achievement 3</div>
                                             <div class="text-lg fw-bold">Coming Soon!</div>
                                         </div>
-                                        <i class="feather-xl text-white-50" data-feather="check-square"></i>
+                                        <i class="bi bi-check-square text-white-50" style="font-size: 2rem;"></i>
                                     </div>
                                 </div>
                                 <div class="card-footer d-flex align-items-center justify-content-between small">
                                     <a class="text-white stretched-link" href="#!">View Tasks</a>
-                                    <div class="text-white"><i class="fas fa-angle-right"></i></div>
+                                    <div class="text-white"><i class="bi bi-chevron-right"></i></div>
                                 </div>
                             </div>
                         </div>
@@ -306,12 +359,12 @@
                                             <div class="text-white-75 small">Achievement 4</div>
                                             <div class="text-lg fw-bold">Coming Soon!</div>
                                         </div>
-                                        <i class="feather-xl text-white-50" data-feather="message-circle"></i>
+                                        <i class="bi bi-chat-dots text-white-50" style="font-size: 2rem;"></i>
                                     </div>
                                 </div>
                                 <div class="card-footer d-flex align-items-center justify-content-between small">
                                     <a class="text-white stretched-link" href="#!">View Requests</a>
-                                    <div class="text-white"><i class="fas fa-angle-right"></i></div>
+                                    <div class="text-white"><i class="bi bi-chevron-right"></i></div>
                                 </div>
                             </div>
                         </div>
@@ -323,6 +376,7 @@
     </div>
     <!-- Scripts -->
     <?= $this->include('layouts/scripts') ?>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         $(document).ready(function() {
             var ctx = $("#myRadarChart")[0].getContext("2d");
@@ -389,6 +443,44 @@
                                     return value;
                                 }
                             }
+                        }
+                    }
+                }
+            });
+
+            // Statistik Tenant dan User
+            var ctxStat = document.getElementById('statChart').getContext('2d');
+            var statChart = new Chart(ctxStat, {
+                type: 'bar',
+                data: {
+                    labels: ['Tenants', 'Users'],
+                    datasets: [{
+                        label: 'Total',
+                        data: [<?= isset($tenantCount) ? $tenantCount : 0 ?>, <?= isset($userCount) ? $userCount : 0 ?>],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(75, 192, 192, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(75, 192, 192, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Platform Statistics'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            precision: 0
                         }
                     }
                 }
