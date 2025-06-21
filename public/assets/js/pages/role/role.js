@@ -72,8 +72,8 @@ $(document).ready(function () {
                 width: '200px'
             },
             {
-                data: 'bitStatus',
-                name: 'bitStatus',
+                data: 'bitActive',
+                name: 'bitActive',
                 render: function (data) {
                     const status = parseInt(data) === 1;
                     return `<span class="status-badge">
@@ -125,14 +125,14 @@ $(document).ready(function () {
                 width: '120px'
             },
             {
-                data: 'txtLastUpdatedBy',
-                name: 'txtLastUpdatedBy',
+                data: 'txtUpdatedBy',
+                name: 'txtUpdatedBy',
                 render: function (data) {
                     return data || '-';
                 },
                 responsivePriority: 8,
                 title: 'Updated By',
-                width: '120px'
+                width: '100px'
             },
             {
                 data: 'dtmUpdatedDate',

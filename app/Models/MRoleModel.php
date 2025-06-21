@@ -6,23 +6,24 @@ use CodeIgniter\Model;
 
 class MRoleModel extends Model
 {
-    protected $table = 'm_role'; // Nama tabel
+    protected $table = 'm_role'; // Table name
     protected $primaryKey = 'intRoleID'; // Primary key
-    protected $allowedFields = [        'txtRoleName',
+    protected $allowedFields = [
+        'txtGUID',
+        'txtRoleName',
         'txtRoleDesc',
         'txtRoleNote',
         'bitActive',
         'txtCreatedBy',
         'dtmCreatedDate',
-        'txtLastUpdatedBy',
-        'dtmLastUpdatedDate',
-        'txtGUID'
+        'txtUpdatedBy',
+        'dtmUpdatedDate'
     ];
 
-    // Optional: Untuk timestamps otomatis
+    // Timestamps configuration
     protected $useTimestamps = true;
     protected $createdField = 'dtmCreatedDate';
-    protected $updatedField = 'dtmLastUpdatedDate';
+    protected $updatedField = 'dtmUpdatedDate';
 
     // Create Operation
     public function createRole($data)

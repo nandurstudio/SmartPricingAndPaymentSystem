@@ -30,9 +30,9 @@ class RoleController extends Controller
         // Get roles and ensure default values for nullable fields
         $roles = array_map(function($role) {
             return array_merge($role, [
-                'bitStatus' => $role['bitStatus'] ?? 1,
+                'bitActive' => $role['bitActive'] ?? 1,
                 'txtRoleDesc' => $role['txtRoleDesc'] ?? '',
-                'txtCreatedBy' => $role['txtCreatedBy'] ?? 'System',
+                'txtCreatedBy' => $role['txtCreatedBy'] ?? 'system',
                 'dtmCreatedDate' => $role['dtmCreatedDate'] ?? date('Y-m-d H:i:s')
             ]);
         }, $this->roleModel->findAll());
@@ -68,7 +68,9 @@ class RoleController extends Controller
     public function store()
     {
         if (!session()->get('isLoggedIn')) {
-            return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
+            return redirect()->to('/login')
+                ->with('message', 'You must be logged in to access this page.')
+                ->with('message_type', 'danger');
         }
         
         // Validation rules
@@ -77,7 +79,7 @@ class RoleController extends Controller
             'txtRoleName' => 'required|min_length[3]|max_length[50]',
             'txtRoleDesc' => 'required|min_length[3]|max_length[255]',
             'txtRoleNote' => 'permit_empty|max_length[500]',
-            'bitStatus'   => 'permit_empty'
+            'bitActive'   => 'permit_empty'
         ];
 
         if (!$validation->setRules($rules)->run($this->request->getPost())) {
@@ -87,19 +89,23 @@ class RoleController extends Controller
         }
 
         $currentTime = date('Y-m-d H:i:s');
-        $this->roleModel->save([
+        if ($this->roleModel->save([
             'txtRoleName' => $this->request->getPost('txtRoleName'),
             'txtRoleDesc' => $this->request->getPost('txtRoleDesc'),
             'txtRoleNote' => $this->request->getPost('txtRoleNote'),
-            'bitStatus' => $this->request->getPost('bitStatus') ? 1 : 0,
+            'bitActive' => $this->request->getPost('bitActive') ? 1 : 0,
             'txtCreatedBy' => session()->get('userName') ?? 'system',
             'dtmCreatedDate' => $currentTime,
+            'txtUpdatedBy' => session()->get('userName') ?? 'system',
+            'dtmUpdatedDate' => $currentTime,
             'txtGUID' => uniqid('role_', true),
-        ]);
-
-        return redirect()->to('/roles')
-            ->with('message', 'Role successfully created')
-            ->with('message_type', 'success');
+        ])) {
+            session()->setFlashdata('success', 'Role created successfully');
+            return redirect()->to('/roles');
+        } else {
+            session()->setFlashdata('error', 'Failed to create role');
+            return redirect()->back()->withInput();
+        }
     }
 
     public function edit($id)
@@ -117,8 +123,9 @@ class RoleController extends Controller
         }
 
         // Set default values for nullable fields
-        $role['bitStatus'] = $role['bitStatus'] ?? 1;
+        $role['bitActive'] = $role['bitActive'] ?? 1;
         $role['txtRoleDesc'] = $role['txtRoleDesc'] ?? '';
+        $role['txtRoleNote'] = $role['txtRoleNote'] ?? '';
 
         return view('role/edit', [
             'role' => $role,
@@ -126,47 +133,104 @@ class RoleController extends Controller
             'title' => 'Edit Role',
             'pageTitle' => 'Edit Role',
             'pageSubTitle' => 'Modify role information',
-            'icon' => 'edit'
+            'icon' => 'pencil'
         ]);
-    }    public function update($id)
+    }    public function update($id = null)
     {
         if (!session()->get('isLoggedIn')) {
-            return redirect()->to('/login');
+            return redirect()->to('/login')
+                ->with('message', 'You must be logged in to access this page.')
+                ->with('message_type', 'danger');
         }
 
-        // Validation rules 
+        if (!$id) {
+            return redirect()->to('/roles')
+                ->with('message', 'No ID provided')
+                ->with('message_type', 'danger');
+        }
+
+        $role = $this->roleModel->find($id);
+        if (!$role) {
+            return redirect()->to('/roles')
+                ->with('message', 'Role not found')
+                ->with('message_type', 'danger');
+        }
+
         $validation = \Config\Services::validation();
         $rules = [
             'txtRoleName' => 'required|min_length[3]|max_length[50]',
             'txtRoleDesc' => 'required|min_length[3]|max_length[255]',
             'txtRoleNote' => 'permit_empty|max_length[500]',
-            'bitStatus'   => 'permit_empty'
+            'bitActive'   => 'permit_empty'
         ];
 
-        $postData = $this->request->getPost();
-        if (!$validation->setRules($rules)->run($postData)) {
+        if (!$validation->setRules($rules)->run($this->request->getPost())) {
             return redirect()->back()
                 ->withInput()
                 ->with('errors', $validation->getErrors());
         }
 
-        // Prepare data
+        $currentTime = date('Y-m-d H:i:s');
         $data = [
             'txtRoleName' => $this->request->getPost('txtRoleName'),
             'txtRoleDesc' => $this->request->getPost('txtRoleDesc'),
             'txtRoleNote' => $this->request->getPost('txtRoleNote'),
-            'bitStatus'   => $this->request->getPost('bitStatus') ? 1 : 0,
-            'txtLastUpdatedBy' => session()->get('userName'),
-            'dtmLastUpdatedDate' => date('Y-m-d H:i:s')
+            'bitActive' => $this->request->getPost('bitActive') ? 1 : 0,
+            'txtUpdatedBy' => session()->get('userName'),
+            'dtmUpdatedDate' => $currentTime
         ];
 
-        try {
-            $this->roleModel->update($id, $data);
-            session()->setFlashdata('success', 'Role berhasil diperbarui.');
+        if ($this->roleModel->update($id, $data)) {
+            session()->setFlashdata('success', 'Role updated successfully');
             return redirect()->to('/roles');
-        } catch (\Exception $e) {
-            session()->setFlashdata('error', 'Error updating role: ' . $e->getMessage());
+        } else {
+            session()->setFlashdata('error', 'Failed to update role');
             return redirect()->back()->withInput();
+        }
+    }
+
+    // Method baru untuk AJAX update
+    public function updateAjax($id = null)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return $this->response->setJSON(['error' => 'You must be logged in to perform this action.']);
+        }
+
+        if (!$id) {
+            return $this->response->setJSON(['error' => 'No ID provided']);
+        }
+
+        $role = $this->roleModel->find($id);
+        if (!$role) {
+            return $this->response->setJSON(['error' => 'Role not found']);
+        }
+
+        $validation = \Config\Services::validation();
+        $rules = [
+            'txtRoleName' => 'required|min_length[3]|max_length[50]',
+            'txtRoleDesc' => 'required|min_length[3]|max_length[255]',
+            'txtRoleNote' => 'permit_empty|max_length[500]',
+            'bitActive'   => 'permit_empty'
+        ];
+
+        if (!$validation->setRules($rules)->run($this->request->getPost())) {
+            return $this->response->setJSON(['errors' => $validation->getErrors()]);
+        }
+
+        $currentTime = date('Y-m-d H:i:s');
+        $data = [
+            'txtRoleName' => $this->request->getPost('txtRoleName'),
+            'txtRoleDesc' => $this->request->getPost('txtRoleDesc'),
+            'txtRoleNote' => $this->request->getPost('txtRoleNote'),
+            'bitActive' => $this->request->getPost('bitActive') ? 1 : 0,
+            'txtUpdatedBy' => session()->get('userName'),
+            'dtmUpdatedDate' => $currentTime
+        ];
+
+        if ($this->roleModel->update($id, $data)) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Role updated successfully']);
+        } else {
+            return $this->response->setJSON(['error' => 'Failed to update role']);
         }
     }
 
@@ -181,12 +245,17 @@ class RoleController extends Controller
         $role = $this->roleModel->find($id);
 
         if (!$role) {
-            return redirect()->to('/roles')->with('message', 'Role not found')->with('message_type', 'danger');
-        }        // Set default values for nullable fields
-        $role['bitStatus'] = $role['bitStatus'] ?? 1;
+            return redirect()->to('/roles')
+                ->with('message', 'Role not found')
+                ->with('message_type', 'danger');
+        }        
+        
+        // Set default values for nullable fields
+        $role['bitActive'] = $role['bitActive'] ?? 1;
         $role['txtRoleDesc'] = $role['txtRoleDesc'] ?? '';
+        $role['txtRoleNote'] = $role['txtRoleNote'] ?? '';
         $role['txtCreatedBy'] = $role['txtCreatedBy'] ?? 'System';
-        $role['txtLastUpdatedBy'] = $role['txtLastUpdatedBy'] ?? '-';
+        $role['txtUpdatedBy'] = $role['txtUpdatedBy'] ?? '-';
 
         return view('role/view', [
             'role' => $role,
@@ -197,6 +266,7 @@ class RoleController extends Controller
             'icon' => 'eye'
         ]);
     }
+
     public function data()
     {
         if (!$this->request->isAJAX()) {
@@ -208,7 +278,9 @@ class RoleController extends Controller
             $start = $this->request->getPost('start');
             $length = $this->request->getPost('length');
             $search = $this->request->getPost('search')['value'];
-            $order = $this->request->getPost('order')[0] ?? ['column' => 1, 'dir' => 'asc'];            // Build the query
+            $order = $this->request->getPost('order')[0] ?? ['column' => 1, 'dir' => 'asc'];
+            
+            // Build the query
             $builder = $this->roleModel->builder();
             
             // Total records without filtering
@@ -221,7 +293,7 @@ class RoleController extends Controller
                     ->orLike('txtRoleDesc', $search)
                     ->orLike('txtRoleNote', $search)
                     ->orLike('txtCreatedBy', $search)
-                    ->orLike('txtLastUpdatedBy', $search)
+                    ->orLike('txtUpdatedBy', $search)
                     ->groupEnd();
             }
 
@@ -229,7 +301,7 @@ class RoleController extends Controller
             $filteredRecords = $builder->countAllResults(false);
 
             // Ordering
-            $columns = ['intRoleID', 'txtRoleName', 'txtRoleDesc', 'txtRoleNote', 'bitStatus', 'txtCreatedBy', 'dtmCreatedDate', 'txtLastUpdatedBy', 'dtmUpdatedDate'];
+            $columns = ['intRoleID', 'txtRoleName', 'txtRoleDesc', 'txtRoleNote', 'bitActive', 'txtCreatedBy', 'dtmCreatedDate', 'txtUpdatedBy', 'dtmUpdatedDate'];
             if (isset($order['column']) && isset($columns[$order['column']])) {
                 $orderColumn = $columns[$order['column']];
                 $builder->orderBy($orderColumn, $order['dir']);
@@ -237,12 +309,13 @@ class RoleController extends Controller
 
             // Fetch records
             $records = $builder->limit($length, $start)->get()->getResultArray();
-              // Ensure all records have proper values
+            
+            // Ensure all records have proper values
             $records = array_map(function($record) {
                 return array_merge($record, [
-                    'bitStatus' => $record['bitStatus'] ?? 1,
+                    'bitActive' => $record['bitActive'] ?? 1,
                     'txtCreatedBy' => $record['txtCreatedBy'] ?? 'System',
-                    'txtLastUpdatedBy' => $record['txtLastUpdatedBy'] ?? '-'
+                    'txtUpdatedBy' => $record['txtUpdatedBy'] ?? '-'
                 ]);
             }, $records);
 

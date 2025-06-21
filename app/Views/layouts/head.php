@@ -16,22 +16,27 @@
     <meta property="og:image" content="<?= base_url('assets/img/og-image.jpg') ?>" />
 
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="<?= base_url('assets/img/favicon.png') ?>" />
-    <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('assets/img/apple-touch-icon.png') ?>" />    <title><?= $title ?? 'Smart Booking System' ?> | <?= isset($tenant) ? esc($tenant['txtTenantName']) : 'Multi-Tenant Platform' ?></title>
-
+    <link rel="icon" type="image/x-icon" href="<?= base_url('assets/img/favicon.png') ?>" />    <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('assets/img/apple-touch-icon.png') ?>" />
+    
+    <title><?= $title ?? 'Smart Booking System' ?> | <?= isset($tenant) ? esc($tenant['txtTenantName']) : 'Multi-Tenant Platform' ?></title>
+    
+    <!-- Bootstrap Icons - Load first to avoid overrides -->
+    <link rel="stylesheet" href="<?= base_url('assets/css/bootstrap/bootstrap-icons/font/bootstrap-icons.css') ?>" />
+    
     <!-- Core CSS -->
     <link rel="stylesheet" href="<?= base_url('assets/css/bootstrap/bootstrap.min.css') ?>" />
-    <link rel="stylesheet" href="<?= base_url('assets/css/bootstrap/bootstrap-icons/font/bootstrap-icons.css') ?>" />    <!-- DataTables Bootstrap 5 Theme -->
+    
+    <!-- DataTables Bootstrap 5 Theme -->
     <link rel="stylesheet" href="<?= base_url('assets/css/datatables/dataTables.bootstrap5.min.css') ?>" />
     <link rel="stylesheet" href="<?= base_url('assets/css/datatables/responsive.bootstrap5.min.css') ?>" />
 
     <!-- Other CSS -->
     <link rel="stylesheet" href="<?= base_url('assets/css/select2/select2.min.css') ?>" />
-    <link rel="stylesheet" href="<?= base_url('assets/css/sweetalert2/sweetalert2.min.css') ?>" />
-    <link rel="stylesheet" href="<?= base_url('assets/css/flatpickr/flatpickr.min.css') ?>" />    <!-- Theme CSS -->
+    <link rel="stylesheet" href="<?= base_url('assets/css/sweetalert2/sweetalert2.min.css') ?>" />    <link rel="stylesheet" href="<?= base_url('assets/css/flatpickr/flatpickr.min.css') ?>" />
+      <!-- Theme CSS -->
     <link rel="stylesheet" href="<?= base_url('assets/css/themes/default.css') ?>" />
     
-    <!-- Custom CSS -->
+    <!-- Custom CSS - Load last to allow custom overrides -->
     <link rel="stylesheet" href="<?= base_url('assets/css/styles.css') ?>" />
     <?php if (isset($tenant) && isset($tenant['intTenantID'])): ?>
         <?php

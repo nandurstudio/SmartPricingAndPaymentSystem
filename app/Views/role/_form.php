@@ -33,10 +33,10 @@
 
 <div class="mb-3">
     <div class="form-check form-switch">
-        <input type="hidden" name="bitStatus" value="0">
-        <input type="checkbox" class="form-check-input" id="bitStatus" name="bitStatus" value="1" 
-               <?= set_checkbox('bitStatus', '1', isset($role['bitStatus']) ? $role['bitStatus'] : true) ?>>
-        <label class="form-check-label" for="bitStatus">Active</label>
+        <input type="hidden" name="bitActive" value="0">
+        <input type="checkbox" class="form-check-input" id="bitActive" name="bitActive" value="1" 
+               <?= set_checkbox('bitActive', '1', isset($role['bitActive']) ? $role['bitActive'] : true) ?>>
+        <label class="form-check-label" for="bitActive">Active</label>
     </div>
     <small class="text-muted">Inactive roles cannot be assigned to users</small>
 </div>
@@ -45,10 +45,10 @@
 
 <div class="d-flex justify-content-end gap-2">
     <a href="<?= base_url('roles') ?>" class="btn btn-secondary">
-        <i data-feather="x"></i> Cancel
+        <i class="bi bi-x"></i> Cancel
     </a>
     <button type="submit" class="btn btn-primary">
-        <i data-feather="<?= isset($role['intRoleID']) ? 'save' : 'plus' ?>"></i>
+        <i class="bi bi-<?= isset($role['intRoleID']) ? 'save' : 'plus' ?>"></i>
         <?= isset($role['intRoleID']) ? 'Update' : 'Create' ?> Role
     </button>
 </div>

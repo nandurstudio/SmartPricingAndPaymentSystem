@@ -28,6 +28,18 @@ $routes->get('/', 'Auth::landingPage', ['filter' => 'auth']);
 $routes->get('landing', 'Auth::landingPage', ['filter' => 'auth']);
 $routes->get('dashboard', 'Auth::landingPage', ['filter' => 'auth']);
 
+// User management routes
+$routes->group('users', ['filter' => 'auth'], function($routes) {
+    $routes->get('', 'UserController::index');
+    $routes->get('create', 'UserController::create');
+    $routes->post('store', 'UserController::store');
+    $routes->get('edit/(:num)', 'UserController::edit/$1');
+    $routes->post('update/(:num)', 'UserController::update/$1');
+    $routes->get('delete/(:num)', 'UserController::delete/$1');
+    $routes->get('profile', 'UserController::profile');
+    $routes->post('updateProfile', 'UserController::updateProfile');
+});
+
 // Authentication routes
 $routes->get('/auth/googleLogin', 'Auth::googleLogin');
 $routes->get('/auth/google/callback', 'Auth::googleCallback');

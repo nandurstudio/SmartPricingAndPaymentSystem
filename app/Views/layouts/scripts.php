@@ -10,9 +10,6 @@ if (typeof jQuery === 'undefined') {
 }
 </script>
 
-<!-- Bootstrap Icons -->
-<link rel="stylesheet" href="<?= base_url('assets/css/bootstrap/bootstrap-icons/font/bootstrap-icons.css') ?>">
-
 <!-- Bootstrap Bundle -->
 <script src="<?= base_url('assets/js/bootstrap/bootstrap.bundle.min.js'); ?>"></script>
 

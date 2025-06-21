@@ -33,12 +33,12 @@ class UserController extends Controller
 
         // Get users with their roles
         $users = $this->userModel->getUsersWithRole();
-        return view('user/manage', [
+        return view('users/index', [
             'users' => $users,
             'menus' => $menus,
             'pageTitle' => 'User Management',
-            'pageSubTitle' => 'Manage system users and their roles',
-            'icon' => 'users' // Adding the icon for the layout
+            'cardTitle' => 'User List',
+            'icon' => 'bi bi-people' // Updated to use Bootstrap Icons
         ]);
     }
 
@@ -51,18 +51,18 @@ class UserController extends Controller
 
         $user = $this->userModel->find($id);
         if (!$user) {
-            return redirect()->to('/user')->with('error', 'User not found');
+            return redirect()->to('/users')->with('error', 'User not found');
         }
 
         $roles = $this->roleModel->findAll();
         $menus = $this->menuModel->getMenusByRole(session()->get('roleID'));
-        return view('user/edit_user', [
+        return view('users/edit', [
             'user' => $user,
             'roles' => $roles,
             'menus' => $menus,
             'pageTitle' => 'Edit User',
-            'pageSubTitle' => 'Update user information',
-            'icon' => 'user-edit'
+            'cardTitle' => 'Edit User Profile',
+            'icon' => 'bi bi-pencil' // Updated to use Bootstrap Icons
         ]);
     }
 
@@ -71,7 +71,7 @@ class UserController extends Controller
     {
         $user = $this->userModel->find($id);
         if (!$user) {
-            return redirect()->to('/user')->with('error', 'User not found');
+            return redirect()->to('/users')->with('error', 'User not found');
         }
 
         // Validation rules
@@ -134,14 +134,13 @@ class UserController extends Controller
         }
 
         try {
-            $this->userModel->update($id, $updateData);            return redirect()->to('/users')
-                ->with('message', 'User updated successfully')
-                ->with('message_type', 'success');
+            $this->userModel->update($id, $updateData);
+            return redirect()->to('/users')
+                ->with('success', 'User updated successfully');
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
-                ->with('message', 'Failed to update user')
-                ->with('message_type', 'danger');
+                ->with('error', 'Failed to update user');
         }
     }
 
@@ -183,7 +182,7 @@ class UserController extends Controller
         }
 
         if ($id === null) {
-            return redirect()->to('/user')->with('error', 'User ID is required');
+            return redirect()->to('/users')->with('error', 'User ID is required');
         }
 
         $roleID = session()->get('roleID');
@@ -192,13 +191,13 @@ class UserController extends Controller
         $user = $this->userModel->getUserWithRole($id);
 
         if (empty($user)) {
-            return redirect()->to('/user')->with('error', 'User not found');
+            return redirect()->to('/users')->with('error', 'User not found');
         }
 
-        return view('user/view', [
-            'title' => 'User Details',
-            'subtitle' => 'View user information',
-            'icon' => 'user',
+        return view('users/view', [
+            'pageTitle' => 'User Details',
+            'cardTitle' => 'View User Information',
+            'icon' => 'bi bi-person',
             'user' => $user,
             'menus' => $menus
         ]);

@@ -1,22 +1,28 @@
 <?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
-<div class="container-xl px-4 mt-4">
-    <div class="card">
-        <div class="card-header">            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><?= $pageTitle ?? 'Create Role' ?></h5>
-                <div>
-                    <button type="submit" form="roleForm" class="btn btn-primary btn-sm">
-                        <i data-feather="plus"></i> Create Role
-                    </button>
-                    <a href="<?= base_url('roles') ?>" class="btn btn-secondary btn-sm ms-2">
-                        <i data-feather="arrow-left"></i> Back
-                    </a>
+<div class="container-fluid px-4">
+    <h1 class="mt-4"><?= $pageTitle ?></h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="<?= base_url('roles') ?>">Role Management</a></li>
+        <li class="breadcrumb-item active"><?= $pageTitle ?></li>
+    </ol>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">                <div>
+                    <i class="bi bi-shield-plus me-1"></i>
+                    <?= $pageTitle ?>
                 </div>
+                <a href="<?= base_url('roles') ?>" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Back
+                </a>
             </div>
         </div>
         <div class="card-body">
-            <?= $this->include('layouts/messages') ?>            <form action="<?= base_url('roles/store') ?>" method="post" id="roleForm">
+            <?= $this->include('layouts/messages') ?>
+            <form action="<?= base_url('roles/store') ?>" method="post" id="roleForm">
                 <?= $this->include('role/_form') ?>
             </form>
         </div>

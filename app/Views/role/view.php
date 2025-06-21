@@ -1,17 +1,33 @@
 <?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
-<div class="container-xl px-4 mt-4">
-    <div class="card">
+<div class="container-fluid px-4">
+    <h1 class="mt-4"><?= $pageTitle ?></h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="<?= base_url('roles') ?>">Role Management</a></li>
+        <li class="breadcrumb-item active"><?= $pageTitle ?></li>
+    </ol>
+    
+    <?php if (session()->getFlashdata('success')) : ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <?= session()->getFlashdata('success') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+    
+    <div class="card mb-4">
         <div class="card-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><?= $pageTitle ?? 'Role Details' ?></h5>
+            <div class="d-flex justify-content-between align-items-center">                <div>
+                    <i class="bi bi-shield-check me-1"></i>
+                    Role Details
+                </div>
                 <div>
-                    <a href="<?= base_url('roles/edit/' . $role['intRoleID']) ?>" class="btn btn-primary btn-sm">
-                        <i data-feather="edit"></i> Edit
+                    <a href="<?= base_url('roles/edit/' . $role['intRoleID']) ?>" class="btn btn-warning">
+                        <i class="bi bi-pencil me-1"></i> Edit
                     </a>
-                    <a href="<?= base_url('roles') ?>" class="btn btn-secondary btn-sm ms-2">
-                        <i data-feather="arrow-left"></i> Back
+                    <a href="<?= base_url('roles') ?>" class="btn btn-secondary ms-2">
+                        <i class="bi bi-arrow-left me-1"></i> Back
                     </a>
                 </div>
             </div>
@@ -37,9 +53,9 @@
                 <tr>
                     <th>Status</th>
                     <td>
-                        <span class="badge bg-<?= isset($role['bitStatus']) && $role['bitStatus'] ? 'success' : 'danger' ?>">
-                            <i data-feather="<?= isset($role['bitStatus']) && $role['bitStatus'] ? 'check-circle' : 'x-circle' ?>" class="me-1"></i>
-                            <?= isset($role['bitStatus']) && $role['bitStatus'] ? 'Active' : 'Inactive' ?>
+                        <span class="badge bg-<?= isset($role['bitActive']) && $role['bitActive'] ? 'success' : 'danger' ?>">
+                            <i class="bi bi-<?= isset($role['bitActive']) && $role['bitActive'] ? 'check-circle' : 'x-circle' ?>"></i>
+                            <?= isset($role['bitActive']) && $role['bitActive'] ? 'Active' : 'Inactive' ?>
                         </span>
                     </td>
                 </tr>
@@ -49,15 +65,15 @@
                 </tr>
                 <tr>
                     <th>Created Date</th>
-                    <td><?= isset($role['dtmCreatedDate']) ? date('d M Y H:i', strtotime($role['dtmCreatedDate'])) : '-' ?></td>
+                    <td><?= $role['dtmCreatedDate'] ? date('Y-m-d H:i:s', strtotime($role['dtmCreatedDate'])) : '-' ?></td>
                 </tr>
                 <tr>
                     <th>Updated By</th>
-                    <td><?= esc($role['txtLastUpdatedBy'] ?? '-') ?></td>
+                    <td><?= esc($role['txtUpdatedBy'] ?? '-') ?></td>
                 </tr>
                 <tr>
                     <th>Updated Date</th>
-                    <td><?= isset($role['dtmLastUpdatedDate']) ? date('d M Y H:i', strtotime($role['dtmLastUpdatedDate'])) : '-' ?></td>
+                    <td><?= $role['dtmUpdatedDate'] ? date('Y-m-d H:i:s', strtotime($role['dtmUpdatedDate'])) : '-' ?></td>
                 </tr>
             </table>
         </div>
