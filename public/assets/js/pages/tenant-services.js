@@ -14,7 +14,8 @@ $(document).ready(function() {
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, proceed!'
+            confirmButtonText: 'Yes, proceed!',
+            allowOutsideClick: false
         }).then((result) => {
             if (result.isConfirmed) {
                 // Show loading state
@@ -52,29 +53,49 @@ $(document).ready(function() {
                                 `${newStatus == 1 ? 'Active' : 'Inactive'}`
                             );
 
-                            // Show success message
+                            // Show success message with auto-close
                             Swal.fire({
                                 title: 'Success!',
                                 text: `Service successfully ${actionText}d`,
                                 icon: 'success',
                                 timer: 2000,
-                                showConfirmButton: false
+                                showConfirmButton: false,
+                                allowOutsideClick: false,
+                                willClose: () => {
+                                    // Cleanup any lingering modal elements
+                                    const modalBackdrops = document.getElementsByClassName('swal2-backdrop-show');
+                                    const modalContainers = document.getElementsByClassName('swal2-container');
+                                    
+                                    for (let el of modalBackdrops) {
+                                        el.remove();
+                                    }
+                                    for (let el of modalContainers) {
+                                        el.remove();
+                                    }
+
+                                    // Reset body styles
+                                    document.body.classList.remove('swal2-shown', 'swal2-height-auto');
+                                    document.body.style.removeProperty('padding-right');
+                                    document.body.style.removeProperty('overflow');
+                                }
                             });
                         } else {
-                            Swal.fire(
-                                'Error!',
-                                response.message || 'Failed to update service status',
-                                'error'
-                            );
+                            Swal.fire({
+                                title: 'Error!',
+                                text: response.message || 'Failed to update service status',
+                                icon: 'error',
+                                allowOutsideClick: false
+                            });
                         }
                     },
                     error: function(xhr) {
                         console.error('Error:', xhr);
-                        Swal.fire(
-                            'Error!',
-                            'An error occurred while updating service status',
-                            'error'
-                        );
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'An error occurred while updating service status',
+                            icon: 'error',
+                            allowOutsideClick: false
+                        });
                     },
                     complete: function() {
                         // Re-enable button
