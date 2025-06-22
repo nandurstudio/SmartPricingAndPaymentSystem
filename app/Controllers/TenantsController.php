@@ -10,6 +10,7 @@ class TenantsController extends BaseController
     protected $menuModel;
     protected $serviceTypeModel;
     protected $baseDomain;
+    protected $db;
 
     public function __construct()
     {
@@ -17,6 +18,7 @@ class TenantsController extends BaseController
         $this->menuModel = new \App\Models\MenuModel();
         $this->serviceTypeModel = new \App\Models\ServiceTypeModel();
         $this->baseDomain = env('BASE_DOMAIN', 'smartpricingandpaymentsystem.localhost.com');
+        $this->db = \Config\Database::connect();
     }
 
     public function index()
@@ -30,7 +32,7 @@ class TenantsController extends BaseController
 
         // Get menus by role
         $menus = $this->menuModel->getMenusByRole($roleId);
-        
+
         // Get tenants based on role
         $tenants = $this->tenantModel->getUserTenants($userId, $roleId);
 
@@ -52,7 +54,7 @@ class TenantsController extends BaseController
 
         $userId = session()->get('userID');
         $roleId = session()->get('roleID');
-        
+
         // Check if this is a first-time tenant creation
         $existingTenant = $this->tenantModel->where('intOwnerID', $userId)->first();
         if (!$existingTenant && $roleId == 4) { // Regular user role
@@ -60,10 +62,9 @@ class TenantsController extends BaseController
         }
 
         $menus = $this->menuModel->getMenusByRole($roleId);
-        
+
         // Get all active service types
         $serviceTypes = $this->serviceTypeModel->where('bitActive', 1)->findAll();
-
         return view('tenants/create', [
             'title' => 'Create Tenant',
             'pageTitle' => 'Create New Tenant',
@@ -78,7 +79,7 @@ class TenantsController extends BaseController
     public function checkSubdomain()
     {
         $subdomain = $this->request->getGet('subdomain');
-        
+
         if (empty($subdomain)) {
             return $this->response->setJSON([
                 'available' => false,
@@ -108,7 +109,7 @@ class TenantsController extends BaseController
             'txtSubscriptionPlan' => 'basic',
             'txtSubscriptionStatus' => 'inactive',
             'txtStatus' => 'active',
-            'dtmTrialEndsAt' => date('Y-m-d H:i:s', strtotime('+14 days')),
+            'dtmTrialEndsAt' => $this->calculateTrialEndDate('basic'),
             'jsonSettings' => json_encode(['theme' => 'default']),
             'jsonPaymentSettings' => json_encode(['currency' => 'IDR']),
             'txtTheme' => 'default',
@@ -128,53 +129,84 @@ class TenantsController extends BaseController
 
         // Validation rules
         $rules = [
-            'txtTenantName' => 'required|min_length[3]|max_length[100]',
+            'txtTenantName' => 'required|min_length[3]|max_length[255]',
             'intServiceTypeID' => 'required|numeric',
-            'txtDomain' => 'permit_empty|max_length[255]'
+            'txtDomain' => 'permit_empty|max_length[255]',
+            'txtSubscriptionPlan' => 'required|in_list[free,basic,premium,enterprise]',
+            'txtStatus' => 'required|in_list[active,inactive,suspended,pending,pending_verification,pending_payment,payment_failed]',
+            'txtTheme' => 'permit_empty|in_list[default,dark,light]'
         ];
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        // Handle logo upload
-        $data = ['txtLogo' => null];
-        $logo = $this->request->getFile('txtLogo');
-        if ($logo && $logo->isValid() && !$logo->hasMoved()) {
-            $newName = $logo->getRandomName();
-            $logo->move(ROOTPATH . 'public/uploads/tenants', $newName);
-            $data['txtLogo'] = $newName;
-        }
+        $normalizedSubdomain = $this->tenantModel->normalizeSubdomain($this->request->getPost('txtDomain'));
 
-        // Get and normalize subdomain
-        $subdomain = $this->request->getPost('txtDomain');
-        $normalizedSubdomain = $this->tenantModel->normalizeSubdomain($subdomain ? $subdomain : $this->request->getPost('txtTenantName'));
-
+        // Check if subdomain is available
         if (!$this->tenantModel->isSubdomainAvailable($normalizedSubdomain)) {
             return redirect()->back()->withInput()
-                ->with('error', 'The subdomain is already taken. Please choose another one.');
+                ->with('error', 'The selected subdomain is already taken. Please choose another one.');
         }
 
-        // Prepare data and insert tenant
-        $data = array_merge($data, $this->prepareNewTenant($userId, $normalizedSubdomain));
-        if ($tenantId = $this->tenantModel->insert($data)) {
-            // Generate default CSS for the new tenant
-            $this->tenantModel->generateDefaultCSS($tenantId);
-            
-            // Generate tenant URL with subdomain format and redirect
-            $tenantUrl = generate_tenant_url($normalizedSubdomain);
+        // Prepare settings and payment settings
+        $description = $this->request->getPost('description');
+        $settings = [
+            'description' => $description,
+            'theme' => $this->request->getPost('txtTheme') ?? 'default',
+            'customCSS' => ''
+        ];
 
-            if ($data['txtStatus'] === 'active') {
-                return redirect()->to($tenantUrl)
-                    ->with('success', 'Tenant created successfully. Redirecting to your website...');
+        $paymentSettings = [
+            'currency' => 'IDR',
+            'last_payment_id' => null,
+            'last_payment_status' => null,
+            'last_payment_date' => null
+        ];
+
+        // Prepare tenant data
+        $data = [
+            'txtTenantName' => $this->request->getPost('txtTenantName'),
+            'intServiceTypeID' => $this->request->getPost('intServiceTypeID'),
+            'txtSlug' => $this->tenantModel->generateTenantSlug($this->request->getPost('txtTenantName')),
+            'txtDomain' => $normalizedSubdomain,
+            'txtTenantCode' => strtoupper(substr(md5(time()), 0, 8)),
+            'intOwnerID' => $userId,
+            'txtSubscriptionPlan' => $this->request->getPost('txtSubscriptionPlan'),
+            'txtSubscriptionStatus' => $this->request->getPost('txtSubscriptionPlan') === 'free' ? 'active' : 'inactive',
+            'txtStatus' => $this->request->getPost('txtStatus'),
+            'dtmTrialEndsAt' => $this->request->getPost('txtSubscriptionPlan') === 'free' ? null : $this->calculateTrialEndDate($this->request->getPost('txtSubscriptionPlan')),
+            'dtmSubscriptionStartDate' => $this->request->getPost('txtSubscriptionPlan') === 'free' ? date('Y-m-d H:i:s') : null,
+            'dtmSubscriptionEndDate' => $this->request->getPost('txtSubscriptionPlan') === 'free' ? null : null, // Free plan has no end date
+            'jsonSettings' => json_encode($settings),
+            'jsonPaymentSettings' => json_encode($paymentSettings),
+            'txtTheme' => $this->request->getPost('txtTheme') ?? 'default',
+            'bitActive' => $this->request->getPost('bitActive') ? 1 : 0,
+            'txtCreatedBy' => session()->get('userName'),
+            'txtGUID' => uniqid('tenant_', true)
+        ];
+
+        try {
+            // Start transaction
+            $this->db->transStart();
+            // Insert tenant
+            $tenantId = $this->tenantModel->insert($data);
+
+            if (!$tenantId) {
+                throw new \Exception('Failed to create tenant');
             }
 
-            return redirect()->to('/tenants')
-                ->with('success', 'Tenant created successfully. Please wait for approval.');
-        }
+            $this->db->transComplete();
 
-        return redirect()->back()->withInput()
-            ->with('errors', $this->tenantModel->errors());
+            if ($this->db->transStatus() === false) {
+                throw new \Exception('Failed to complete tenant creation');
+            }
+
+            return redirect()->to('/tenants')->with('message', 'Tenant created successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()
+                ->with('error', 'Failed to create tenant: ' . $e->getMessage());
+        }
     }
 
     public function edit($id)
@@ -190,8 +222,9 @@ class TenantsController extends BaseController
         // Check permissions
         if (!$tenant || ($tenant['intOwnerID'] != $userId && $roleId != 1)) {
             return redirect()->to('/tenants')->with('error', 'You do not have permission to edit this tenant.');
-        }        $menus = $this->menuModel->getMenusByRole($roleId);
-        
+        }
+        $menus = $this->menuModel->getMenusByRole($roleId);
+
         // Get all active service types
         $serviceTypes = $this->serviceTypeModel->where('bitActive', 1)->findAll();
 
@@ -206,116 +239,257 @@ class TenantsController extends BaseController
             'validation' => \Config\Services::validation()
         ]);
     }
-
     public function update($id)
     {
         if (!session()->get('isLoggedIn')) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'error' => 'You must be logged in to access this page.'
+                ]);
+            }
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
-        }
-
-        $userId = session()->get('userID');
-        $roleId = session()->get('roleID');
-        $tenant = $this->tenantModel->find($id);
-        
-        // Check permissions
-        if (!$tenant || ($tenant['intOwnerID'] != $userId && $roleId != 1)) {
-            return redirect()->to('/tenants')->with('error', 'You do not have permission to update this tenant.');
-        }
-
-        // Validation rules
+        }        // Validation rules
         $rules = [
-            'txtTenantName' => 'required|min_length[3]|max_length[100]',
+            'txtTenantName' => 'required|min_length[3]|max_length[255]',
             'intServiceTypeID' => 'required|numeric',
-            'txtDomain' => 'permit_empty|max_length[255]',
-            'txtStatus' => 'required|in_list[active,inactive,suspended,pending,pending_verification,pending_payment,payment_failed]',
             'txtSubscriptionPlan' => 'required|in_list[free,basic,premium,enterprise]',
-            'txtTheme' => 'permit_empty|in_list[default,dark,light]',
-            'bitActive' => 'permit_empty|in_list[0,1]'
+            'txtStatus' => 'required|in_list[active,inactive,suspended,pending,pending_verification,pending_payment,payment_failed]',
+            'txtTheme' => 'permit_empty|in_list[default,dark,light]'
         ];
 
         if (!$this->validate($rules)) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'errors' => $this->validator->getErrors()
+                ]);
+            }
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $data = [];
-
-        // Handle logo removal
-        if ($this->request->getPost('removeLogo') && $tenant['txtLogo']) {
-            $logoPath = ROOTPATH . 'public/uploads/tenants/' . $tenant['txtLogo'];
-            if (file_exists($logoPath)) {
-                unlink($logoPath);
+        // Get existing tenant data for comparison
+        $tenant = $this->tenantModel->find($id);
+        if (!$tenant) {
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'error' => 'Tenant not found.'
+                ]);
             }
-            $data['txtLogo'] = null;
-        }
-        // Handle logo upload
-        else {
-            $logo = $this->request->getFile('txtLogo');
-            if ($logo && $logo->isValid() && !$logo->hasMoved()) {
-                $newName = $logo->getRandomName();
-                $logo->move(ROOTPATH . 'public/uploads/tenants', $newName);
-                
-                // Delete old logo if exists
-                if ($tenant['txtLogo'] && file_exists(ROOTPATH . 'public/uploads/tenants/' . $tenant['txtLogo'])) {
-                    unlink(ROOTPATH . 'public/uploads/tenants/' . $tenant['txtLogo']);
-                }
-                
-                $data['txtLogo'] = $newName;
-            }
+            return redirect()->to('/tenants')->with('error', 'Tenant not found.');
         }
 
-        // Get and normalize subdomain
-        $subdomain = $this->request->getPost('txtDomain');
-        if ($subdomain !== $tenant['txtDomain']) {
-            $normalizedSubdomain = $this->tenantModel->normalizeSubdomain($subdomain);
-            // Check if subdomain is available (exclude current tenant)
-            if (!empty($normalizedSubdomain) && $this->tenantModel->where('txtDomain', $normalizedSubdomain)
-                                                             ->where('intTenantID !=', $id)
-                                                             ->first()) {
-                return redirect()->back()->withInput()
-                    ->with('error', 'The subdomain is already taken. Please choose another one.');
-            }
-            $data['txtDomain'] = $normalizedSubdomain;
+        // Check role permissions for status changes
+        $userRole = session()->get('role');
+        if (!in_array($userRole, ['admin', 'super_admin'])) {
+            // Non-admin users can't change status
+            $data['txtStatus'] = $tenant['txtStatus'];
         }
 
-        // Prepare update data
-        $data = array_merge($data, [
-            'txtTenantName' => $this->request->getPost('txtTenantName'),
-            'intServiceTypeID' => $this->request->getPost('intServiceTypeID'),
-            'txtStatus' => $this->request->getPost('txtStatus'),
-            'txtSubscriptionPlan' => $this->request->getPost('txtSubscriptionPlan'),
-            'txtTheme' => $this->request->getPost('txtTheme'),
-            'bitActive' => $this->request->getPost('bitActive') ?? 0,
-            'jsonSettings' => $this->request->getPost('jsonSettings'),
-            'jsonPaymentSettings' => $this->request->getPost('jsonPaymentSettings'),
-            'txtMidtransClientKey' => $this->request->getPost('txtMidtransClientKey'),
-            'txtMidtransServerKey' => $this->request->getPost('txtMidtransServerKey'),
-            'txtUpdatedBy' => session()->get('userName')
+        // Prepare settings
+        $currentSettings = json_decode($tenant['jsonSettings'] ?? '{}', true);
+        $description = $this->request->getPost('description');
+        $settings = array_merge($currentSettings, [
+            'description' => $description,
+            'theme' => $this->request->getPost('txtTheme') ?? 'default'
         ]);
 
-        // Update data
-        if ($this->tenantModel->update($id, $data)) {
-            // Regenerate CSS if theme changed
-            if (isset($data['txtTheme']) && $data['txtTheme'] !== $tenant['txtTheme']) {
-                $this->tenantModel->generateDefaultCSS($id);
-            }
+        // Get current payment settings
+        $currentPaymentSettings = json_decode($tenant['jsonPaymentSettings'] ?? '{}', true);
+        try {
+            try {
+                // Handle logo upload
+                $logo = $this->request->getFile('txtLogo');
 
-            // If subdomain changed and tenant is active, redirect to new subdomain
-            if (isset($data['txtDomain']) && 
-                $data['txtDomain'] !== $tenant['txtDomain'] && 
-                $data['txtStatus'] === 'active') {
-                $tenantUrl = generate_tenant_url($data['txtDomain']);
-                return redirect()->to($tenantUrl)
-                    ->with('success', 'Tenant updated successfully. Redirecting to new domain...');
-            }
+                // Debug logs for request info
+                log_message('info', 'Request info:');
+                log_message('info', '- Files: ' . json_encode($_FILES));
+                log_message('info', '- Logo upload request received: ' . ($logo ? 'File present' : 'No file'));
+                log_message('info', '- Remove logo flag: ' . $this->request->getPost('removeLogo'));
 
-            return redirect()->to('/tenants')
-                ->with('success', 'Tenant updated successfully.');
+                // Handle logo removal
+                if ($this->request->getPost('removeLogo') == '1') {
+                    log_message('info', 'Logo removal requested');
+                    if (!empty($tenant['txtLogo'])) {
+                        $oldLogoPath = FCPATH . 'uploads/tenants/' . $tenant['txtLogo'];
+                        if (file_exists($oldLogoPath)) {
+                            unlink($oldLogoPath);
+                            log_message('info', 'Old logo deleted: ' . $oldLogoPath);
+                        }
+                    }
+                    $data['txtLogo'] = null;
+                    log_message('info', 'Logo field set to null');
+                }
+                // Handle new logo upload only if a file was actually uploaded
+                elseif ($logo && $logo->getError() !== UPLOAD_ERR_NO_FILE && $logo->getSize() > 0) {
+                    if (!$logo->isValid()) {
+                        log_message('error', 'Invalid file upload. Error: ' . $logo->getError());
+                        if ($logo->getError() !== UPLOAD_ERR_NO_FILE) {
+                            throw new \RuntimeException('Invalid file upload: ' . $logo->getErrorString());
+                        }
+                    } else {
+                        log_message('info', 'Valid logo file detected: ' . $logo->getName());
+                        log_message('info', 'File details:');
+                        log_message('info', '- Size: ' . $logo->getSize() . ' bytes');
+                        log_message('info', '- Type: ' . $logo->getClientMimeType());
+                        log_message('info', '- Temp name: ' . $logo->getTempName());
+
+                        // Validate file type
+                        $validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                        if (!in_array($logo->getClientMimeType(), $validTypes)) {
+                            throw new \RuntimeException('Invalid file type. Only JPG, PNG and GIF are allowed.');
+                        }
+
+                        // Validate file size (max 2MB)
+                        if ($logo->getSize() > 2097152) {
+                            throw new \RuntimeException('File size exceeds 2MB limit.');
+                        }
+
+                        // Delete old logo if exists
+                        if (!empty($tenant['txtLogo'])) {
+                            $oldLogoPath = FCPATH . 'uploads/tenants/' . $tenant['txtLogo'];
+                            if (file_exists($oldLogoPath)) {
+                                unlink($oldLogoPath);
+                                log_message('info', 'Old logo deleted before new upload');
+                            }
+                        }
+
+                        // Create uploads directory if it doesn't exist
+                        $uploadPath = FCPATH . 'uploads/tenants';
+                        if (!is_dir($uploadPath)) {
+                            if (!mkdir($uploadPath, 0777, true)) {
+                                throw new \RuntimeException('Failed to create upload directory.');
+                            }
+                            log_message('info', 'Created upload directory: ' . $uploadPath);
+                        }
+
+                        // Check if directory is writable
+                        if (!is_writable($uploadPath)) {
+                            throw new \RuntimeException('Upload directory is not writable.');
+                        }
+
+                        // Generate new filename
+                        $newName = $id . '_' . $logo->getRandomName();
+                        log_message('info', 'Generated new filename: ' . $newName);
+
+                        // Move file to uploads directory
+                        if ($logo->move($uploadPath, $newName)) {
+                            log_message('info', 'File moved successfully to: ' . $uploadPath . '/' . $newName);
+                            $data['txtLogo'] = $newName;
+
+                            // Verify file was actually saved
+                            if (!file_exists($uploadPath . '/' . $newName)) {
+                                throw new \RuntimeException('File was not saved properly.');
+                            }
+                        } else {
+                            log_message('error', 'Failed to move uploaded file. Error: ' . $logo->getError());
+                            throw new \RuntimeException('Failed to move uploaded file: ' . $logo->getErrorString());
+                        }
+                    }
+                }
+                // If no new file and no remove flag, keep the existing logo
+                else {
+                    log_message('info', 'No new logo uploaded and no removal requested. Keeping existing logo.');
+                    // Don't set txtLogo in data, which will keep the existing value
+                }
+            } catch (\Exception $e) {
+                log_message('error', 'Error in logo processing: ' . $e->getMessage());
+                if ($this->request->isAJAX()) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'error' => 'Logo upload failed: ' . $e->getMessage()
+                    ]);
+                }
+                return redirect()->back()->withInput()->with('error', 'Logo upload failed: ' . $e->getMessage());
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error in logo processing: ' . $e->getMessage());
+            // Add error to validation errors
+            $this->validator->setError('txtLogo', $e->getMessage());
+        }        // Get the new tenant name
+        $newTenantName = $this->request->getPost('txtTenantName');
+        $newSubscriptionPlan = $this->request->getPost('txtSubscriptionPlan');
+
+        // Check if subscription plan has changed
+        $planChanged = $tenant['txtSubscriptionPlan'] !== $newSubscriptionPlan;
+
+        // Prepare tenant data
+        $data = [
+            'txtTenantName' => $newTenantName,
+            'intServiceTypeID' => $this->request->getPost('intServiceTypeID'),
+            'txtStatus' => $this->request->getPost('txtStatus'),
+            'txtSubscriptionPlan' => $newSubscriptionPlan,
+            'txtTheme' => $this->request->getPost('txtTheme') ?? 'default',
+            'bitActive' => $this->request->getPost('bitActive') ? 1 : 0,
+            'jsonSettings' => json_encode($settings),
+            'jsonPaymentSettings' => json_encode($currentPaymentSettings),
+            'txtUpdatedBy' => session()->get('userName'),
+            'txtLogo' => isset($newName) ? $newName : ($this->request->getPost('removeLogo') == '1' ? null : $tenant['txtLogo']),
+            // Update slug only if name has changed
+            'txtSlug' => $this->updateSlugIfNameChanged($tenant, $newTenantName)
+        ];        // Handle subscription plan changes
+        if ($planChanged) {
+            if ($newSubscriptionPlan === 'free') {
+                // If changing to free plan, make it active immediately
+                $data['txtSubscriptionStatus'] = 'active';
+                $data['dtmTrialEndsAt'] = null;
+                $data['dtmSubscriptionStartDate'] = date('Y-m-d H:i:s');
+                $data['dtmSubscriptionEndDate'] = null; // Free plan has no end date
+            } else if ($tenant['txtSubscriptionStatus'] !== 'active') {
+                // If changing to paid plan and not currently active, set trial
+                $data['txtSubscriptionStatus'] = 'inactive';
+                $data['dtmTrialEndsAt'] = $this->calculateTrialEndDate($newSubscriptionPlan);
+                $data['dtmSubscriptionStartDate'] = null;
+                $data['dtmSubscriptionEndDate'] = null;
+            }
         }
 
-        return redirect()->back()->withInput()
-            ->with('errors', $this->tenantModel->errors());
-    }
+        // Update midtrans keys if provided
+        if ($this->request->getPost('txtMidtransClientKey')) {
+            $data['txtMidtransClientKey'] = $this->request->getPost('txtMidtransClientKey');
+        }
+        if ($this->request->getPost('txtMidtransServerKey')) {
+            $data['txtMidtransServerKey'] = $this->request->getPost('txtMidtransServerKey');
+        }
 
+        try {
+            // Start transaction
+            $this->db->transStart();
+
+            if (!$this->tenantModel->update($id, $data)) {
+                throw new \Exception('Failed to update tenant');
+            }
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                throw new \Exception('Failed to complete tenant update');
+            }
+
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Tenant updated successfully.',
+                    'redirect' => base_url('tenants')
+                ]);
+            }
+
+            return redirect()->to('/tenants')->with('message', 'Tenant updated successfully.');
+        } catch (\Exception $e) {
+            log_message('error', '[TenantsController::update] Error: ' . $e->getMessage());
+
+            if ($this->request->isAJAX()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'error' => 'Failed to update tenant: ' . $e->getMessage()
+                ]);
+            }
+
+            return redirect()->back()->withInput()
+                ->with('error', 'Failed to update tenant: ' . $e->getMessage());
+        }
+    }
     public function view($id)
     {
         if (!session()->get('isLoggedIn')) {
@@ -327,7 +501,7 @@ class TenantsController extends BaseController
 
         // Get tenant with service type details
         $tenant = $this->tenantModel->getTenantDetails($id);
-        
+
         if (!$tenant || ($tenant['intOwnerID'] != $userId && $roleId != 1)) {
             return redirect()->to('/tenants')->with('error', 'You do not have permission to view this tenant.');
         }
@@ -336,13 +510,27 @@ class TenantsController extends BaseController
         $serviceModel = new \App\Models\ServiceModel();
         $services = $serviceModel->getServicesWithType($id);
 
+        // Get booking statistics
+        $bookingModel = new \App\Models\BookingModel();
+        $bookingStats = [
+            'total' => $bookingModel->where('intTenantID', $id)->countAllResults(),
+            'pending' => $bookingModel->where('intTenantID', $id)->where('txtStatus', 'pending')->countAllResults(),
+            'confirmed' => $bookingModel->where('intTenantID', $id)->where('txtStatus', 'confirmed')->countAllResults(),
+            'completed' => $bookingModel->where('intTenantID', $id)->where('txtStatus', 'completed')->countAllResults()
+        ];
+
+        // Get recent bookings
+        $recentBookings = $bookingModel->getRecentBookings($id, 5);
+
         $data = [
             'title' => 'View Tenant',
             'pageTitle' => 'Tenant Details',
             'pageSubTitle' => 'View tenant information and services',
             'icon' => 'info-circle',
             'tenant' => $tenant,
-            'services' => $services
+            'services' => $services,
+            'bookingStats' => $bookingStats,
+            'recentBookings' => $recentBookings
         ];
 
         return view('tenants/view', $data);
@@ -364,8 +552,12 @@ class TenantsController extends BaseController
         // Check permissions
         if (!$tenant || ($tenant['intOwnerID'] != $userId && $roleId != 1)) {
             return redirect()->to('/tenants')->with('error', 'You do not have permission to activate this tenant.');
+        }        // Free plan doesn't need activation
+        if ($tenant['txtSubscriptionPlan'] === 'free') {
+            return redirect()->to('/tenants/view/' . $id)->with('info', 'Free plan is already active and does not require payment.');
         }
 
+        // Check if subscription is already active
         if ($tenant['txtSubscriptionStatus'] === 'active') {
             return redirect()->to('/tenants/view/' . $id)->with('info', 'Subscription is already active.');
         }
@@ -378,7 +570,7 @@ class TenantsController extends BaseController
                 'txtUpdatedBy' => session()->get('userID'),
                 'dtmUpdatedDate' => date('Y-m-d H:i:s')
             ]);
-            
+
             // Setup Midtrans payment
             $orderId = 'TENANT-' . $tenant['intTenantID'] . '-' . time();
             $params = [
@@ -399,10 +591,23 @@ class TenantsController extends BaseController
                     ]
                 ],
                 'enabled_payments' => [
-                    'credit_card', 'mandiri_clickpay', 'cimb_clicks',
-                    'bca_klikbca', 'bca_klikpay', 'bri_epay', 'echannel', 'permata_va',
-                    'bca_va', 'bni_va', 'bri_va', 'other_va', 'gopay', 'indomaret',
-                    'alfamart', 'danamon_online', 'akulaku'
+                    'credit_card',
+                    'mandiri_clickpay',
+                    'cimb_clicks',
+                    'bca_klikbca',
+                    'bca_klikpay',
+                    'bri_epay',
+                    'echannel',
+                    'permata_va',
+                    'bca_va',
+                    'bni_va',
+                    'bri_va',
+                    'other_va',
+                    'gopay',
+                    'indomaret',
+                    'alfamart',
+                    'danamon_online',
+                    'akulaku'
                 ]
             ];
 
@@ -424,7 +629,6 @@ class TenantsController extends BaseController
                 'plan' => $tenant['txtSubscriptionPlan'],
                 'amount' => $pricing['amount']
             ]);
-
         } catch (\Exception $e) {
             log_message('error', '[TenantsController::activateSubscription] Error: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Failed to setup payment. ' . $e->getMessage());
@@ -445,16 +649,17 @@ class TenantsController extends BaseController
             // Verify transaction status with Midtrans
             \Midtrans\Config::$serverKey = getenv('MIDTRANS_SERVER_KEY');
             \Midtrans\Config::$isProduction = getenv('MIDTRANS_IS_PRODUCTION') == 'true';
-            
+
             $transactionStatus = \Midtrans\Transaction::status($transactionId);
             $transactionData = json_decode(json_encode($transactionStatus), true);
-            
-            if (($transactionData['transaction_status'] ?? '') === 'settlement' || 
-                ($transactionData['transaction_status'] ?? '') === 'capture') {
-                
+
+            if (($transactionData['transaction_status'] ?? '') === 'settlement' ||
+                ($transactionData['transaction_status'] ?? '') === 'capture'
+            ) {
+
                 // Activate tenant subscription
                 $this->tenantModel->activateSubscription($id, $transactionData);
-                
+
                 return view('tenants/payment_success', [
                     'title' => 'Payment Successful',
                     'pageTitle' => 'Payment Successful',
@@ -463,9 +668,8 @@ class TenantsController extends BaseController
                     'transaction' => $transactionData
                 ]);
             }
-            
+
             throw new \Exception('Payment verification failed. Status: ' . ($transactionData['transaction_status'] ?? 'unknown'));
-            
         } catch (\Exception $e) {
             log_message('error', '[Payment Verification] Error: ' . $e->getMessage());
             return redirect()->to('/tenants/payment-failed/' . $id)
@@ -479,7 +683,7 @@ class TenantsController extends BaseController
     public function paymentPending($id)
     {
         $tenant = $this->tenantModel->find($id);
-        
+
         if (!$tenant) {
             return redirect()->to('/tenants')->with('error', 'Tenant not found');
         }
@@ -499,7 +703,7 @@ class TenantsController extends BaseController
     public function paymentFailed($id)
     {
         $tenant = $this->tenantModel->find($id);
-        
+
         if (!$tenant) {
             return redirect()->to('/tenants')->with('error', 'Tenant not found');
         }
@@ -538,5 +742,326 @@ class TenantsController extends BaseController
         }
 
         return $pricing[$plan];
+    }
+
+    /**
+     * Calculate subscription dates based on plan
+     */
+    protected function calculateSubscriptionDates($plan)
+    {
+        $duration = [
+            'free' => '0 months',
+            'basic' => '1 month',
+            'premium' => '1 month',
+            'enterprise' => '1 month'
+        ];
+
+        $startDate = date('Y-m-d H:i:s');
+        $endDate = date('Y-m-d H:i:s', strtotime('+' . ($duration[$plan] ?? '1 month'), strtotime($startDate)));
+
+        return [
+            'start' => $startDate,
+            'end' => $endDate
+        ];
+    }
+
+    /**
+     * Calculate trial end date based on subscription plan
+     */    protected function calculateTrialEndDate($plan)
+    {
+        // Free plan doesn't have trial period
+        if ($plan === 'free') {
+            return null;
+        }
+
+        $trialDays = [
+            'basic' => 14,
+            'premium' => 14,
+            'enterprise' => 30
+        ];
+
+        return date('Y-m-d H:i:s', strtotime('+' . ($trialDays[$plan] ?? 14) . ' days'));
+    }
+
+    /**
+     * Update slug if tenant name changes
+     */
+    protected function updateSlugIfNameChanged($tenant, $newName)
+    {
+        if ($tenant['txtTenantName'] !== $newName) {
+            return $this->tenantModel->generateTenantSlug($newName);
+        }
+        return $tenant['txtSlug'];
+    }
+
+    /**
+     * Handle plan change request
+     */    public function changePlan($id, $newPlan)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
+        }
+
+        $userId = session()->get('userID');
+        $roleId = session()->get('roleID');
+        $tenant = $this->tenantModel->find($id);
+
+        // Check permissions
+        if (!$tenant || ($tenant['intOwnerID'] != $userId && $roleId != 1)) {
+            return redirect()->to('/tenants')->with('error', 'You do not have permission to modify this tenant.');
+        }
+
+        // Validate plan
+        if (!in_array($newPlan, ['basic', 'premium', 'enterprise'])) {
+            return redirect()->to('/tenants/view/' . $id)->with('error', 'Invalid plan selected.');
+        }
+
+        try {
+            // Store original plan details in session for rollback if payment fails
+            session()->set('plan_change_original', [
+                'id' => $id,
+                'plan' => $tenant['txtSubscriptionPlan'],
+                'status' => $tenant['txtSubscriptionStatus'],
+                'trial_ends_at' => $tenant['dtmTrialEndsAt']
+            ]);
+
+            $data = [
+                'txtSubscriptionPlan' => $newPlan,
+                'txtSubscriptionStatus' => 'pending_payment',
+                'dtmTrialEndsAt' => $this->calculateTrialEndDate($newPlan),
+                'txtUpdatedBy' => session()->get('userName')
+            ];
+
+            if (!$this->tenantModel->update($id, $data)) {
+                throw new \Exception('Failed to update subscription plan');
+            }
+
+            // Set session timeout for payment
+            session()->set('plan_change_timeout', time() + (30 * 60)); // 30 minutes timeout
+
+            return redirect()->to('/tenants/activate-subscription/' . $id);
+        } catch (\Exception $e) {
+            log_message('error', '[TenantsController::changePlan] Error: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Failed to update plan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Rollback plan change if payment fails or times out
+     */
+    protected function rollbackPlanChange($id)
+    {
+        $originalPlan = session()->get('plan_change_original');
+        if ($originalPlan && $originalPlan['id'] == $id) {
+            try {
+                $data = [
+                    'txtSubscriptionPlan' => $originalPlan['plan'],
+                    'txtSubscriptionStatus' => $originalPlan['status'],
+                    'dtmTrialEndsAt' => $originalPlan['trial_ends_at'],
+                    'txtUpdatedBy' => session()->get('userName')
+                ];
+
+                if (!$this->tenantModel->update($id, $data)) {
+                    log_message('error', '[TenantsController::rollbackPlanChange] Failed to rollback plan for tenant ' . $id);
+                }
+
+                // Clear session data
+                session()->remove('plan_change_original');
+                session()->remove('plan_change_timeout');
+            } catch (\Exception $e) {
+                log_message('error', '[TenantsController::rollbackPlanChange] Error: ' . $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Check payment timeout and rollback if needed
+     */
+    protected function checkPaymentTimeout($tenant)
+    {
+        $timeout = session()->get('plan_change_timeout');
+        if ($timeout && time() > $timeout && $tenant['txtSubscriptionStatus'] === 'pending_payment') {
+            $this->rollbackPlanChange($tenant['intTenantID']);
+            return redirect()->to('/tenants/view/' . $tenant['intTenantID'])
+                ->with('warning', 'Payment session has expired. Your plan has been reverted.');
+        }
+        return false;
+    }
+    /**
+     * Check current payment status for a subscription change or activation
+     */
+    public function checkPaymentStatus($id)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return $this->response->setJSON([
+                'success' => false,
+                'error' => 'Authentication required'
+            ]);
+        }
+
+        $tenant = $this->tenantModel->find($id);
+
+        // Check permissions
+        if (!$tenant || ($tenant['intOwnerID'] != session()->get('userID') && session()->get('roleID') != 1)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'error' => 'Permission denied'
+            ]);
+        }
+
+        // Check for timeout
+        $timeout = session()->get('plan_change_timeout');
+        if ($timeout && time() > $timeout && $tenant['txtSubscriptionStatus'] === 'pending_payment') {
+            // Payment has timed out
+            return $this->response->setJSON([
+                'status' => 'failed',
+                'message' => 'Payment session has expired'
+            ]);
+        }
+
+        // Check current status
+        $status = $tenant['txtSubscriptionStatus'];
+        $message = '';
+
+        switch ($status) {
+            case 'active':
+                $message = 'Payment completed successfully';
+                break;
+            case 'pending_payment':
+                $message = 'Awaiting payment confirmation';
+                break;
+            case 'payment_failed':
+                $message = 'Payment failed';
+                break;
+            default:
+                $message = 'Unknown status';
+        }
+
+        return $this->response->setJSON([
+            'status' => $status === 'active' ? 'completed' : ($status === 'pending_payment' ? 'pending' : 'failed'),
+            'message' => $message,
+            'updated_at' => $tenant['dtmUpdatedDate']
+        ]);
+    }
+    /**
+     * Handle plan rollback to original when payment fails or times out
+     */
+    public function rollbackPlanToOriginal($id, $originalPlan)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return $this->response->setJSON([
+                'success' => false,
+                'error' => 'Authentication required'
+            ]);
+        }
+
+        $tenant = $this->tenantModel->find($id);
+
+        // Check permissions
+        if (!$tenant || ($tenant['intOwnerID'] != session()->get('userID') && session()->get('roleID') != 1)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'error' => 'Permission denied'
+            ]);
+        }
+
+        try {
+            // Get the original plan details from session
+            $originalPlanData = session()->get('plan_change_original');
+
+            if (!$originalPlanData || $originalPlanData['id'] != $id) {
+                throw new \Exception('Original plan data not found');
+            }
+
+            $data = [
+                'txtSubscriptionPlan' => $originalPlan,
+                'txtSubscriptionStatus' => $originalPlanData['status'],
+                'dtmTrialEndsAt' => $originalPlanData['trial_ends_at'],
+                'txtUpdatedBy' => session()->get('userName')
+            ];
+
+            if (!$this->tenantModel->update($id, $data)) {
+                throw new \Exception('Failed to rollback plan');
+            }
+
+            // Clear session data
+            session()->remove('plan_change_original');
+            session()->remove('plan_change_timeout');
+
+            // Log the rollback
+            log_message('info', "[TenantsController::rollbackPlanToOriginal] Successfully rolled back plan for tenant {$id} to {$originalPlan}");
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Plan rolled back successfully'
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', '[TenantsController::rollbackPlanToOriginal] Error: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'success' => false,
+                'error' => 'Failed to rollback plan: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Initiate plan change process and store original plan data
+     */
+    public function initiatePlanChange($id, $newPlan)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return $this->response->setJSON([
+                'success' => false,
+                'error' => 'Authentication required'
+            ]);
+        }
+
+        $tenant = $this->tenantModel->find($id);
+
+        // Check permissions
+        if (!$tenant || ($tenant['intOwnerID'] != session()->get('userID') && session()->get('roleID') != 1)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'error' => 'Permission denied'
+            ]);
+        }
+
+        try {
+            // Store original plan details in session for rollback if payment fails
+            session()->set('plan_change_original', [
+                'id' => $id,
+                'plan' => $tenant['txtSubscriptionPlan'],
+                'status' => $tenant['txtSubscriptionStatus'],
+                'trial_ends_at' => $tenant['dtmTrialEndsAt']
+            ]);
+
+            $data = [
+                'txtSubscriptionPlan' => $newPlan,
+                'txtSubscriptionStatus' => 'pending_payment',
+                'dtmTrialEndsAt' => $this->calculateTrialEndDate($newPlan),
+                'txtUpdatedBy' => session()->get('userName')
+            ];
+
+            if (!$this->tenantModel->update($id, $data)) {
+                throw new \Exception('Failed to update subscription plan');
+            }
+
+            // Set session timeout for payment
+            session()->set('plan_change_timeout', time() + (30 * 60)); // 30 minutes timeout
+
+            return $this->response->setJSON([
+                'success' => true,
+                'redirect' => rtrim(base_url(), '/') . '/tenants/activate-subscription/' . $id
+            ]);
+
+        } catch (\Exception $e) {
+            log_message('error', '[TenantsController::initiatePlanChange] Error: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'error' => 'Failed to initiate plan change: ' . $e->getMessage()
+            ]);
+        }
     }
 }

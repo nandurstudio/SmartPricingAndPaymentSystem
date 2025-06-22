@@ -74,6 +74,25 @@ $routes->group('', ['subdomain' => '(:any)'], function($routes) {
     $routes->get('(:any)', 'TenantWebsiteController::page/$1/$2');
 });
 
+// Tenant management routes
+$routes->group('tenants', ['filter' => 'auth'], function($routes) {
+    $routes->get('', 'TenantsController::index');
+    $routes->get('create', 'TenantsController::create');
+    $routes->post('store', 'TenantsController::store');
+    $routes->get('edit/(:num)', 'TenantsController::edit/$1');
+    $routes->post('update/(:num)', 'TenantsController::update/$1');
+    $routes->get('view/(:num)', 'TenantsController::view/$1');
+    $routes->get('check-subdomain', 'TenantsController::checkSubdomain');
+    $routes->get('activate-subscription/(:num)', 'TenantsController::activateSubscription/$1');
+    $routes->post('initiate-plan-change/(:num)/(:any)', 'TenantsController::initiatePlanChange/$1/$2');
+    $routes->get('payment-success/(:num)', 'TenantsController::paymentSuccess/$1');
+    $routes->get('payment-pending/(:num)', 'TenantsController::paymentPending/$1');
+    $routes->get('payment-failed/(:num)', 'TenantsController::paymentFailed/$1');
+    $routes->get('change-plan/(:num)/(:any)', 'TenantsController::changePlan/$1/$2');
+    $routes->post('check-payment-status/(:num)', 'TenantsController::checkPaymentStatus/$1');
+    $routes->post('rollback-plan/(:num)/(:any)', 'TenantsController::rollbackPlanToOriginal/$1/$2');
+});
+
 // Protected routes
 $routes->group('', ['filter' => 'auth'], function ($routes) {
     // User management - accessible via both /master/users and /users
@@ -239,3 +258,13 @@ $routes->set404Override();
 
 // Disable auto routing for security
 $routes->setAutoRoute(false);
+
+// Service routes
+$routes->group('services', ['filter' => 'auth'], function($routes) {
+    $routes->get('', 'ServiceController::index');
+    $routes->get('create/(:num)', 'ServiceController::create/$1');
+    $routes->post('store', 'ServiceController::store');
+    $routes->get('edit/(:num)', 'ServiceController::edit/$1');
+    $routes->post('update/(:num)', 'ServiceController::update/$1');
+    $routes->post('toggle/(:num)', 'ServiceController::toggle/$1');
+});

@@ -13,6 +13,9 @@ if (typeof jQuery === 'undefined') {
 <!-- Bootstrap Bundle -->
 <script src="<?= base_url('assets/js/bootstrap/bootstrap.bundle.min.js'); ?>"></script>
 
+<!-- SweetAlert2 -->
+<script src="<?= base_url('assets/js/sweetalert2/sweetalert2.min.js'); ?>"></script>
+
 <!-- DataTables Core - Must load before extensions -->
 <script src="<?= base_url('assets/js/datatables/dataTables.min.js'); ?>"></script>
 <script src="<?= base_url('assets/js/datatables/dataTables.bootstrap5.min.js'); ?>"></script>

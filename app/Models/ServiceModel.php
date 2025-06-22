@@ -48,12 +48,10 @@ class ServiceModel extends Model
             log_message('error', 'ServiceModel: Exception during insert: ' . $e->getMessage());
             throw $e;
         }
-    }
-
-    public function getServicesWithType($tenantId = null)
+    }    public function getServicesWithType($tenantId = null)
     {
         $builder = $this->db->table($this->table . ' s')
-            ->select('s.*, st.txtName as type_name')
+            ->select('s.*, st.txtName as service_type_name')
             ->join('m_service_types st', 's.intServiceTypeID = st.intServiceTypeID', 'left');
         
         if ($tenantId) {
@@ -61,12 +59,10 @@ class ServiceModel extends Model
         }
         
         return $builder->orderBy('s.txtName', 'ASC')->get()->getResultArray();
-    }
-
-    public function getServiceDetails($id)
+    }    public function getServiceDetails($id)
     {
         return $this->db->table($this->table . ' s')
-            ->select('s.*, st.txtName as type_name, t.txtTenantName as tenant_name')
+            ->select('s.*, st.txtName as service_type_name, t.txtTenantName as tenant_name')
             ->join('m_service_types st', 's.intServiceTypeID = st.intServiceTypeID', 'left')
             ->join('m_tenants t', 's.intTenantID = t.intTenantID', 'left')
             ->where('s.intServiceID', $id)
@@ -77,9 +73,8 @@ class ServiceModel extends Model
     public function getServicesWithAvailability($tenantId, $date = null)
     {
         $date = $date ?: date('Y-m-d');
-        
-        $builder = $this->db->table($this->table . ' s')
-            ->select('s.*, st.txtName as type_name')
+          $builder = $this->db->table($this->table . ' s')
+            ->select('s.*, st.txtName as service_type_name')
             ->join('m_service_types st', 's.intServiceTypeID = st.intServiceTypeID', 'left')
             ->where('s.intTenantID', $tenantId)
             ->where('s.bitActive', 1);

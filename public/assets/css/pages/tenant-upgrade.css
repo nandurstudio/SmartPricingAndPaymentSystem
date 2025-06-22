@@ -1,0 +1,151 @@
+.swal-upgrade-container {
+    z-index: 1060;
+}
+
+/* Basic modal styling */
+.swal2-popup {
+    padding: 1.5rem;
+    border-radius: 1rem;
+    position: relative;
+}
+
+/* Close button styling */
+.swal2-close {
+    position: absolute !important;
+    right: 1rem !important;
+    top: 1rem !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    font-size: 1.5rem !important;
+    color: #6c757d !important;
+    cursor: pointer !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    opacity: 0.75 !important;
+    transition: opacity 0.15s !important;
+}
+
+.swal2-close:hover {
+    opacity: 1 !important;
+    background: transparent !important;
+    color: #343a40 !important;
+}
+
+/* Backdrop styling */
+.swal2-backdrop-show {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(2px);
+}
+
+/* Ensure backdrop is clickable */
+.swal2-backdrop-show {
+    cursor: pointer;
+}
+
+/* Make popup unclickable for backdrop clicks */
+.swal2-popup {
+    pointer-events: auto;
+}
+
+/* Ensure modal content is above backdrop */
+.swal2-container {
+    z-index: 9999 !important;
+}
+
+/* Upgrade Options */
+.swal2-html-container .upgrade-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.swal2-html-container .upgrade-option {
+    width: 100%;
+    padding: 1.25rem;
+    border: 2px solid #dee2e6;
+    border-radius: 0.75rem;
+    background: transparent;
+    transition: all 0.2s ease-in-out;
+    text-align: left;
+    cursor: pointer;
+}
+
+.swal2-html-container .upgrade-option:hover {
+    border-color: var(--bs-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.swal2-html-container .upgrade-option h6 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 0.25rem;
+}
+
+.swal2-html-container .upgrade-option p {
+    font-size: 0.875rem;
+    margin-bottom: 0;
+}
+
+/* Plan icon styles */
+.swal2-html-container .upgrade-option .bi {
+    font-size: 1.25rem;
+}
+
+/* Plan features */
+.swal2-html-container .plan-features {
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid #f1f1f1;
+}
+
+/* Price styles */
+.swal2-html-container .upgrade-option .fw-bold {
+    font-size: 1.1rem;
+    color: var(--bs-primary);
+    display: block;
+}
+
+/* Confirmation Dialog */
+.swal2-html-container .alert {
+    background-color: rgba(13, 110, 253, 0.1);
+    border: none;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.swal2-html-container .alert i {
+    color: var(--bs-primary);
+}
+
+/* Loading State */
+.swal2-loading {
+    margin: 2rem 0;
+}
+
+.swal2-loading .swal2-title {
+    margin-bottom: 1rem;
+}
+
+.swal2-loading .swal2-html-container {
+    color: #6c757d;
+}
+
+/* Visual transitions */
+.swal2-popup {
+    animation: swal2-show 0.3s;
+    transition: all 0.3s ease-in-out;
+}
+
+.swal2-icon {
+    animation: swal2-icon-show 0.5s;
+}
+
+/* Timer Bar */
+.swal2-timer-progress-bar {
+    background: var(--bs-primary);
+}

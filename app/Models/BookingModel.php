@@ -141,4 +141,29 @@ class BookingModel extends Model
             ->get()
             ->getResultArray();
     }
+
+    /**
+     * Get recent bookings for a tenant
+     * 
+     * @param int $tenantId The tenant ID
+     * @param int $limit Number of bookings to return (default: 5)
+     * @return array Array of recent bookings with customer and service details
+     */    public function getRecentBookings($tenantId, $limit = 5)
+    {
+        return $this->db->table($this->table . ' b')
+            ->select('b.*, 
+                     s.txtName as txtServiceName, 
+                     t.txtTenantName,
+                     u.txtFullName as customer_name,
+                     u.txtEmail as customer_email')
+            ->join('m_services s', 'b.intServiceID = s.intServiceID', 'left')
+            ->join('m_tenants t', 'b.intTenantID = t.intTenantID', 'left')
+            ->join('m_user u', 'b.intCustomerID = u.intUserID', 'left')
+            ->where('b.intTenantID', $tenantId)
+            ->where('b.bitActive', 1)
+            ->orderBy('b.dtmBookingDate DESC, b.dtmStartTime DESC')
+            ->limit($limit)
+            ->get()
+            ->getResultArray();
+    }
 }

@@ -192,14 +192,20 @@ class MTenantModel extends Model
      */
     public function getUserTenants($userId, $roleId)
     {
+        $builder = $this->db->table($this->table . ' t')
+            ->select('t.*, st.txtName as service_type_name, u.txtFullName as owner_name, u.txtEmail as owner_email')
+            ->join('m_service_types st', 't.intServiceTypeID = st.intServiceTypeID', 'left')
+            ->join('m_user u', 't.intOwnerID = u.intUserID', 'left');
+
         if ($roleId == 1) { // Admin sees all tenants
-            return $this->findAll();
+            return $builder->get()->getResultArray();
         }
         
         // Regular users see only their own tenants
-        return $this->where('intOwnerID', $userId)
-                   ->where('bitActive', 1)
-                   ->findAll();
+        return $builder->where('t.intOwnerID', $userId)
+                      ->where('t.bitActive', 1)
+                      ->get()
+                      ->getResultArray();
     }
 
     /**

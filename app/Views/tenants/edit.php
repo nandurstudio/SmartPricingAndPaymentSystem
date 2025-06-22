@@ -1,23 +1,35 @@
 <?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
-<div class="container-fluid px-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="container-fluid px-4">    <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="mt-4 mb-0"><?= $pageTitle ?></h1>
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Dashboard</a></li>
-                <li class="breadcrumb-item"><a href="<?= base_url('tenants') ?>">Tenants</a></li>
-                <li class="breadcrumb-item active"><?= $pageTitle ?></li>
-            </ol>
+            <h1 class="mt-4 mb-0">
+                <i class="bi bi-building-gear me-2"></i><?= $pageTitle ?>
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item">
+                        <a href="<?= base_url('/') ?>" class="text-decoration-none">
+                            <i class="bi bi-house"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="<?= base_url('tenants') ?>" class="text-decoration-none">
+                            <i class="bi bi-buildings"></i> Tenants
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="bi bi-pencil-square"></i> <?= $pageTitle ?>
+                    </li>
+                </ol>
+            </nav>
         </div>
     </div>
     
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-white py-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <h6 class="m-0 font-weight-bold text-primary">
-                    <i class="fas fa-edit me-1"></i>
+            <div class="d-flex justify-content-between align-items-center">                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="bi bi-building-gear me-1"></i>
                     <?= $pageTitle ?>
                 </h6>
             </div>
@@ -33,21 +45,24 @@
                     </ul>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            <?php endif; ?>
-            
-            <form action="<?= base_url('tenants/update/' . $tenant['intTenantID']) ?>" method="post" enctype="multipart/form-data">
+            <?php endif; ?>              <form action="<?= base_url('tenants/update/' . $tenant['intTenantID']) ?>" method="post" enctype="multipart/form-data" id="editTenantForm" novalidate>
                 <?= csrf_field() ?>
+                <?php
+                // Add JSON settings field if not present
+                if (!isset($tenant['jsonSettings'])) {
+                    echo '<input type="hidden" name="jsonSettings" id="jsonSettings" value="{}">';
+                }
+                ?>
                 
                 <!-- Include Shared Form -->
                 <?= $this->include('tenants/_form') ?>
 
-                <!-- Submit Button -->
-                <div class="mt-4 d-flex justify-content-end gap-2">
-                    <a href="<?= base_url('tenants') ?>" class="btn btn-secondary">
-                        <i class="fas fa-times me-1"></i> Cancel
+                <!-- Submit Button -->                <div class="mt-4 d-flex justify-content-end gap-2">
+                    <a href="<?= base_url('tenants') ?>" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg me-1"></i> Cancel
                     </a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-1"></i> Update Tenant
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-check-lg me-1"></i> Update Tenant
                     </button>
                 </div>
             </form>

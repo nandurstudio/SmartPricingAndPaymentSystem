@@ -29,7 +29,7 @@ function get_tenant_logo_url($logo) {
     if (empty($logo)) {
         return '';
     }
-    return base_url('uploads/tenants/' . $logo);
+    return rtrim(base_url(), '/') . '/uploads/tenants/' . $logo;
 }
 
 /**
@@ -39,7 +39,7 @@ function get_tenant_logo_url($logo) {
  * @return string The URL to the tenant's custom CSS file
  */
 function get_tenant_css_url($tenantId) {
-    return base_url('uploads/tenants/css/' . $tenantId . '_custom.css');
+    return rtrim(base_url(), '/') . '/uploads/tenants/css/' . $tenantId . '_custom.css';
 }
 
 /**
@@ -77,4 +77,46 @@ function tenant_url($path = '') {
     }
     
     return $baseURL;
+}
+
+/**
+ * Get status color class for badges
+ * 
+ * @param string $status The tenant status
+ * @return string The Bootstrap color class
+ */
+if (!function_exists('get_status_color')) {
+    function get_status_color($status) {
+        return match ($status) {
+            'active' => 'success',
+            'inactive' => 'danger',
+            'suspended' => 'warning',
+            'pending' => 'info',
+            'pending_verification' => 'info',
+            'pending_payment' => 'warning',
+            'payment_failed' => 'danger',
+            default => 'secondary'
+        };
+    }
+}
+
+/**
+ * Get status icon class for badges
+ * 
+ * @param string $status The tenant status
+ * @return string The Bootstrap icon class
+ */
+if (!function_exists('get_status_icon')) {
+    function get_status_icon($status) {
+        return match ($status) {
+            'active' => 'check-circle',
+            'inactive' => 'x-circle',
+            'suspended' => 'pause-circle',
+            'pending' => 'clock',
+            'pending_verification' => 'shield-check',
+            'pending_payment' => 'credit-card',
+            'payment_failed' => 'exclamation-circle',
+            default => 'question-circle'
+        };
+    }
 }

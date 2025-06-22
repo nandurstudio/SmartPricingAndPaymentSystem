@@ -389,4 +389,52 @@ class ServiceController extends BaseController
         
         return null;
     }
+
+    public function toggle($id = null)
+    {
+        // Check if request is AJAX
+        if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'success' => false,
+                'message' => 'Invalid request method'
+            ]);
+        }
+
+        // Validate ID
+        if (!$id) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Service ID is required'
+            ]);
+        }
+
+        try {
+            // Get new status from POST data
+            $status = $this->request->getPost('status');
+            
+            // Update service status
+            $success = $this->serviceModel->update($id, [
+                'bitActive' => $status,
+                'txtUpdatedBy' => session()->get('userID')
+            ]);
+
+            if ($success) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Service status updated successfully'
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to update service status'
+                ]);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error toggling service status: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred while updating service status'
+            ]);
+        }
+    }
 }

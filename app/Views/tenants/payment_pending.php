@@ -22,7 +22,7 @@
                         <a href="<?= base_url('tenants/view/' . $tenant['intTenantID']) ?>" class="btn btn-primary">
                             <i class="fas fa-home me-2"></i> Back to Dashboard
                         </a>
-                        <a href="<?= base_url('tenants/activate-subscription/' . $tenant['intTenantID']) ?>" class="btn btn-outline-primary">
+                        <a href="<?= rtrim(base_url(), '/') . '/tenants/activate-subscription/' . $tenant['intTenantID'] ?>" class="btn btn-outline-primary">
                             <i class="fas fa-sync-alt me-2"></i> Try Another Payment Method
                         </a>
                     </div>

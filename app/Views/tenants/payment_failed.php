@@ -24,7 +24,7 @@
                     </div>
 
                     <div class="mb-4">
-                        <a href="<?= base_url('tenants/activate-subscription/' . $tenant['intTenantID']) ?>" class="btn btn-primary me-2">
+                        <a href="<?= rtrim(base_url(), '/') . '/tenants/activate-subscription/' . $tenant['intTenantID'] ?>" class="btn btn-primary me-2">
                             <i class="fas fa-redo me-2"></i> Try Again
                         </a>
                         <a href="<?= base_url('tenants/view/' . $tenant['intTenantID']) ?>" class="btn btn-secondary">

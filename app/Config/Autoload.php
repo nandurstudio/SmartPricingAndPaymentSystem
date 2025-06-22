@@ -91,6 +91,8 @@ class Autoload extends AutoloadConfig
         'form',
         'url',
         'profile',
-        'tenant'
+        'tenant',
+        'format',
+        'url' // our custom url helper
     ];
 }

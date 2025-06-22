@@ -104,7 +104,7 @@ class MenuModel extends Model
             return [];
         }
         
-        log_message('debug', 'Getting menus for role ID: ' . $intRoleID);
+        // log_message('debug', 'Getting menus for role ID: ' . $intRoleID);
         
         try {
             // Get role name for better logging
@@ -125,7 +125,7 @@ class MenuModel extends Model
                     AND m.bitActive = 1
                     ORDER BY COALESCE(m.intParentID, 0), m.intSortOrder ASC";
             
-            log_message('debug', "Executing SQL: " . $sql . " with roleID: " . $intRoleID);
+            // log_message('debug', "Executing SQL: " . $sql . " with roleID: " . $intRoleID);
             
             $menus = $this->db->query($sql, [$intRoleID]);
     
@@ -145,7 +145,7 @@ class MenuModel extends Model
                 }
             }
             
-            log_message('debug', "Role {$roleName} (ID: {$intRoleID}) has {$totalMenus} total menu items, {$parentMenuCount} parent menus");
+            // log_message('debug', "Role {$roleName} (ID: {$intRoleID}) has {$totalMenus} total menu items, {$parentMenuCount} parent menus");
             
             // If no parent menus, warn in the logs
             if ($parentMenuCount == 0 && $totalMenus > 0) {

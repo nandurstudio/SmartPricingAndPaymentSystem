@@ -103,17 +103,39 @@ abstract class BaseController extends Controller
             $roleID = session()->get('roleID');
             
             // Debug logging
-            log_message('debug', 'Loading menu for roleID: ' . ($roleID ?? 'null'));
-            log_message('debug', 'Session data: ' . print_r(session()->get(), true));
+            // log_message('debug', 'Loading menu for roleID: ' . ($roleID ?? 'null'));
+            // log_message('debug', 'Session data: ' . print_r(session()->get(), true));
             
             $menus = $this->menuModel->getMenusByRole($roleID);
             
             // Debug logging
-            log_message('debug', 'Loaded menus: ' . print_r($menus, true));
+            // log_message('debug', 'Loaded menus: ' . print_r($menus, true));
             
             // Store menu in view data
             $this->data['menus'] = $menus;
-            $this->data['menuGroups'] = $menus; // Store also as menuGroups for sidenav
+            try {
+                // If no parent menus exist, issue a warning in development
+                if (empty($menus[0]) && ENVIRONMENT === 'development') {
+                    $roleName = session()->get('roleName') ?? 'Unknown';
+                    // If in development, show this as a flash message
+                    if (ENVIRONMENT === 'development') {
+                        session()->setFlashdata('warning', "Role {$roleName} has no parent menus assigned. Check your database configuration.");
+                    }
+                }
+                
+                // Store both the raw menus and grouped menus
+                $this->data['menus'] = $menus;
+                $this->data['menuGroups'] = $menus;
+                
+                // Debug logging for troubleshooting
+                // log_message('debug', "Menu Data loaded for role {$roleName} (ID: {$roleID}). Found " . 
+                //     (isset($menuGroups[0]) ? count($menuGroups[0]) : 0) . " parent menus.");
+            } catch (\Exception $e) {
+                log_message('error', "Error loading menu for role {$roleName} (ID: {$roleID}): " . $e->getMessage());
+                // Set empty arrays on error
+                $this->data['menus'] = [];
+                $this->data['menuGroups'] = [];
+            }
         } else {
             log_message('debug', 'User not logged in, no menu loaded');
             $this->data['menus'] = [];

@@ -7,9 +7,7 @@ use CodeIgniter\Model;
 class ServiceTypeModel extends Model
 {
     protected $table = 'm_service_types'; 
-    protected $primaryKey = 'intServiceTypeID';
-    
-    protected $allowedFields = [
+    protected $primaryKey = 'intServiceTypeID';    protected $allowedFields = [
         'txtGUID', 'txtName', 'txtSlug', 'txtDescription', 'txtIcon', 'txtCategory',
         'bitIsSystem', 'bitIsApproved', 'intRequestedBy', 'intApprovedBy',
         'dtmApprovedDate', 'jsonDefaultAttributes', 'bitActive',

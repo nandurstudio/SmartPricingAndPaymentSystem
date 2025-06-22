@@ -12,11 +12,11 @@ class App extends BaseConfig
      * --------------------------------------------------------------------------
      *
      * URL to your CodeIgniter root. Typically, this will be your base URL,
-     * WITH a trailing slash:
+     * WITHOUT a trailing slash to avoid double slashes in URLs:
      *
-     * E.g., http://example.com/
+     * E.g., http://example.com
      */    
-    public $baseURL = 'https://smartpricingandpaymentsystem.localhost.com/';
+    public $baseURL = 'https://smartpricingandpaymentsystem.localhost.com';
 
     /**
      * Override baseURL for tenant subdomains
@@ -29,8 +29,8 @@ class App extends BaseConfig
             $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
             $host = $_SERVER['HTTP_HOST'];
             
-            // Make sure we have a trailing slash
-            $this->baseURL = $protocol . $host . '/';
+            // No trailing slash to avoid double slashes
+            $this->baseURL = $protocol . $host;
         }
     }
 

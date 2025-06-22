@@ -76,18 +76,13 @@ class ServiceTypeController extends BaseController
         }
 
         $roleID = session()->get('roleID');
-        $menus = $this->menuModel->getMenusByRole($roleID);
-
-        return view('service-type/form', [
+        $menus = $this->menuModel->getMenusByRole($roleID);        return view('service-type/create', [
             'title' => 'Create Service Type',
             'menus' => $menus,
             'pageTitle' => 'Create New Service Type',
             'serviceType' => [
                 'txtName' => '',
-                'txtSlug' => '',
                 'txtDescription' => '',
-                'txtIcon' => '',
-                'txtCategory' => '',
                 'bitActive' => 1
             ]
         ]);
@@ -110,17 +105,20 @@ class ServiceTypeController extends BaseController
             return redirect()->back()
                 ->withInput()
                 ->with('errors', $this->validator->getErrors());
-        }
-
-        $data = [
+        }        $data = [
             'txtGUID' => uniqid('svc_', true),
             'txtName' => $this->request->getPost('txtName'),
             'txtSlug' => url_title($this->request->getPost('txtName'), '-', true),
             'txtDescription' => $this->request->getPost('txtDescription'),
             'txtIcon' => $this->request->getPost('txtIcon'),
             'txtCategory' => $this->request->getPost('txtCategory'),
-            'bitActive' => $this->request->getPost('bitActive') ? 1 : 0,
             'bitIsSystem' => 0,
+            'bitIsApproved' => 1,
+            'intRequestedBy' => session()->get('userID'),
+            'intApprovedBy' => session()->get('userID'),
+            'dtmApprovedDate' => date('Y-m-d H:i:s'),
+            'jsonDefaultAttributes' => null,
+            'bitActive' => $this->request->getPost('bitActive') ? 1 : 0,
             'txtCreatedBy' => session()->get('userName'),
             'dtmCreatedDate' => date('Y-m-d H:i:s')
         ];
@@ -149,9 +147,7 @@ class ServiceTypeController extends BaseController
         }
 
         $roleID = session()->get('roleID');
-        $menus = $this->menuModel->getMenusByRole($roleID);
-
-        return view('service-type/form', [
+        $menus = $this->menuModel->getMenusByRole($roleID);        return view('service-type/edit', [
             'title' => 'Edit Service Type',
             'menus' => $menus,
             'pageTitle' => 'Edit Service Type',
@@ -181,9 +177,7 @@ class ServiceTypeController extends BaseController
             return redirect()->back()
                 ->withInput()
                 ->with('errors', $this->validator->getErrors());
-        }
-
-        $data = [
+        }        $data = [
             'txtName' => $this->request->getPost('txtName'),
             'txtSlug' => url_title($this->request->getPost('txtName'), '-', true),
             'txtDescription' => $this->request->getPost('txtDescription'),

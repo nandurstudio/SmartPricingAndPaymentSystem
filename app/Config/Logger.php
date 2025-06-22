@@ -36,9 +36,9 @@ class Logger extends BaseConfig
      * For a live site you'll usually enable Critical or higher (3) to be logged otherwise
      * your log files will fill up very fast.
      *
-     * @var int|list<int>
+     * @var int|array
      */
-    public $threshold = (ENVIRONMENT === 'production') ? 4 : 9;
+    public $threshold = (ENVIRONMENT === 'production') ? 4 : [1, 2, 3, 4, 5]; // Only log up to warnings in development
 
     /**
      * --------------------------------------------------------------------------
