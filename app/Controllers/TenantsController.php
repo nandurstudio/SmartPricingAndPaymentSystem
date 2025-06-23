@@ -1064,4 +1064,66 @@ class TenantsController extends BaseController
             ]);
         }
     }
+
+    /**
+     * Toggle tenant status
+     */
+    public function toggle($id = null)
+    {
+        // Check if request is AJAX
+        if (!$this->request->isAJAX()) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'success' => false,
+                'message' => 'Invalid request method'
+            ]);
+        }
+
+        // Validate ID
+        if (!$id) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Tenant ID is required'
+            ]);
+        }
+
+        try {
+            // Get current tenant status
+            $tenant = $this->tenantModel->find($id);
+            if (!$tenant) {
+                log_message('error', 'Tenant not found for ID: ' . $id);
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Tenant not found'
+                ]);
+            }
+
+            // Update tenant status (toggle it)
+            $newStatus = $tenant['bitActive'] == 1 ? 0 : 1;
+            $data = [
+                'bitActive' => $newStatus,
+                'txtUpdatedBy' => session()->get('userName'),  // Set username instead of ID
+                'dtmUpdatedDate' => date('Y-m-d H:i:s')
+            ];
+
+            if ($this->tenantModel->update($id, $data)) {
+                log_message('info', 'Tenant status updated successfully for ID: ' . $id);
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Tenant status updated successfully'
+                ]);
+            } else {
+                log_message('error', 'Failed to update tenant status for ID: ' . $id);
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Failed to update tenant status'
+                ]);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error toggling tenant status: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'An error occurred while updating tenant status'
+            ]);
+        }
+    }
 }

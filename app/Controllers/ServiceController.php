@@ -16,9 +16,7 @@ class ServiceController extends BaseController
         $this->serviceModel = new \App\Models\ServiceModel();
         $this->serviceTypeModel = new \App\Models\ServiceTypeModel();
         $this->tenantModel = new \App\Models\MTenantModel();
-    }
-
-    public function index()
+    }    public function index()
     {
         // Check if user is logged in
         if (!session()->get('isLoggedIn')) {
@@ -33,23 +31,35 @@ class ServiceController extends BaseController
             'title' => 'Services',
             'pageTitle' => 'Services Management',
             'pageSubTitle' => 'Create and manage your booking services',
-            'icon' => 'briefcase'
+            'icon' => 'briefcase',
+            'roleID' => $roleID // Pass role ID to view for permission checking
         ];
 
         // Get tenant ID based on role
         $tenantId = $this->getTenantId();
 
         // Load services based on role
-        if ($roleID == 1) { // Admin
-            $data['services'] = $this->serviceModel->getServicesWithType();
+        if ($roleID == 1) { // Super Admin
+            // Get all services with tenant information
+            $data['services'] = $this->serviceModel->getServicesWithTypeAndTenant();
             // Load tenants for admin filter
             $data['tenants'] = $this->tenantModel->findAll();
+            $data['canManageServices'] = true;
         } else {
-            if (!$tenantId) {
+            if (!$tenantId && $roleID == 2) { // Tenant Owner
                 return redirect()->to('/tenants/create')
                     ->with('info', 'Please create a tenant first to manage services.');
             }
+            
+            // Get services for specific tenant
             $data['services'] = $this->serviceModel->getServicesWithType($tenantId);
+            // Only tenant owner can manage services
+            $data['canManageServices'] = ($roleID == 2);
+            
+            // Get tenant details
+            if ($tenantId) {
+                $data['tenant'] = $this->tenantModel->find($tenantId);
+            }
         }
 
         return view('services/index', $data);
@@ -434,6 +444,62 @@ class ServiceController extends BaseController
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'An error occurred while updating service status'
+            ]);
+        }
+    }
+
+    /**
+     * Toggle service status (active/inactive)
+     */
+    public function toggleStatus($id)
+    {
+        // Check if user is logged in
+        if (!session()->get('isLoggedIn')) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'You must be logged in to perform this action.'
+            ]);
+        }
+
+        $roleID = session()->get('roleID');
+        
+        // Get service details
+        $service = $this->serviceModel->find($id);
+        if (!$service) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Service not found.'
+            ]);
+        }
+
+        // Check permissions
+        if ($roleID != 1) { // Not super admin
+            $tenantId = $this->getTenantId();
+            if ($service['intTenantID'] != $tenantId) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'You do not have permission to modify this service.'
+                ]);
+            }
+        }
+
+        // Toggle status
+        $newStatus = !$service['bitActive'];
+        try {
+            $this->serviceModel->update($id, [
+                'bitActive' => $newStatus,
+                'txtUpdatedBy' => session()->get('userName')
+            ]);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Service status updated successfully.'
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error toggling service status: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Failed to update service status.'
             ]);
         }
     }

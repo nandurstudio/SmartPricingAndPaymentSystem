@@ -1,28 +1,32 @@
 // Tenants page specific JavaScript
-$(document).ready(function() {
+$(document).ready(function () {
     // Initialize DataTable with improved configuration
     const table = $('#tenantsTable').DataTable({
         order: [[1, 'asc']], // Sort by Name column by default
         pageLength: 25,
         dom: "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-             "<'row'<'col-sm-12'tr>>" +
-             "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            "<'row'<'col-sm-12'tr>>" +
+            "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
         language: {
             search: "_INPUT_",
             searchPlaceholder: "Search tenants...",
             lengthMenu: "_MENU_ tenants per page",
-            emptyTable: "No tenants available"
+            emptyTable: '<div class="text-center p-4">' +
+                       '<i class="bi bi-clipboard-x text-muted" style="font-size: 2.5rem;"></i>' +
+                       '<h6 class="fw-bold mt-2">No Tenants Found</h6>' +
+                       '<p class="text-muted small mb-0">No tenants match your search criteria.</p>' +
+                       '</div>'
         }
     });
 
     // Toggle view (Grid/Table)
-    $('#grid-view, #table-view').on('click', function() {
+    $('#grid-view, #table-view').on('click', function () {
         const view = $(this).data('view');
-        
+
         // Update active state of buttons
         $('.btn[data-view]').removeClass('active');
         $(this).addClass('active');
-        
+
         // Toggle view containers
         if (view === 'grid') {
             $('#grid-container').show();
@@ -31,7 +35,7 @@ $(document).ready(function() {
             $('#grid-container').hide();
             $('#table-container').show();
         }
-        
+
         // Store preference
         localStorage.setItem('tenants_view', view);
     });
@@ -41,12 +45,12 @@ $(document).ready(function() {
     $(`#${lastView}-view`).trigger('click');
 
     // Handle status toggle with improved UX
-    $('.toggle-status').on('click', function() {
+    $('.toggle-status').on('click', function () {
         const button = $(this);
         const id = button.data('id');
         const currentStatus = button.data('status');
         const newStatus = currentStatus ? 0 : 1;
-        
+
         Swal.fire({
             title: `${currentStatus ? 'Deactivate' : 'Activate'} Tenant?`,
             text: `Are you sure you want to ${currentStatus ? 'deactivate' : 'activate'} this tenant?`,
@@ -59,13 +63,13 @@ $(document).ready(function() {
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: `${baseUrl}/tenants/toggle-status/${id}`,
+                    url: `${baseUrl}/tenants/toggle/${id}`,
                     method: 'POST',
                     data: {
                         status: newStatus,
-                        [csrfToken]: csrfHash
+                        [window.csrfName]: window.csrfToken
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             Swal.fire({
                                 icon: 'success',
@@ -84,7 +88,7 @@ $(document).ready(function() {
                             });
                         }
                     },
-                    error: function() {
+                    error: function () {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
@@ -97,11 +101,11 @@ $(document).ready(function() {
     });
 
     // Handle delete tenant
-    $('.delete-tenant').on('click', function() {
+    $('.delete-tenant').on('click', function () {
         const button = $(this);
         const id = button.data('id');
         const name = button.data('name');
-        
+
         Swal.fire({
             title: 'Delete Tenant?',
             html: `Are you sure you want to delete tenant <strong>${name}</strong>?<br>This action cannot be undone.`,
@@ -115,11 +119,10 @@ $(document).ready(function() {
             if (result.isConfirmed) {
                 $.ajax({
                     url: `${baseUrl}/tenants/delete/${id}`,
-                    method: 'POST',
-                    data: {
-                        [csrfToken]: csrfHash
+                    method: 'POST', data: {
+                        [window.csrfName]: window.csrfToken
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             Swal.fire({
                                 icon: 'success',
@@ -138,7 +141,7 @@ $(document).ready(function() {
                             });
                         }
                     },
-                    error: function() {
+                    error: function () {
                         Swal.fire({
                             icon: 'error',
                             title: 'Error!',
@@ -156,3 +159,16 @@ $(document).ready(function() {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 });
+
+// Helper: disconnect tenant-upgrade.js observer if exists
+function disconnectUpgradeObserver() {
+    if (window.bodyObserver && typeof window.bodyObserver.disconnect === 'function') {
+        window.bodyObserver.disconnect();
+    }
+}
+// Helper: reconnect tenant-upgrade.js observer if exists
+function reconnectUpgradeObserver() {
+    if (window.bodyObserver && typeof window.bodyObserver.observe === 'function') {
+        window.bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['style', 'class'] });
+    }
+}

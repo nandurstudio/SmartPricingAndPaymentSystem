@@ -81,6 +81,7 @@ $routes->group('tenants', ['filter' => 'auth'], function($routes) {
     $routes->post('store', 'TenantsController::store');
     $routes->get('edit/(:num)', 'TenantsController::edit/$1');
     $routes->post('update/(:num)', 'TenantsController::update/$1');
+    $routes->post('toggle/(:num)', 'TenantsController::toggle/$1');
     $routes->get('view/(:num)', 'TenantsController::view/$1');
     $routes->get('check-subdomain', 'TenantsController::checkSubdomain');
     $routes->get('activate-subscription/(:num)', 'TenantsController::activateSubscription/$1');
@@ -178,6 +179,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('view/(:num)', 'TenantsController::view/$1');
         $routes->get('edit/(:num)', 'TenantsController::edit/$1');
         $routes->post('update/(:num)', 'TenantsController::update/$1');
+        $routes->post('toggle/(:num)', 'TenantsController::toggle/$1');
         $routes->get('checkSubdomain', 'TenantsController::checkSubdomain');
         $routes->get('activate-subscription/(:num)', 'TenantsController::activateSubscription/$1');
         $routes->get('payment-success/(:num)', 'TenantsController::paymentSuccess/$1');

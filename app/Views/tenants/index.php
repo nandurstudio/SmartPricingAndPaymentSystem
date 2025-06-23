@@ -421,8 +421,16 @@
     </div>
 </div>
 
-<?= $this->section('scripts') ?>
-<script src="<?= base_url('assets/js/pages/tenants.js') ?>"></script>
-<?= $this->endSection() ?>
+<?= $this->endSection() ?> <!-- end content section -->
 
-<?= $this->endSection() ?>
+<?= $this->section('scripts') ?>
+<!-- Global variables for AJAX requests -->
+<script>
+    window.baseUrl = '<?= base_url() ?>';
+    window.csrfName = '<?= csrf_token() ?>';
+    window.csrfToken = '<?= csrf_hash() ?>';
+</script>
+
+<!-- Tenant management script -->
+<script src="<?= base_url('assets/js/pages/tenants.js') ?>"></script>
+<?= $this->endSection() ?> <!-- end scripts section -->

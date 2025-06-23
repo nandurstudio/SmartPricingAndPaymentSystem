@@ -400,9 +400,10 @@
                                                         <i class="bi bi-pencil-square"></i>
                                                     </a>
                                                     <button type="button"
-                                                        class="btn btn-outline-danger toggle-service"
+                                                        class="btn btn-outline-<?= $service['bitActive'] ? 'danger' : 'success' ?> toggle-service"
                                                         data-id="<?= $service['intServiceID'] ?>"
                                                         data-status="<?= $service['bitActive'] ?>"
+                                                        data-bs-toggle="tooltip"
                                                         title="<?= $service['bitActive'] ? 'Deactivate' : 'Activate' ?> Service">
                                                         <i class="bi bi-toggle-<?= $service['bitActive'] ? 'on' : 'off' ?>"></i>
                                                     </button>
@@ -549,10 +550,10 @@
 <?= $this->section('js') ?>
 <!-- Provide necessary variables for the external JS -->
 <script>
-    const baseUrl = '<?= base_url() ?>';
-    const csrfToken = '<?= csrf_hash() ?>';
-    const csrfName = '<?= csrf_token() ?>';
-    const tenantId = '<?= $tenant['intTenantID'] ?>';
+    window.baseUrl = '<?= base_url() ?>'.replace(/\/$/, '');
+    window.csrfName = '<?= csrf_token() ?>';
+    window.csrfToken = '<?= csrf_hash() ?>';
+    window.tenantId = '<?= $tenant['intTenantID'] ?>';
 </script>
 
 <!-- Load external JS files -->

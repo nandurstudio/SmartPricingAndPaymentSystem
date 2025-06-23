@@ -147,4 +147,20 @@ class ServiceModel extends Model
             ->get()
             ->getResultArray();
     }
+    
+    /**
+     * Get all services with type and tenant information
+     * Used by super admin to view all services across tenants
+     */
+    public function getServicesWithTypeAndTenant()
+    {
+        return $this->db->table($this->table . ' s')
+            ->select('s.*, st.txtName as service_type_name, t.txtTenantName as tenant_name, t.txtTenantCode as tenant_code')
+            ->join('m_service_types st', 's.intServiceTypeID = st.intServiceTypeID', 'left')
+            ->join('m_tenants t', 's.intTenantID = t.intTenantID', 'left')
+            ->orderBy('t.txtTenantName', 'ASC')
+            ->orderBy('s.txtName', 'ASC')
+            ->get()
+            ->getResultArray();
+    }
 }

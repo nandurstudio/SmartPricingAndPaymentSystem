@@ -1,108 +1,80 @@
-$(document).ready(function() {
-    // Handle service toggle (activate/deactivate)
-    $('.toggle-service').on('click', function() {
-        const button = $(this);
-        const serviceId = button.data('id');
-        const currentStatus = button.data('status');
-        const newStatus = currentStatus == 1 ? 0 : 1;
-        const actionText = currentStatus == 1 ? 'deactivate' : 'activate';
+// Helper: disconnect tenant-upgrade.js observer if exists
+function disconnectUpgradeObserver() {
+    if (window.bodyObserver && typeof window.bodyObserver.disconnect === 'function') {
+        window.bodyObserver.disconnect();
+    }
+}
 
-        Swal.fire({
-            title: 'Confirm Action',
-            text: `Are you sure you want to ${actionText} this service?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, proceed!',
-            allowOutsideClick: false
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Show loading state
-                button.prop('disabled', true);
-                
-                // Prepare data with CSRF token
-                const data = {
-                    [csrfName]: csrfToken,
-                    status: newStatus
-                };
+$(document).on('click', '.toggle-service, .toggle-tenant', function (e) {
+    e.preventDefault();
+    disconnectUpgradeObserver();
 
-                $.ajax({
-                    url: `${baseUrl}/services/toggle/${serviceId}`,
-                    type: 'POST',
-                    data: data,
-                    success: function(response) {
-                        if (response.success) {
-                            // Update button state
-                            button.data('status', newStatus);
-                            button.attr('title', `${newStatus == 1 ? 'Deactivate' : 'Activate'} Service`);
-                            button.find('i').removeClass('bi-toggle-on bi-toggle-off')
-                                        .addClass(`bi-toggle-${newStatus == 1 ? 'on' : 'off'}`);
-                            
-                            // Update status badge
-                            const statusBadge = button.closest('tr').find('.service-status .badge');
-                            statusBadge.removeClass('bg-success bg-danger')
-                                    .addClass(newStatus == 1 ? 'bg-success' : 'bg-danger');
-                            
-                            const statusIcon = statusBadge.find('i');
-                            statusIcon.removeClass('bi-check-circle bi-x-circle')
-                                    .addClass(newStatus == 1 ? 'bi-check-circle' : 'bi-x-circle');
-                            
-                            statusBadge.html(
-                                `<i class="bi bi-${newStatus == 1 ? 'check-circle' : 'x-circle'} me-1"></i>` +
-                                `${newStatus == 1 ? 'Active' : 'Inactive'}`
-                            );
+    const button = $(this);
+    const id = button.data('id');
+    const currentStatus = button.data('status') == 1;
+    const isTenant = button.hasClass('toggle-tenant');
+    const type = isTenant ? 'Tenant' : 'Service';
 
-                            // Show success message with auto-close
-                            Swal.fire({
-                                title: 'Success!',
-                                text: `Service successfully ${actionText}d`,
-                                icon: 'success',
-                                timer: 2000,
-                                showConfirmButton: false,
-                                allowOutsideClick: false,
-                                willClose: () => {
-                                    // Cleanup any lingering modal elements
-                                    const modalBackdrops = document.getElementsByClassName('swal2-backdrop-show');
-                                    const modalContainers = document.getElementsByClassName('swal2-container');
-                                    
-                                    for (let el of modalBackdrops) {
-                                        el.remove();
-                                    }
-                                    for (let el of modalContainers) {
-                                        el.remove();
-                                    }
+    Swal.fire({
+        title: `${currentStatus ? 'Deactivate' : 'Activate'} ${type}?`,
+        text: `Are you sure you want to ${currentStatus ? 'deactivate' : 'activate'} this ${type.toLowerCase()}?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: currentStatus ? '#dc3545' : '#198754',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: `Yes, ${currentStatus ? 'deactivate' : 'activate'} it!`,
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const endpoint = isTenant ? 'tenants' : 'services';
 
-                                    // Reset body styles
-                                    document.body.classList.remove('swal2-shown', 'swal2-height-auto');
-                                    document.body.style.removeProperty('padding-right');
-                                    document.body.style.removeProperty('overflow');
-                                }
-                            });
-                        } else {
-                            Swal.fire({
-                                title: 'Error!',
-                                text: response.message || 'Failed to update service status',
-                                icon: 'error',
-                                allowOutsideClick: false
-                            });
-                        }
-                    },
-                    error: function(xhr) {
-                        console.error('Error:', xhr);
+            $.ajax({
+                url: `${window.baseUrl}/${endpoint}/toggle/${id}`,
+                type: 'POST',
+                data: {
+                    [window.csrfName]: window.csrfToken,
+                    status: !currentStatus ? 1 : 0
+                },
+                beforeSend: function () {
+                    button.prop('disabled', true).html('<i class="spinner-border spinner-border-sm"></i>');
+                },
+                success: function (response) {
+                    if (response.success) {
                         Swal.fire({
-                            title: 'Error!',
-                            text: 'An error occurred while updating service status',
-                            icon: 'error',
-                            allowOutsideClick: false
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message || `${type} successfully ${currentStatus ? 'deactivated' : 'activated'}`,
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true,
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            willClose: () => {
+                                // Ini yang bikin reload setelah fade-out selesai
+                                location.reload();
+                            }
                         });
-                    },
-                    complete: function() {
-                        // Re-enable button
-                        button.prop('disabled', false);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: response.message || `Failed to update status`
+                        });
                     }
-                });
-            }
-        });
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: error || 'An error occurred while updating the status'
+                    });
+                },
+                complete: function () {
+                    button.prop('disabled', false).html(currentStatus ? 'Deactivate' : 'Activate');
+                }
+            });
+        }
     });
+
+    return false;
 });
