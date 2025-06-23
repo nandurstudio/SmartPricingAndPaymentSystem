@@ -11,7 +11,7 @@
     
     <div class="card mb-4">
         <div class="card-header">
-            <i class="fas fa-edit me-1"></i>
+            <i class="bi bi-pencil-square me-1"></i>
             <?= $pageTitle ?>
         </div>
         <div class="card-body">

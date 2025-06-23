@@ -111,40 +111,43 @@ $is_active = isset($service['bitActive']) ? $service['bitActive'] : 1;
 </div>
 
 <div class="mb-3">
-    <label for="txtImagePath" class="form-label">Service Image</label>
-    <?php if (!empty($service['txtImagePath'])) : ?>
-        <div class="mb-2">
-            <img src="<?= base_url('uploads/services/' . $service['txtImagePath']) ?>" 
-                 alt="<?= esc($service['txtName']) ?>" 
-                 class="img-thumbnail" 
+    <label for="txtImage" class="form-label">Service Image</label>
+    <div class="mb-2" id="image-preview-container">
+        <?php if (!empty($service['txtImage'])) : ?>
+            <img src="<?= base_url('uploads/services/' . $service['txtImage']) ?>"
+                 alt="<?= esc($service['txtName']) ?>"
+                 class="img-thumbnail"
+                 id="image-preview"
                  style="max-height: 150px;">
-        </div>
+        <?php else: ?>
+            <img src="#" alt="Preview" class="img-thumbnail d-none" id="image-preview" style="max-height: 150px;">
+        <?php endif; ?>
+    </div>
+    <?php if (!empty($service['txtImage'])) : ?>
         <div class="form-check mb-2">
             <input class="form-check-input" type="checkbox" id="remove_image" name="remove_image" value="1">
-            <label class="form-check-label" for="remove_image">
-                Remove current image
-            </label>
+            <label class="form-check-label" for="remove_image">Remove current image</label>
         </div>
     <?php endif; ?>
-    <input type="file" class="form-control <?= session('errors.txtImagePath') ? 'is-invalid' : '' ?>" 
-           id="txtImagePath" name="txtImagePath" accept="image/*">
+    <input type="file" class="form-control <?= session('errors.txtImage') ? 'is-invalid' : '' ?>"
+           id="txtImage" name="txtImage" accept="image/*">
     <div class="form-text">Upload a new image to update. (Max size: 2MB, Formats: JPG, PNG)</div>
-    <?php if (session('errors.txtImagePath')) : ?>
+    <?php if (session('errors.txtImage')) : ?>
         <div class="invalid-feedback">
-            <?= session('errors.txtImagePath') ?>
+            <?= session('errors.txtImage') ?>
         </div>
     <?php endif; ?>
 </div>
 
 <div class="mb-3">
-    <label for="bitActive" class="form-label">Status</label>
-    <select class="form-select <?= session('errors.bitActive') ? 'is-invalid' : '' ?>" 
-            id="bitActive" name="bitActive">
-        <option value="1" <?= old('bitActive', $is_active) == 1 ? 'selected' : '' ?>>Active</option>
-        <option value="0" <?= old('bitActive', $is_active) == 0 ? 'selected' : '' ?>>Inactive</option>
-    </select>
+    <label for="bitActiveToggle" class="form-label">Status</label>
+    <div class="form-check form-switch">
+        <input class="form-check-input" type="checkbox" id="bitActiveToggle" name="bitActiveToggle" <?= old('bitActive', $is_active) == 1 ? 'checked' : '' ?>>
+        <input type="hidden" id="bitActive" name="bitActive" value="<?= old('bitActive', $is_active) ?>">
+        <label class="form-check-label ms-2" for="bitActiveToggle" id="statusLabel"></label>
+    </div>
     <?php if (session('errors.bitActive')) : ?>
-        <div class="invalid-feedback">
+        <div class="invalid-feedback d-block">
             <?= session('errors.bitActive') ?>
         </div>
     <?php endif; ?>
@@ -156,3 +159,5 @@ $is_active = isset($service['bitActive']) ? $service['bitActive'] : 1;
     </button>
     <a href="<?= base_url('services') ?>" class="btn btn-secondary">Cancel</a>
 </div>
+
+<!-- <script src="<?= base_url('assets/js/pages/service-form.js') ?>"></script> -->

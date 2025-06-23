@@ -125,7 +125,7 @@ class ServiceController extends BaseController
             'decPrice' => 'required|numeric',
             'intDuration' => 'required|numeric',
             'txtDescription' => 'required',
-            'txtImagePath' => 'permit_empty|is_image[txtImagePath]|max_size[txtImagePath,2048]'
+            'txtImage' => 'permit_empty|is_image[txtImage]|max_size[txtImage,2048]'
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
@@ -143,15 +143,16 @@ class ServiceController extends BaseController
                 'intCapacity' => $this->request->getPost('intCapacity') ?? 1,
                 'txtDescription' => $this->request->getPost('txtDescription'),
                 'bitActive' => $this->request->getPost('bitActive') ?? 1,
-                'txtCreatedBy' => session()->get('userName')
+                'txtCreatedBy' => session()->get('userName'),
+                'txtGUID' => $this->generateUuidV4()
             ];
 
             // Handle image upload if present
-            $image = $this->request->getFile('txtImagePath');
+            $image = $this->request->getFile('txtImage');
             if ($image && $image->isValid() && !$image->hasMoved()) {
                 $newName = $image->getRandomName();
                 $image->move(ROOTPATH . 'public/uploads/services', $newName);
-                $serviceData['txtImagePath'] = $newName;
+                $serviceData['txtImage'] = $newName;
             }
 
             // Insert service
@@ -228,7 +229,7 @@ class ServiceController extends BaseController
             'decPrice' => 'required|numeric',
             'intDuration' => 'required|numeric',
             'txtDescription' => 'required',
-            'txtImagePath' => 'permit_empty|is_image[txtImagePath]|max_size[txtImagePath,2048]'
+            'txtImage' => 'permit_empty|is_image[txtImage]|max_size[txtImage,2048]'
         ]);
 
         if (!$validation->withRequest($this->request)->run()) {
@@ -249,26 +250,26 @@ class ServiceController extends BaseController
         ];
 
         // Handle image upload
-        $image = $this->request->getFile('txtImagePath');
+        $image = $this->request->getFile('txtImage');
         if ($image && $image->isValid() && !$image->hasMoved()) {
             $newName = $image->getRandomName();
             $image->move('uploads/services', $newName);
-            $data['txtImagePath'] = $newName;
+            $data['txtImage'] = $newName;
             
             // Remove old image if exists
-            if ($service['txtImagePath']) {
-                $oldImagePath = 'uploads/services/' . $service['txtImagePath'];
+            if (!empty($service['txtImage'])) {
+                $oldImagePath = 'uploads/services/' . $service['txtImage'];
                 if (file_exists($oldImagePath)) {
                     unlink($oldImagePath);
                 }
             }
-        } elseif ($this->request->getPost('remove_image') && $service['txtImagePath']) {
+        } elseif ($this->request->getPost('remove_image') && !empty($service['txtImage'])) {
             // Remove image if checkbox is checked
-            $imagePath = 'uploads/services/' . $service['txtImagePath'];
+            $imagePath = 'uploads/services/' . $service['txtImage'];
             if (file_exists($imagePath)) {
                 unlink($imagePath);
             }
-            $data['txtImagePath'] = null;
+            $data['txtImage'] = null;
         }
 
         try {
@@ -502,5 +503,16 @@ class ServiceController extends BaseController
                 'message' => 'Failed to update service status.'
             ]);
         }
+    }
+
+    /**
+     * Generate UUID v4 string
+     */
+    private function generateUuidV4()
+    {
+        $data = random_bytes(16);
+        $data[6] = chr((ord($data[6]) & 0x0f) | 0x40); // version 4
+        $data[8] = chr((ord($data[8]) & 0x3f) | 0x80); // variant
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 }

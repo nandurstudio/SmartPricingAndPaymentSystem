@@ -6,9 +6,9 @@
         <i class="bi bi-list-check text-primary me-2"></i>
         <?= $pageTitle ?>
     </h1>
-    <ol class="breadcrumb mb-4">
+    <ol class="breadcrumb mb-4" aria-label="breadcrumb">
         <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Dashboard</a></li>
-        <li class="breadcrumb-item active"><?= $pageTitle ?></li>
+        <li class="breadcrumb-item active" aria-current="page"><?= $pageTitle ?></li>
     </ol>
 
     <!-- Quick Stats Cards -->
@@ -26,7 +26,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="bi bi-list-check fa-2x text-gray-300"></i>
+                            <i class="bi bi-list-check text-gray-300" style="font-size: 2rem;"></i>
                         </div>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="bi bi-toggle-on fa-2x text-gray-300"></i>
+                            <i class="bi bi-toggle-on text-gray-300" style="font-size: 2rem;"></i>
                         </div>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="bi bi-toggle-off fa-2x text-gray-300"></i>
+                            <i class="bi bi-toggle-off text-gray-300" style="font-size: 2rem;"></i>
                         </div>
                     </div>
                 </div>
@@ -87,7 +87,7 @@
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="bi bi-building fa-2x text-gray-300"></i>
+                            <i class="bi bi-building text-gray-300" style="font-size: 2rem;"></i>
                         </div>
                     </div>
                 </div>
@@ -183,13 +183,22 @@
                             <?php foreach ($services as $service): ?>
                                 <tr>
                                     <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <?php if ($canManageServices): ?>                                                <a href="<?= base_url('services/edit/' . $service['intServiceID']) ?>"
+                                        <div class="btn-group btn-group-sm" role="group" aria-label="Service Actions">
+                                            <?php if ($canManageServices): ?>
+                                                <a href="<?= base_url('services/edit/' . $service['intServiceID']) ?>"
                                                    class="btn btn-outline-primary"
                                                    data-bs-toggle="tooltip"
                                                    title="Edit Service">
                                                     <i class="bi bi-pencil-square"></i>
                                                 </a>
+                                            <?php endif; ?>
+                                            <a href="<?= base_url('services/view/' . $service['intServiceID']) ?>"
+                                               class="btn btn-outline-secondary"
+                                               data-bs-toggle="tooltip"
+                                               title="View Service">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <?php if ($canManageServices): ?>
                                                 <button type="button" class="btn btn-outline-<?= $service['bitActive'] ? 'danger' : 'success' ?> toggle-service"
                                                         data-id="<?= $service['intServiceID'] ?>"
                                                         data-status="<?= $service['bitActive'] ?>"
