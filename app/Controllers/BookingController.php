@@ -239,9 +239,12 @@ class BookingController extends BaseController
             'decPrice' => $service['decPrice'],
             'txtStatus' => 'pending',
             'txtPaymentStatus' => 'unpaid',
+            'txtPaymentID' => '',
             'txtGUID' => $this->db->query('SELECT UUID() as guid')->getRow()->guid,
-            'txtCreatedBy' => session()->get('userName'),
+            'txtCreatedBy' => session()->get('username'),
             'dtmCreatedDate' => date('Y-m-d H:i:s'),
+            'txtUpdatedBy' => session()->get('username'),
+            'dtmUpdatedDate' => date('Y-m-d H:i:s'),
             'bitActive' => 1
         ];        // Insert the booking
         try {

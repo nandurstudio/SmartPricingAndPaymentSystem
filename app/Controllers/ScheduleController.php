@@ -6,6 +6,7 @@ class ScheduleController extends BaseController
 {    protected $scheduleModel;
     protected $serviceModel;
     protected $bookingModel;
+    protected $specialScheduleModel;
 
     public function __construct()
     {
@@ -13,6 +14,7 @@ class ScheduleController extends BaseController
         $this->scheduleModel = new \App\Models\ScheduleModel();
         $this->serviceModel = new \App\Models\ServiceModel();
         $this->bookingModel = new \App\Models\BookingModel();
+        $this->specialScheduleModel = new \App\Models\SpecialScheduleModel();
     }
 
     public function index()
@@ -22,26 +24,43 @@ class ScheduleController extends BaseController
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
         }
 
+        // Get tenant ID
+        $serviceId = $this->request->getGet('service_id');
+        $tenantId = null;
+        $services = [];
+        $roleId = session()->get('roleID');
+
+        if ($serviceId) {
+            // Cari service dan tenant-nya
+            $service = $this->serviceModel->find($serviceId);
+            if ($service) {
+                $tenantId = $service['intTenantID'];
+                $services = [$service];
+            }
+        }
+        if (!$tenantId) {
+            $tenantId = $this->getTenantId();
+        }
+        if (!$services) {
+            $services = $this->serviceModel->where('intTenantID', $tenantId)
+                ->where('bitActive', 1)
+                ->findAll();
+        }
+        if (!$tenantId && $roleId != 1) {
+            // No tenant assigned to user, redirect to tenant creation
+            return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage schedules.');
+        }
+
         $data = [
             'title' => 'Schedules',
             'pageTitle' => 'Schedule Management',
             'pageSubTitle' => 'View and manage service availability',
-            'icon' => 'clock'
+            'icon' => 'clock',
+            'services' => $services
         ];
 
-        // Get tenant ID - in a multi-tenant app, we need to filter by tenant
-        $tenantId = $this->getTenantId();
-        $roleId = session()->get('roleID');        if (!$tenantId && $roleId != 1) {
-            // No tenant assigned to user, redirect to tenant creation
-            return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage schedules.');
-        }        // Get services for filtering
-        $data['services'] = $this->serviceModel->where('intTenantID', $tenantId)->findAll();
-        
         // Get service schedules
-        $serviceId = $this->request->getGet('service_id');
         $data['schedules'] = $this->scheduleModel->getServiceSchedules($tenantId, $serviceId);
-        
-        // Set selected service for filters
         $data['selectedServiceId'] = $serviceId;
 
         return view('schedules/index', $data);
@@ -54,10 +73,27 @@ class ScheduleController extends BaseController
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
         }
 
-        // Get tenant ID
-        $tenantId = $this->getTenantId();
+        $serviceId = $this->request->getGet('service_id');
+        $tenantId = null;
+        $services = [];
         $roleId = session()->get('roleID');
 
+        if ($serviceId) {
+            // Cari service dan tenant-nya
+            $service = $this->serviceModel->find($serviceId);
+            if ($service) {
+                $tenantId = $service['intTenantID'];
+                $services = [$service];
+            }
+        }
+        if (!$tenantId) {
+            $tenantId = $this->getTenantId();
+        }
+        if (!$services) {
+            $services = $this->serviceModel->where('intTenantID', $tenantId)
+                ->where('bitActive', 1)
+                ->findAll();
+        }
         if (!$tenantId && $roleId != 1) {
             // No tenant assigned to user, redirect to tenant creation
             return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage schedules.');
@@ -68,18 +104,42 @@ class ScheduleController extends BaseController
             'pageTitle' => 'Create New Schedule',
             'pageSubTitle' => 'Define service availability',
             'icon' => 'plus-circle',
-            'validation' => \Config\Services::validation()
+            'validation' => \Config\Services::validation(),
+            'services' => $services
         ];
-
-        // Get services for dropdown
-        $data['services'] = $this->serviceModel->where('intTenantID', $tenantId)
-            ->where('bitActive', 1)
-            ->findAll();
 
         // Days of week for dropdown
         $data['days'] = [
             'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
         ];
+
+        // Ambil service sesuai parameter jika ada, jika tidak semua
+        $serviceId = $this->request->getGet('service_id');
+        if ($serviceId) {
+            $service = $this->serviceModel->where('intServiceID', $tenantId)
+                ->where('bitActive', 1)
+                ->where('intServiceID', $serviceId)
+                ->first();
+            if ($service) {
+                $data['services'] = [[
+                    'id' => $service['intServiceID'],
+                    'name' => $service['txtName']
+                ]];
+                $data['serviceName'] = $service['txtName'];
+            } else {
+                $data['services'] = [];
+                $data['serviceName'] = null;
+            }
+        } else {
+            $allServices = $this->serviceModel->where('intTenantID', $tenantId)->where('bitActive', 1)->findAll();
+            $data['services'] = array_map(function($svc) {
+                return [
+                    'id' => $svc['intServiceID'],
+                    'name' => $svc['txtName']
+                ];
+            }, $allServices);
+            $data['serviceName'] = null;
+        }
 
         return view('schedules/create', $data);
     }
@@ -128,7 +188,7 @@ class ScheduleController extends BaseController
                 'dtmEndTime' => $endTime,
                 'intSlotDuration' => $slotDuration,
                 'bitIsAvailable' => $isAvailable,
-                'txtUpdatedBy' => $userId,
+                'txtUpdatedBy' => session()->get('username'),
                 'dtmUpdatedDate' => date('Y-m-d H:i:s')
             ]);
         } else {
@@ -140,9 +200,9 @@ class ScheduleController extends BaseController
                 'dtmEndTime' => $endTime,
                 'intSlotDuration' => $slotDuration,
                 'bitIsAvailable' => $isAvailable,
-                'txtCreatedBy' => $userId,
+                'txtCreatedBy' => session()->get('username'),
                 'dtmCreatedDate' => date('Y-m-d H:i:s'),
-                'txtUpdatedBy' => $userId,
+                'txtUpdatedBy' => session()->get('username'),
                 'dtmUpdatedDate' => date('Y-m-d H:i:s')
             ]);
         }
@@ -228,153 +288,14 @@ class ScheduleController extends BaseController
             'dtmEndTime' => $endTime,
             'intSlotDuration' => $slotDuration,
             'bitIsAvailable' => $isAvailable,
-            'txtUpdatedBy' => $userId,
+            'txtUpdatedBy' => session()->get('username'),
             'dtmUpdatedDate' => date('Y-m-d H:i:s')
         ]);
 
         return redirect()->to('/schedules?service_id=' . $serviceId)->with('success', 'Schedule updated successfully.');
     }
 
-    public function special()
-    {
-        // Check if user is logged in
-        if (!session()->get('isLoggedIn')) {
-            return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
-        }
-
-        $data = [
-            'title' => 'Special Schedule',
-            'pageTitle' => 'Special Schedule',
-            'pageSubTitle' => 'Define exceptions to regular schedule',
-            'icon' => 'calendar-x',
-            'validation' => \Config\Services::validation()
-        ];
-
-        // Get tenant ID
-        $tenantId = $this->getTenantId();
-        $roleId = session()->get('roleID');
-
-        if (!$tenantId && $roleId != 1) {
-            // No tenant assigned to user, redirect to tenant creation
-            return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage schedules.');
-        }
-
-        // Get services for dropdown
-        // $data['services'] = $this->serviceModel->where('tenant_id', $tenantId)->findAll();
-        
-        // For now, use dummy data
-        $data['services'] = [
-            ['id' => 1, 'name' => 'Futsal Field A'],
-            ['id' => 2, 'name' => 'Villa Anggrek'],
-            ['id' => 3, 'name' => 'Haircut & Styling'],
-        ];
-
-        // Get service special schedules
-        $serviceId = $this->request->getGet('service_id');
-        $month = $this->request->getGet('month') ?: date('m');
-        $year = $this->request->getGet('year') ?: date('Y');
-        
-        // $data['specialDates'] = $this->scheduleModel->getServiceSpecialDates($serviceId, $month, $year);
-          // For now, use dummy data
-        $data['specialDates'] = [
-            [
-                'id' => 1,
-                'service_id' => 1,
-                'service_name' => 'Futsal Field A',
-                'date' => '2025-06-01',
-                'is_closed' => true,
-                'start_time' => null,
-                'end_time' => null,
-                'notes' => 'Public Holiday'
-            ],
-            [
-                'id' => 2,
-                'service_id' => 1,
-                'service_name' => 'Futsal Field A',
-                'date' => '2025-06-15',
-                'is_closed' => true,
-                'start_time' => null,
-                'end_time' => null,
-                'notes' => 'Maintenance Day'
-            ],
-            [
-                'id' => 3,
-                'service_id' => 1,
-                'service_name' => 'Futsal Field A',
-                'date' => '2025-06-30',
-                'is_closed' => false,
-                'start_time' => '10:00',
-                'end_time' => '16:00',
-                'notes' => 'Early Closing'
-            ]
-        ];
-        
-        $data['currentMonth'] = $month;
-        $data['currentYear'] = $year;
-        $data['selectedServiceId'] = $serviceId;
-
-        return view('schedules/special', $data);
-    }
-
-    public function storeSpecial()
-    {
-        // Check if user is logged in
-        if (!session()->get('isLoggedIn')) {
-            return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
-        }
-
-        // Validate form input
-        $validation = \Config\Services::validation();
-        $validation->setRules([
-            'intServiceID' => 'required|numeric',
-            'dtmDate' => 'required|valid_date',
-            'bitIsClosed' => 'permit_empty',
-            'dtmStartTime' => 'permit_empty',
-            'dtmEndTime' => 'permit_empty',
-            'txtNote' => 'permit_empty|max_length[255]'
-        ]);
-
-        if (!$validation->withRequest($this->request)->run()) {
-            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
-        }
-
-        $serviceId = $this->request->getPost('intServiceID');
-        $specialDate = $this->request->getPost('dtmDate');
-        $isClosed = $this->request->getPost('bitIsClosed') ? 1 : 0;
-        $startTime = $this->request->getPost('dtmStartTime');
-        $endTime = $this->request->getPost('dtmEndTime');
-        $note = $this->request->getPost('txtNote');
-        $userId = session()->get('userID');
-
-        // Check if special date already exists
-        $existing = $this->scheduleModel->getSpecialSchedule($serviceId, $specialDate);
-        
-        if ($existing) {
-            // Update existing special date
-            $this->scheduleModel->update($existing['intScheduleID'], [
-                'bitIsClosed' => $isClosed,
-                'dtmStartTime' => $startTime,
-                'dtmEndTime' => $endTime,
-                'txtNote' => $note,
-                'txtUpdatedBy' => $userId,
-                'dtmUpdatedDate' => date('Y-m-d H:i:s')
-            ]);
-        } else {
-            // Insert new special date
-            $this->scheduleModel->insert([
-                'intServiceID' => $serviceId,
-                'dtmDate' => $specialDate,
-                'bitIsClosed' => $isClosed,
-                'dtmStartTime' => $startTime,
-                'dtmEndTime' => $endTime,
-                'txtNote' => $note,
-                'txtCreatedBy' => $userId,
-                'dtmCreatedDate' => date('Y-m-d H:i:s')
-            ]);
-        }
-
-        return redirect()->to('/schedules/special?service_id=' . $serviceId)->with('success', 'Special schedule added successfully.');
-    }
+    // Special schedule methods have been moved to SpecialController
 
     /**
      * Get the tenant ID for the current user

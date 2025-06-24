@@ -143,7 +143,7 @@ class ServiceController extends BaseController
                 'intCapacity' => $this->request->getPost('intCapacity') ?? 1,
                 'txtDescription' => $this->request->getPost('txtDescription'),
                 'bitActive' => $this->request->getPost('bitActive') ?? 1,
-                'txtCreatedBy' => session()->get('userName'),
+                'txtCreatedBy' => session()->get('username'),
                 'txtGUID' => $this->generateUuidV4()
             ];
 
@@ -245,7 +245,7 @@ class ServiceController extends BaseController
             'intCapacity' => $this->request->getPost('intCapacity') ?? 1,
             'txtDescription' => $this->request->getPost('txtDescription'),
             'bitActive' => $this->request->getPost('bitActive') ?? 0,
-            'txtUpdatedBy' => session()->get('userName'),
+            'txtUpdatedBy' => session()->get('username'),
             'dtmUpdatedDate' => date('Y-m-d H:i:s')
         ];
 
@@ -426,7 +426,7 @@ class ServiceController extends BaseController
             // Update service status
             $success = $this->serviceModel->update($id, [
                 'bitActive' => $status,
-                'txtUpdatedBy' => session()->get('userID')
+                'txtUpdatedBy' => session()->get('username')
             ]);
 
             if ($success) {
@@ -489,7 +489,7 @@ class ServiceController extends BaseController
         try {
             $this->serviceModel->update($id, [
                 'bitActive' => $newStatus,
-                'txtUpdatedBy' => session()->get('userName')
+                'txtUpdatedBy' => session()->get('username')
             ]);
 
             return $this->response->setJSON([

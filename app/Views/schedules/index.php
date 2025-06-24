@@ -28,11 +28,11 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <i class="fas fa-calendar-week me-1"></i>
+                            <i class="bi bi-calendar-week me-1"></i>
                             Regular Weekly Schedule
                         </div>
                         <a href="<?= base_url('schedules/create' . (isset($_GET['service_id']) ? '?service_id=' . $_GET['service_id'] : '')) ?>" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus-circle"></i> Add Schedule
+                            <i class="bi bi-plus-circle me-1"></i> Add Schedule
                         </a>
                     </div>
                 </div>
@@ -51,7 +51,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <button id="apply-filters" class="btn btn-primary">Apply Filters</button>
+                        <button id="apply-filters" class="btn btn-primary"><i class="bi bi-funnel me-1"></i>Apply Filters</button>
                     </div>
                     <?php else : ?>
                         <?php if (empty($schedules)) : ?>
@@ -65,23 +65,36 @@
                         <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
+                                    <th>Actions</th>
                                     <th>Service</th>
                                     <th>Day</th>
                                     <th>Start Time</th>
                                     <th>End Time</th>
                                     <th>Slot Duration</th>
                                     <th>Status</th>
-                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (!empty($schedules)) : ?>
                                     <?php foreach ($schedules as $schedule) : ?>
                                         <tr>
+                                            <td>
+                                                <div class="d-flex gap-1">
+                                                    <a href="<?= base_url('schedules/edit/' . $schedule['intScheduleID'] . (isset($_GET['service_id']) ? '?service_id=' . $_GET['service_id'] : '')) ?>" class="btn btn-warning btn-sm edit-schedule" title="Edit">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-danger btn-sm delete-schedule" 
+                                                        data-id="<?= $schedule['intScheduleID'] ?>" 
+                                                        data-day="<?= $schedule['txtDay'] ?>" 
+                                                        data-service="<?= $schedule['txtServiceName'] ?>" title="Delete">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
                                             <td><?= esc($schedule['txtServiceName']) ?></td>
                                             <td><?= esc($schedule['txtDay']) ?></td>
-                                            <td><?= date('h:i A', strtotime($schedule['dtmStartTime'])) ?></td>
-                                            <td><?= date('h:i A', strtotime($schedule['dtmEndTime'])) ?></td>
+                                            <td><?= date('H:i', strtotime($schedule['dtmStartTime'])) ?></td>
+                                            <td><?= date('H:i', strtotime($schedule['dtmEndTime'])) ?></td>
                                             <td><?= $schedule['intSlotDuration'] ?> minutes</td>
                                             <td>
                                                 <?php if ($schedule['bitIsAvailable'] == 1) : ?>
@@ -89,17 +102,6 @@
                                                 <?php else : ?>
                                                     <span class="badge bg-danger">Not Available</span>
                                                 <?php endif; ?>
-                                            </td>
-                                            <td>
-                                                <a href="<?= base_url('schedules/edit/' . $schedule['intScheduleID']) ?>" class="btn btn-warning btn-sm">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <button type="button" class="btn btn-danger btn-sm delete-schedule" 
-                                                    data-id="<?= $schedule['intScheduleID'] ?>" 
-                                                    data-day="<?= $schedule['txtDay'] ?>" 
-                                                    data-service="<?= $schedule['txtServiceName'] ?>">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -120,7 +122,7 @@
                 <div class="card-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <i class="fas fa-info-circle me-1"></i>
+                            <i class="bi bi-info-circle me-1"></i>
                             Schedule Guide
                         </div>
                     </div>
@@ -138,12 +140,12 @@
                     </ul>
                     
                     <div class="alert alert-info">
-                        <i class="fas fa-exclamation-circle me-1"></i>
+                        <i class="bi bi-exclamation-circle me-1"></i>
                         Services need schedules to be bookable. If a service has no schedule for a particular day, customers cannot book it on that day.
                     </div>
                     
                     <a href="<?= base_url('schedules/special' . (isset($_GET['service_id']) ? '?service_id=' . $_GET['service_id'] : '')) ?>" class="btn btn-outline-primary mt-3">
-                        <i class="fas fa-calendar-day me-1"></i> Manage Special Dates
+                        <i class="bi bi-calendar-day me-1"></i> Manage Special Dates
                     </a>
                 </div>
             </div>
@@ -164,14 +166,14 @@
                 <input type="hidden" id="schedule_id" name="id">
                 <div class="modal-body">
                     <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        <i class="bi bi-exclamation-triangle me-1"></i>
                         Warning: Deleting this schedule will make the service unavailable for booking on this day.
                     </div>
                     <p>Are you sure you want to delete the schedule for <span id="schedule-info" class="fw-bold"></span>?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger">Delete Schedule</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-circle me-1"></i>Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Delete Schedule</button>
                 </div>
             </form>
         </div>

@@ -2,86 +2,78 @@
 
 <?= $this->section('content') ?>
 <div class="container-fluid px-4">
-    <h1 class="mt-4"><?= $pageTitle ?></h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="<?= base_url('schedules') ?>">Schedules</a></li>
-        <li class="breadcrumb-item active"><?= $pageTitle ?></li>
-    </ol>
-    
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <i class="fas fa-edit me-1"></i>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="mt-4 mb-0">
+                <i class="bi bi-pencil-square me-2"></i><?= $pageTitle ?>
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item">
+                        <a href="<?= base_url('/') ?>" class="text-decoration-none">
+                            <i class="bi bi-house"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="<?= base_url('schedules') ?>" class="text-decoration-none">
+                            <i class="bi bi-clock"></i> Schedules
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <i class="bi bi-pencil-square"></i> <?= $pageTitle ?>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="bi bi-pencil-square me-1"></i>
                     <?= $pageTitle ?>
-                </div>
-                <div class="card-body">
-                    <?php if (session()->getFlashdata('errors')) : ?>
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <h4>Error:</h4>
-                            <ul>
-                                <?php foreach (session()->getFlashdata('errors') as $error) : ?>
-                                    <li><?= $error ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    <?php endif; ?>                    <form action="<?= base_url('schedules/update/' . $schedule['intScheduleID']) ?>" method="post">
-                        <?= csrf_field() ?>
-                        
-                        <div class="mb-3">                            <label class="form-label">Service</label>
-                            <input type="text" class="form-control" value="<?= esc($schedule['txtServiceName'] ?? 'Service not found') ?>" readonly>
-                            <input type="hidden" name="intServiceID" value="<?= $schedule['intServiceID'] ?>">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Day</label>                            <input type="text" class="form-control" value="<?= esc($schedule['txtDay']) ?>" readonly>
-                            <input type="hidden" name="txtDay" value="<?= $schedule['txtDay'] ?>">
-                        </div>
-                        
-                        <?= $this->include('schedules/_form', ['schedule' => $schedule]) ?>
-                        
-                        <div class="alert alert-info mb-4">
-                            <div class="d-flex">
-                                <div class="me-3">
-                                    <i class="fas fa-info-circle fa-2x"></i>
-                                </div>
-                                <div>
-                                    <h5>Slot Information</h5>
-                                    <p class="mb-0">Based on your settings, this will create <span id="slot-count" class="fw-bold">0</span> slots for bookings every <span id="day-name"><?= $schedule['txtDay'] ?></span>.</p>
-                                    <p class="mb-0">First slot: <span id="first-slot" class="fw-bold">-</span></p>
-                                    <p class="mb-0">Last slot: <span id="last-slot" class="fw-bold">-</span></p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <?php if (!empty($bookings)) : ?>
-                            <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle me-1"></i>
-                                <strong>Warning:</strong> This schedule has <?= count($bookings) ?> existing bookings. Changing times may affect these bookings.
-                            </div>                        <?php endif; ?>
-                        
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="<?= base_url('schedules' . (isset($_GET['service_id']) ? '?service_id=' . $_GET['service_id'] : '')) ?>" class="btn btn-secondary me-md-2">
-                                Cancel
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                Update Schedule
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                </h6>
             </div>
+        </div>
+        <div class="card-body">
+            <?php if (session()->getFlashdata('errors')) : ?>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <h4>Error:</h4>
+                    <ul>
+                        <?php foreach (session()->getFlashdata('errors') as $error) : ?>
+                            <li><?= $error ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            <?php endif; ?>
+            <form action="<?= base_url('schedules/update/' . $schedule['intScheduleID']) ?>" method="post">
+                <?= csrf_field() ?>
+                <?= $this->include('schedules/_form', ['schedule' => $schedule]) ?>
+                <?php if (!empty($bookings)) : ?>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        <strong>Warning:</strong> This schedule has <?= count($bookings) ?> existing bookings. Changing times may affect these bookings.
+                    </div>
+                <?php endif; ?>
+                <div class="mt-4 d-flex justify-content-end gap-2">
+                    <?php
+                    // Smart Cancel: fallback ke service pertama jika tidak ada service_id di URL
+                    $cancelServiceId = $_GET['service_id'] ?? ($services[0]['intServiceID'] ?? null);
+                    $cancelUrl = base_url('schedules');
+                    if ($cancelServiceId) {
+                        $cancelUrl .= '?service_id=' . $cancelServiceId;
+                    }
+                    ?>
+                    <a href="<?= $cancelUrl ?>" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle me-1"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-save me-1"></i>Update Schedule
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-
-<?= $this->section('js') ?>
-<script>
-    // Base URL for API calls
-    const baseUrl = '<?= base_url() ?>';
-</script>
-<script src="<?= base_url('assets/js/pages/schedules/schedules.js') ?>"></script>
-<?= $this->endSection() ?>
 <?= $this->endSection() ?>

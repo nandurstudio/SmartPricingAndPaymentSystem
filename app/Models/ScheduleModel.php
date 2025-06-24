@@ -70,20 +70,18 @@ class ScheduleModel extends Model
     }
 
     // Get special schedules (exceptions) for a service
-    public function getServiceSpecialDates($serviceId, $month, $year)
+    public function getServiceSpecialDates($serviceId, $month, $year, $table = 'm_special_schedules')
     {
         if (!$serviceId) {
             return [];
         }
-        
         $startDate = sprintf('%04d-%02d-01', $year, $month);
         $endDate = date('Y-m-t', strtotime($startDate));
-        
-        return $this->db->table('m_schedule_specials')
+        return $this->db->table($table)
             ->where('intServiceID', $serviceId)
-            ->where('dtmDate >=', $startDate)
-            ->where('dtmDate <=', $endDate)
-            ->orderBy('dtmDate', 'ASC')
+            ->where('dtmSpecialDate >=', $startDate)
+            ->where('dtmSpecialDate <=', $endDate)
+            ->orderBy('dtmSpecialDate', 'ASC')
             ->get()
             ->getResultArray();
     }

@@ -228,8 +228,9 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->post('store', 'ScheduleController::store');
         $routes->get('edit/(:num)', 'ScheduleController::edit/$1');
         $routes->post('update/(:num)', 'ScheduleController::update/$1');
-        $routes->get('special', 'ScheduleController::special');
-        $routes->post('special/store', 'ScheduleController::storeSpecial');
+        $routes->get('special', 'SpecialController::special');
+        $routes->post('special/store', 'SpecialController::storeSpecial');
+        $routes->post('update-special', 'SpecialController::updateSpecial');
     });
 
     // Onboarding process
@@ -243,6 +244,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     // API routes
     $routes->group('api', function ($routes) {
         $routes->get('slots/available/(:num)', 'Api\TimeSlotController::getAvailableSlots/$1');
+        $routes->get('service-name', 'SpecialController::apiServiceName'); // Added for special date modal service name AJAX
     });
 });
 

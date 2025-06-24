@@ -16,7 +16,7 @@
         <div class="col-lg-8 mx-auto">
             <div class="card mb-4">
                 <div class="card-header">
-                    <i class="fas fa-calendar-plus me-1"></i>
+                    <i class="bi bi-calendar-plus me-1"></i>
                     <?= $pageTitle ?>
                 </div>
                 <div class="card-body">
@@ -234,8 +234,12 @@
                         </div>
                         
                         <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary">Create Booking</button>
-                            <a href="<?= base_url('bookings') ?>" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>Save Booking
+                            </button>
+                            <a href="<?= base_url('bookings') ?>" class="btn btn-secondary me-2">
+                                <i class="bi bi-x-circle me-1"></i>Cancel
+                            </a>
                         </div>
                     </form>
                 </div>
