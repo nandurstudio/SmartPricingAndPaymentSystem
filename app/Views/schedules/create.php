@@ -29,14 +29,6 @@
                         </div>
                     <?php endif; ?> <form action="<?= base_url('schedules/store') ?>" method="post">
                         <?= $this->include('schedules/_form') ?>
-                        <div class="mb-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="repeatWeekly" name="repeat_weekly" value="1">
-                                <label class="form-check-label" for="repeatWeekly">
-                                    Create schedules for this service on this day every week
-                                </label>
-                            </div>
-                        </div>
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <?php
                             // Smart Cancel: fallback ke service pertama jika tidak ada service_id di URL

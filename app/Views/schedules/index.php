@@ -164,12 +164,19 @@
             <form action="<?= base_url('schedules/delete') ?>" method="post">
                 <?= csrf_field() ?>
                 <input type="hidden" id="schedule_id" name="id">
+                <input type="hidden" id="repeat_delete" name="repeat_delete" value="0">
                 <div class="modal-body">
                     <div class="alert alert-danger">
                         <i class="bi bi-exclamation-triangle me-1"></i>
                         Warning: Deleting this schedule will make the service unavailable for booking on this day.
                     </div>
                     <p>Are you sure you want to delete the schedule for <span id="schedule-info" class="fw-bold"></span>?</p>
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="repeatDelete" name="repeatDelete" value="1">
+                        <label class="form-check-label" for="repeatDelete">
+                            Delete all repeated schedules for this service and day
+                        </label>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-circle me-1"></i>Cancel</button>

@@ -56,6 +56,11 @@ $(function() {
         $('#avail-label').text(this.checked ? 'Available' : 'Not Available');
         $(this).val(this.checked ? 1 : 0);
     });
+    // Status aktif toggle
+    $('#bitActive').on('change', function() {
+        $(this).val(this.checked ? 1 : 0);
+        $(this).siblings('label').find('span').text(this.checked ? 'Aktif' : 'Nonaktif');
+    });
     // Initial calculation
     calculateSlots();
     // --- helpers ---

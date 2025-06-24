@@ -36,6 +36,10 @@ class ScheduleController extends BaseController
             if ($service) {
                 $tenantId = $service['intTenantID'];
                 $services = [$service];
+                // Ambil nama tenant
+                $tenantModel = new \App\Models\MTenantModel();
+                $tenant = $tenantModel->find($tenantId);
+                $tenant_name = $tenant['txtTenantName'] ?? 'Tenant';
             }
         }
         if (!$tenantId) {
@@ -84,6 +88,10 @@ class ScheduleController extends BaseController
             if ($service) {
                 $tenantId = $service['intTenantID'];
                 $services = [$service];
+                // Ambil nama tenant
+                $tenantModel = new \App\Models\MTenantModel();
+                $tenant = $tenantModel->find($tenantId);
+                $tenant_name = $tenant['txtTenantName'] ?? 'Tenant';
             }
         }
         if (!$tenantId) {
@@ -105,7 +113,8 @@ class ScheduleController extends BaseController
             'pageSubTitle' => 'Define service availability',
             'icon' => 'plus-circle',
             'validation' => \Config\Services::validation(),
-            'services' => $services
+            'services' => $services,
+            'tenant_name' => $tenant_name ?? null
         ];
 
         // Days of week for dropdown
@@ -116,15 +125,11 @@ class ScheduleController extends BaseController
         // Ambil service sesuai parameter jika ada, jika tidak semua
         $serviceId = $this->request->getGet('service_id');
         if ($serviceId) {
-            $service = $this->serviceModel->where('intServiceID', $tenantId)
+            $service = $this->serviceModel->where('intServiceID', $serviceId)
                 ->where('bitActive', 1)
-                ->where('intServiceID', $serviceId)
                 ->first();
             if ($service) {
-                $data['services'] = [[
-                    'id' => $service['intServiceID'],
-                    'name' => $service['txtName']
-                ]];
+                $data['services'] = [$service];
                 $data['serviceName'] = $service['txtName'];
             } else {
                 $data['services'] = [];
@@ -167,7 +172,10 @@ class ScheduleController extends BaseController
         $endTime = $this->request->getPost('dtmEndTime');
         $slotDuration = $this->request->getPost('intSlotDuration');
         $isAvailable = $this->request->getPost('bitIsAvailable');
+        $isActive = $this->request->getPost('bitActive', FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
+        // $guid = $this->request->getPost('txtGUID') ?: $this->generateGUID(); // Tidak perlu ambil dari form
         $userId = session()->get('userID');
+        // Fitur repeat weekly dihapus, tidak ada logic repeat mingguan
 
         // Ensure service belongs to tenant
         // $service = $this->serviceModel->find($serviceId);
@@ -182,17 +190,17 @@ class ScheduleController extends BaseController
             ->first();
         
         if ($existingSchedule) {
-            // Update existing schedule
             $this->scheduleModel->update($existingSchedule['intScheduleID'], [
                 'dtmStartTime' => $startTime,
                 'dtmEndTime' => $endTime,
                 'intSlotDuration' => $slotDuration,
                 'bitIsAvailable' => $isAvailable,
-                'txtUpdatedBy' => session()->get('username'),
+                'bitActive' => $isActive,
+                // 'txtGUID' tidak diubah saat update
+                'txtUpdatedBy' => session()->get('userName'),
                 'dtmUpdatedDate' => date('Y-m-d H:i:s')
             ]);
         } else {
-            // Insert new schedule
             $this->scheduleModel->insert([
                 'intServiceID' => $serviceId,
                 'txtDay' => $day,
@@ -200,9 +208,11 @@ class ScheduleController extends BaseController
                 'dtmEndTime' => $endTime,
                 'intSlotDuration' => $slotDuration,
                 'bitIsAvailable' => $isAvailable,
-                'txtCreatedBy' => session()->get('username'),
+                'bitActive' => $isActive,
+                'txtGUID' => $this->generateGUID(), // generate hanya saat create
+                'txtCreatedBy' => session()->get('userName'),
                 'dtmCreatedDate' => date('Y-m-d H:i:s'),
-                'txtUpdatedBy' => session()->get('username'),
+                'txtUpdatedBy' => session()->get('userName'),
                 'dtmUpdatedDate' => date('Y-m-d H:i:s')
             ]);
         }
@@ -278,6 +288,8 @@ class ScheduleController extends BaseController
         $endTime = $this->request->getPost('dtmEndTime');
         $slotDuration = $this->request->getPost('intSlotDuration');
         $isAvailable = $this->request->getPost('bitIsAvailable');
+        $isActive = $this->request->getPost('bitActive', FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
+        $guid = $this->request->getPost('txtGUID') ?: $schedule['txtGUID'];
         $userId = session()->get('userID');
 
         // Update schedule
@@ -288,11 +300,41 @@ class ScheduleController extends BaseController
             'dtmEndTime' => $endTime,
             'intSlotDuration' => $slotDuration,
             'bitIsAvailable' => $isAvailable,
-            'txtUpdatedBy' => session()->get('username'),
+            'bitActive' => $isActive,
+            // 'txtGUID' tidak diubah saat update
+            'txtUpdatedBy' => session()->get('userName'),
             'dtmUpdatedDate' => date('Y-m-d H:i:s')
         ]);
 
         return redirect()->to('/schedules?service_id=' . $serviceId)->with('success', 'Schedule updated successfully.');
+    }
+
+    public function delete()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
+        }
+        $id = $this->request->getPost('id');
+        $repeatDelete = $this->request->getPost('repeatDelete');
+        if (!$id) {
+            return redirect()->back()->with('error', 'No schedule ID provided.');
+        }
+        $schedule = $this->scheduleModel->find($id);
+        if (!$schedule) {
+            return redirect()->back()->with('error', 'Schedule not found.');
+        }
+        if ($repeatDelete) {
+            // Hapus semua jadwal dengan service, hari, jam mulai, jam akhir yang sama
+            $this->scheduleModel->where('intServiceID', $schedule['intServiceID'])
+                ->where('txtDay', $schedule['txtDay'])
+                ->where('dtmStartTime', $schedule['dtmStartTime'])
+                ->where('dtmEndTime', $schedule['dtmEndTime'])
+                ->delete();
+            return redirect()->to('/schedules?service_id=' . $schedule['intServiceID'])->with('success', 'All repeated schedules deleted.');
+        } else {
+            $this->scheduleModel->delete($id);
+            return redirect()->to('/schedules?service_id=' . $schedule['intServiceID'])->with('success', 'Schedule deleted successfully.');
+        }
     }
 
     // Special schedule methods have been moved to SpecialController
@@ -316,5 +358,20 @@ class ScheduleController extends BaseController
         
         // For now, return a dummy tenant ID
         return 1;
+    }
+
+    // Tambahkan fungsi generateGUID
+    private function generateGUID()
+    {
+        if (function_exists('com_create_guid')) {
+            return trim(com_create_guid(), '{}');
+        }
+        return sprintf(
+            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x4000,
+            mt_rand(0, 0x3fff) | 0x8000,
+            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+        );
     }
 }

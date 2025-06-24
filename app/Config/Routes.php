@@ -228,6 +228,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->post('store', 'ScheduleController::store');
         $routes->get('edit/(:num)', 'ScheduleController::edit/$1');
         $routes->post('update/(:num)', 'ScheduleController::update/$1');
+        $routes->post('delete', 'ScheduleController::delete');
         $routes->get('special', 'SpecialController::special');
         $routes->post('special/store', 'SpecialController::storeSpecial');
         $routes->post('update-special', 'SpecialController::updateSpecial');

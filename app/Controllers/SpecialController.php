@@ -85,9 +85,9 @@ class SpecialController extends BaseController
             'txtNote'           => $this->request->getPost('txtNote'),
             'txtGUID'           => uniqid('special_', true),
             'bitActive'         => 1,
-            'txtCreatedBy'      => session()->get('username') ?? 'system',
+            'txtCreatedBy'      => session()->get('userName') ?? 'system',
             'dtmCreatedDate'    => date('Y-m-d H:i:s'),
-            'txtUpdatedBy'      => session()->get('username') ?? 'system',
+            'txtUpdatedBy'      => session()->get('userName') ?? 'system',
             'dtmUpdatedDate'    => date('Y-m-d H:i:s')
         ];
         $model = $this->specialScheduleModel;
@@ -122,7 +122,7 @@ class SpecialController extends BaseController
             'intSlotDuration'   => $this->request->getPost('intSlotDuration') ?? 60,
             'txtNote'           => $this->request->getPost('txtNote'),
             'bitActive'         => 1,
-            'txtUpdatedBy'      => session()->get('username') ?? 'system',
+            'txtUpdatedBy'      => session()->get('userName') ?? 'system',
             'dtmUpdatedDate'    => date('Y-m-d H:i:s')
         ];
         $model->update($id, $data);

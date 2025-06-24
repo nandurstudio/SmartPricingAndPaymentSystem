@@ -25,20 +25,21 @@ $isEdit = isset($schedule);
     <div class="row mb-3">
         <div class="col-md-6">
             <label for="intServiceID" class="form-label">Service <span class="text-danger">*</span></label>
-            <select class="form-select" id="intServiceID" name="intServiceID" required>
-                <?php if (empty($services)) : ?>
-                    <option value="" selected disabled>Please select a tenant first</option>
-                <?php else : ?>
-                    <option value="" selected disabled>Select Service</option>
+            <?php if (count($services) === 1): ?>
+                <input type="text" class="form-control bg-light text-secondary" value="<?= esc($services[0]['txtName']) ?>" readonly disabled>
+                <input type="hidden" name="intServiceID" value="<?= $services[0]['intServiceID'] ?>">
+            <?php else: ?>
+                <select class="form-select" id="intServiceID" name="intServiceID" required>
+                    <option value="" selected disabled><?= isset($tenant_name) ? $tenant_name : 'No service available' ?></option>
                     <?php foreach ($services as $service) : ?>
-                        <option value="<?= $service['intServiceID'] ?>" 
+                        <option value="<?= $service['intServiceID'] ?>"
                                 data-slot-duration="<?= $service['intDuration'] ?>"
                                 <?= (old('intServiceID', $schedule['intServiceID'] ?? '') == $service['intServiceID'] || (isset($_GET['service_id']) && $_GET['service_id'] == $service['intServiceID'])) ? 'selected' : '' ?>>
                             <?= esc($service['txtName']) ?>
                         </option>
                     <?php endforeach; ?>
-                <?php endif; ?>
-            </select>
+                </select>
+            <?php endif; ?>
         </div>
         <div class="col-md-6">
             <label for="txtDay" class="form-label">Day <span class="text-danger">*</span></label>
@@ -112,6 +113,24 @@ $isEdit = isset($schedule);
         </div>
     </div>
 </div>
+
+<?php if ($isEdit): ?>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <!-- GUID tidak perlu ditampilkan di form edit -->
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Status Jadwal</label>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="bitActive" name="bitActive" value="1" <?= (old('bitActive', $schedule['bitActive'] ?? '1') == '1') ? 'checked' : '' ?>>
+                <input type="hidden" name="bitActiveHidden" value="0">
+                <label class="form-check-label" for="bitActive">
+                    <span><?= (old('bitActive', $schedule['bitActive'] ?? '1') == '1') ? 'Aktif' : 'Nonaktif' ?></span>
+                </label>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
 
 <style>
     .time-cursor { cursor: pointer; }

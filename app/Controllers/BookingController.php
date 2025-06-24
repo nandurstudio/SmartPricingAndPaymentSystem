@@ -241,9 +241,9 @@ class BookingController extends BaseController
             'txtPaymentStatus' => 'unpaid',
             'txtPaymentID' => '',
             'txtGUID' => $this->db->query('SELECT UUID() as guid')->getRow()->guid,
-            'txtCreatedBy' => session()->get('username'),
+            'txtCreatedBy' => session()->get('userName'),
             'dtmCreatedDate' => date('Y-m-d H:i:s'),
-            'txtUpdatedBy' => session()->get('username'),
+            'txtUpdatedBy' => session()->get('userName'),
             'dtmUpdatedDate' => date('Y-m-d H:i:s'),
             'bitActive' => 1
         ];        // Insert the booking

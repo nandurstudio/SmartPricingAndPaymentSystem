@@ -15,6 +15,8 @@ class ScheduleModel extends Model
         'dtmEndTime',
         'intSlotDuration', // in minutes
         'bitIsAvailable',
+        'bitActive', // status aktif
+        'txtGUID', // tambahkan agar bisa insert
         'txtCreatedBy',
         'dtmCreatedDate',
         'txtUpdatedBy',
