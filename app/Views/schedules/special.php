@@ -169,6 +169,8 @@
                     <?php 
                     $isEdit = false;
                     $special = null;
+                    $services = $services ?? [];
+                    $serviceNotFound = $serviceNotFound ?? false;
                     include(APPPATH . 'Views/schedules/_form_special.php'); 
                     ?>
                 </div>

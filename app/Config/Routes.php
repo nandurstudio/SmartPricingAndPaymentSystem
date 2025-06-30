@@ -212,6 +212,8 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('cancel/(:num)', 'BookingController::cancel/$1');
         $routes->get('payment/(:num)', 'BookingController::payment/$1');
         $routes->get('receipt/(:num)', 'BookingController::receipt/$1');
+        $routes->post('update-status', 'BookingController::updateStatus');
+        $routes->match(['get', 'post'], 'refund/(:num)', 'BookingController::refund/$1');
     });
     
     // Redirect old booking URLs to new ones
@@ -273,3 +275,5 @@ $routes->group('services', ['filter' => 'auth'], function($routes) {
     $routes->post('update/(:num)', 'ServiceController::update/$1');
     $routes->post('toggle/(:num)', 'ServiceController::toggle/$1');
 });
+
+$routes->get('public-invoice/(:alphanum)', 'BookingController::publicInvoice/$1');

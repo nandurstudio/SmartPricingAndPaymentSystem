@@ -32,7 +32,14 @@
                             <i class="fas fa-calendar-alt me-1"></i>
                             Booking Details
                         </div>
-                        <div class="badge bg-<?= $statusClass ?> fs-6"><?= ucfirst($booking['status']) ?></div>
+                        <?php
+                            // Prioritaskan badge Refunded jika payment_status refunded
+                            if ($booking['payment_status'] === 'refunded') {
+                                echo '<div class="badge bg-info fs-6">Refunded</div>';
+                            } else {
+                                echo '<div class="badge bg-' . esc($statusClass) . ' fs-6">' . ucfirst($booking['status']) . '</div>';
+                            }
+                        ?>
                     </div>
                 </div>
                 <div class="card-body">
@@ -241,7 +248,7 @@
                 <h5 class="modal-title" id="updateStatusModalLabel">Update Booking Status</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('booking/update-status') ?>" method="post">
+            <form action="<?= base_url('bookings/update-status') ?>" method="post">
                 <?= csrf_field() ?>
                 <input type="hidden" id="booking_id" name="booking_id">
                 <input type="hidden" id="status" name="status">
@@ -297,9 +304,8 @@
                 <h5 class="modal-title" id="refundModalLabel">Initiate Refund</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="<?= base_url('booking/refund') ?>" method="post">
+            <form action="<?= base_url('bookings/refund/' . $booking['id']) ?>" method="post">
                 <?= csrf_field() ?>
-                <input type="hidden" name="booking_id" value="<?= $booking['id'] ?>">
                 <div class="modal-body">
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle me-1"></i>
@@ -355,207 +361,57 @@
     </div>
 </div>
 
+<!-- JS VARS for booking-view.js -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Status update functionality
-    const updateStatusModal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
-    const updateStatusButtons = document.querySelectorAll('.update-status');
-    
-    updateStatusButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const bookingId = this.getAttribute('data-id');
-            const status = this.getAttribute('data-status');
-            
-            document.getElementById('booking_id').value = bookingId;
-            document.getElementById('status').value = status;
-            
-            let statusText = 'pending';
-            if (status === 'confirmed') statusText = 'confirm';
-            else if (status === 'completed') statusText = 'mark as completed';
-            else if (status === 'cancelled') statusText = 'cancel';
-            
-            document.getElementById('status-message').textContent = `Are you sure you want to ${statusText} this booking?`;
-            
-            // Show cancellation reason field only for cancel status
-            if (status === 'cancelled') {
-                document.getElementById('cancellation-reason-container').style.display = 'block';
-            } else {
-                document.getElementById('cancellation-reason-container').style.display = 'none';
-            }
-            
-            updateStatusModal.show();
-        });
-    });
-    
-    // Payment confirmation functionality
-    const confirmPaymentModal = new bootstrap.Modal(document.getElementById('confirmPaymentModal'));
-    const confirmPaymentButtons = document.querySelectorAll('.confirm-payment');
-    
-    confirmPaymentButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            confirmPaymentModal.show();
-        });
-    });
-    
-    // Refund functionality
-    const refundModal = new bootstrap.Modal(document.getElementById('refundModal'));
-    const refundButtons = document.querySelectorAll('.initiate-refund');
-    
-    refundButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            refundModal.show();
-        });
-    });
-    
-    // Notification template handling
-    const templateSelect = document.getElementById('notification-template');
-    const customMessageDiv = document.getElementById('custom-message');
-    
-    templateSelect.addEventListener('change', function() {
-        if (this.value === 'custom') {
-            customMessageDiv.style.display = 'block';
-        } else {
-            customMessageDiv.style.display = 'none';
-        }
-    });
-    
-    // Send notification functionality
-    const notificationButtons = document.querySelectorAll('.send-notification');
-    const notificationPreviewModal = new bootstrap.Modal(document.getElementById('notificationPreviewModal'));
-    let currentNotificationType = '';
-    let currentBookingId = '';
-    
-    notificationButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const type = this.getAttribute('data-type');
-            const bookingId = this.getAttribute('data-id');
-            const templateType = document.getElementById('notification-template').value;
-            
-            currentNotificationType = type;
-            currentBookingId = bookingId;
-            
-            // Set recipient info
-            document.getElementById('preview-recipient').textContent = type === 'email' 
-                ? '<?= esc($booking['customer_email'] ?? 'customer@example.com') ?>'
-                : '<?= esc($booking['customer_phone'] ?? '+628xxxxxxxxxx') ?>';
-            
-            // Set subject based on template
-            let subject = '';
-            let content = '';
-            
-            switch(templateType) {
-                case 'reminder':
-                    subject = 'Reminder: Your Upcoming Booking';
-                    content = `
-                        <p>Dear ${escapeHtml('<?= $booking['customer_name'] ?? 'Customer' ?>')},</p>
-                        <p>We would like to remind you about your upcoming booking:</p>
-                        <ul>
-                            <li><strong>Service:</strong> ${escapeHtml('<?= $booking['service_name'] ?>')}</li>
-                            <li><strong>Date:</strong> ${escapeHtml('<?= date('l, F j, Y', strtotime($booking['booking_date'])) ?>')}</li>
-                            <li><strong>Time:</strong> ${escapeHtml('<?= date('h:i A', strtotime($booking['start_time'])) ?>')} - ${escapeHtml('<?= date('h:i A', strtotime($booking['end_time'])) ?>')}</li>
-                            <li><strong>Booking Code:</strong> ${escapeHtml('<?= $booking['booking_code'] ?>')}</li>
-                        </ul>
-                        <p>We look forward to seeing you!</p>
-                    `;
-                    break;
-                case 'confirmation':
-                    subject = 'Booking Confirmation';
-                    content = `
-                        <p>Dear ${escapeHtml('<?= $booking['customer_name'] ?? 'Customer' ?>')},</p>
-                        <p>Your booking has been confirmed:</p>
-                        <ul>
-                            <li><strong>Service:</strong> ${escapeHtml('<?= $booking['service_name'] ?>')}</li>
-                            <li><strong>Date:</strong> ${escapeHtml('<?= date('l, F j, Y', strtotime($booking['booking_date'])) ?>')}</li>
-                            <li><strong>Time:</strong> ${escapeHtml('<?= date('h:i A', strtotime($booking['start_time'])) ?>')} - ${escapeHtml('<?= date('h:i A', strtotime($booking['end_time'])) ?>')}</li>
-                            <li><strong>Booking Code:</strong> ${escapeHtml('<?= $booking['booking_code'] ?>')}</li>
-                        </ul>
-                        <p>Thank you for choosing our service!</p>
-                    `;
-                    break;
-                case 'cancellation':
-                    subject = 'Booking Cancellation';
-                    content = `
-                        <p>Dear ${escapeHtml('<?= $booking['customer_name'] ?? 'Customer' ?>')},</p>
-                        <p>Your booking has been cancelled:</p>
-                        <ul>
-                            <li><strong>Service:</strong> ${escapeHtml('<?= $booking['service_name'] ?>')}</li>
-                            <li><strong>Date:</strong> ${escapeHtml('<?= date('l, F j, Y', strtotime($booking['booking_date'])) ?>')}</li>
-                            <li><strong>Time:</strong> ${escapeHtml('<?= date('h:i A', strtotime($booking['start_time'])) ?>')} - ${escapeHtml('<?= date('h:i A', strtotime($booking['end_time'])) ?>')}</li>
-                            <li><strong>Booking Code:</strong> ${escapeHtml('<?= $booking['booking_code'] ?>')}</li>
-                        </ul>
-                        <p>If you have any questions, please contact us.</p>
-                    `;
-                    break;
-                case 'payment':
-                    subject = 'Payment Reminder';
-                    content = `
-                        <p>Dear ${escapeHtml('<?= $booking['customer_name'] ?? 'Customer' ?>')},</p>
-                        <p>This is a reminder that payment is due for your booking:</p>
-                        <ul>
-                            <li><strong>Service:</strong> ${escapeHtml('<?= $booking['service_name'] ?>')}</li>
-                            <li><strong>Date:</strong> ${escapeHtml('<?= date('l, F j, Y', strtotime($booking['booking_date'])) ?>')}</li>
-                            <li><strong>Amount:</strong> Rp ${escapeHtml('<?= number_format($booking['price'], 2) ?>')}</li>
-                            <li><strong>Booking Code:</strong> ${escapeHtml('<?= $booking['booking_code'] ?>')}</li>
-                        </ul>
-                        <p>Please complete your payment to confirm your booking.</p>
-                    `;
-                    break;
-                case 'custom':
-                    subject = document.getElementById('message-subject').value || 'Message from <?= esc($booking['tenant_name']) ?>';
-                    content = document.getElementById('message-body').value || 'No message content.';
-                    content = `<p>${content.replace(/\n/g, '</p><p>')}</p>`;
-                    break;
-            }
-            
-            document.getElementById('preview-subject').textContent = subject;
-            document.getElementById('preview-content').innerHTML = content;
-            
-            notificationPreviewModal.show();
-        });
-    });
-    
-    document.getElementById('send-message-btn').addEventListener('click', function() {
-        const templateType = document.getElementById('notification-template').value;
-        const subject = document.getElementById('preview-subject').textContent;
-        const content = document.getElementById('preview-content').innerHTML;
-        
-        // Send notification via AJAX
-        fetch('<?= base_url('api/send-notification') ?>', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({
-                booking_id: currentBookingId,
-                type: currentNotificationType,
-                subject: subject,
-                message: content,
-                template: templateType
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            notificationPreviewModal.hide();
-            
-            if (data.success) {
-                alert('Notification sent successfully!');
-            } else {
-                alert('Failed to send notification: ' + (data.message || 'Unknown error'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while sending the notification.');
-        });
-    });
-    
-    // Helper function to escape HTML
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-});
+const BASE_URL = "<?= base_url() ?>";
+const CUSTOMER_EMAIL = "<?= esc($booking['customer_email'] ?? 'customer@example.com') ?>";
+const CUSTOMER_PHONE = "<?= esc($booking['customer_phone'] ?? '+628xxxxxxxxxx') ?>";
+const TENANT_NAME = "<?= esc($booking['tenant_name'] ?? 'Tenant') ?>";
+const REMINDER_CONTENT = `
+    <p>Dear <?= esc($booking['customer_name'] ?? 'Customer') ?>,</p>
+    <p>We would like to remind you about your upcoming booking:</p>
+    <ul>
+        <li><strong>Service:</strong> <?= esc($booking['service_name']) ?></li>
+        <li><strong>Date:</strong> <?= date('l, F j, Y', strtotime($booking['booking_date'])) ?></li>
+        <li><strong>Time:</strong> <?= date('h:i A', strtotime($booking['start_time'])) ?> - <?= date('h:i A', strtotime($booking['end_time'])) ?></li>
+        <li><strong>Booking Code:</strong> <?= esc($booking['booking_code']) ?></li>
+    </ul>
+    <p>We look forward to seeing you!</p>
+`;
+const CONFIRMATION_CONTENT = `
+    <p>Dear <?= esc($booking['customer_name'] ?? 'Customer') ?>,</p>
+    <p>Your booking has been confirmed:</p>
+    <ul>
+        <li><strong>Service:</strong> <?= esc($booking['service_name']) ?></li>
+        <li><strong>Date:</strong> <?= date('l, F j, Y', strtotime($booking['booking_date'])) ?></li>
+        <li><strong>Time:</strong> <?= date('h:i A', strtotime($booking['start_time'])) ?> - <?= date('h:i A', strtotime($booking['end_time'])) ?></li>
+        <li><strong>Booking Code:</strong> <?= esc($booking['booking_code']) ?></li>
+    </ul>
+    <p>Thank you for choosing our service!</p>
+`;
+const CANCELLATION_CONTENT = `
+    <p>Dear <?= esc($booking['customer_name'] ?? 'Customer') ?>,</p>
+    <p>Your booking has been cancelled:</p>
+    <ul>
+        <li><strong>Service:</strong> <?= esc($booking['service_name']) ?></li>
+        <li><strong>Date:</strong> <?= date('l, F j, Y', strtotime($booking['booking_date'])) ?></li>
+        <li><strong>Time:</strong> <?= date('h:i A', strtotime($booking['start_time'])) ?> - <?= date('h:i A', strtotime($booking['end_time'])) ?></li>
+        <li><strong>Booking Code:</strong> <?= esc($booking['booking_code']) ?></li>
+    </ul>
+    <p>If you have any questions, please contact us.</p>
+`;
+const PAYMENT_CONTENT = `
+    <p>Dear <?= esc($booking['customer_name'] ?? 'Customer') ?>,</p>
+    <p>This is a reminder that payment is due for your booking:</p>
+    <ul>
+        <li><strong>Service:</strong> <?= esc($booking['service_name']) ?></li>
+        <li><strong>Date:</strong> <?= date('l, F j, Y', strtotime($booking['booking_date'])) ?></li>
+        <li><strong>Amount:</strong> Rp <?= number_format($booking['price'], 2) ?></li>
+        <li><strong>Booking Code:</strong> <?= esc($booking['booking_code']) ?></li>
+    </ul>
+    <p>Please complete your payment to confirm your booking.</p>
+`;
 </script>
+<script src="<?= base_url('assets/js/booking-view.js') ?>?v=1.0.0"></script>
+
 <?= $this->endSection() ?>

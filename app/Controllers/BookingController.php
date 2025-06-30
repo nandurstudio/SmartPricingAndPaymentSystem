@@ -81,8 +81,24 @@ class BookingController extends BaseController
         }
 
         // Get results sorted by date
-        $data['bookings'] = $query->orderBy('tr_bookings.dtmBookingDate DESC, tr_bookings.dtmStartTime ASC')
+        $rawBookings = $query->orderBy('tr_bookings.dtmBookingDate DESC, tr_bookings.dtmStartTime ASC')
             ->findAll();
+
+        // Map DB fields to view keys for consistency
+        $data['bookings'] = array_map(function($b) {
+            return [
+                'id' => $b['intBookingID'],
+                'booking_code' => $b['txtBookingCode'],
+                'customer_name' => $b['customer_name'] ?? '',
+                'service_name' => $b['service_name'] ?? '',
+                'booking_date' => $b['dtmBookingDate'],
+                'start_time' => $b['dtmStartTime'],
+                'end_time' => $b['dtmEndTime'],
+                'price' => $b['decPrice'],
+                'status' => $b['txtStatus'],
+                'payment_status' => $b['txtPaymentStatus'],
+            ];
+        }, $rawBookings);
 
         return view('booking/index', $data);
     }
@@ -275,55 +291,45 @@ class BookingController extends BaseController
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
         }
 
-        // Get the booking
-        // $booking = $this->bookingModel->find($id);
-        
-        // For now, use dummy data
-        $booking = [
-            'id' => $id,
-            'service_name' => 'Futsal Field A',
-            'tenant_name' => 'Sports Center ABC',
-            'tenant_email' => 'info@sportscenterabc.com',
-            'tenant_phone' => '08123456789',
-            'customer_name' => 'John Doe',
-            'customer_email' => 'john@example.com',
-            'customer_phone' => '081234567890',
-            'booking_date' => '2025-06-05',
-            'start_time' => '15:00',
-            'end_time' => '16:00',
-            'price' => 150000,
-            'service_duration' => 60,
-            'status' => 'confirmed',
-            'payment_status' => 'paid',
-            'booking_code' => 'BK12345',
-            'created_date' => '2025-05-30 14:22:33'
-        ];
-        
-        // Check permissions - only admin, tenant owner of this service, or the booking owner can view
-        $userId = session()->get('userID');
-        $roleId = session()->get('roleID');
-        
-        // if (!$booking || 
-        //     ($roleId != 1 && 
-        //     !$this->isOwnerOfTenant($booking['service_id']) && 
-        //     $booking['customer_id'] != $userId)) {
-        //     return redirect()->to('/booking')->with('error', 'Booking not found or you do not have permission to view it.');
-        // }
+        // Get the booking from DB
+        $booking = $this->bookingModel->getBookingDetails($id);
+        if (!$booking) {
+            return redirect()->to('/bookings')->with('error', 'Booking not found.');
+        }
 
-        // Get custom field values
-        // $customValues = $this->bookingCustomValueModel->getBookingCustomValues($id);
+        // Map DB fields to view keys for consistency
+        $mapped = [
+            'id' => $booking['intBookingID'],
+            'booking_code' => $booking['txtBookingCode'],
+            'service_name' => $booking['txtServiceName'] ?? '',
+            'tenant_name' => $booking['txtTenantName'] ?? '',
+            'customer_name' => $booking['txtCustomerName'] ?? '',
+            'customer_email' => $booking['txtCustomerEmail'] ?? '',
+            'booking_date' => $booking['dtmBookingDate'],
+            'start_time' => $booking['dtmStartTime'],
+            'end_time' => $booking['dtmEndTime'],
+            'price' => $booking['decPrice'],
+            'service_duration' => $booking['intDuration'] ?? '',
+            'status' => $booking['txtStatus'],
+            'payment_status' => $booking['txtPaymentStatus'],
+            'created_date' => $booking['dtmCreatedDate'],
+            'cancelled_date' => $booking['dtmCancelledDate'] ?? null,
+            'cancelled_reason' => $booking['txtCancelledReason'] ?? null,
+            'notes' => $booking['txtNotes'] ?? null,
+            'payment_reference' => $booking['txtPaymentID'] ?? null,
+            'payment_date' => $booking['dtmUpdatedDate'] ?? $booking['dtmCreatedDate'],
+        ];
 
         $data = [
             'title' => 'Booking Details',
             'pageTitle' => 'Booking Details',
             'pageSubTitle' => 'View booking information',
             'icon' => 'info-circle',
-            'booking' => $booking,
-            // 'customValues' => $customValues
+            'booking' => $mapped,
         ];
 
         // Add status class based on booking status
-        $data['statusClass'] = match($booking['status']) {
+        $data['statusClass'] = match($mapped['status']) {
             'confirmed' => 'success',
             'pending' => 'warning',
             'cancelled' => 'danger',
@@ -332,7 +338,7 @@ class BookingController extends BaseController
         };
 
         // Add payment status class
-        $data['paymentStatusClass'] = match($booking['payment_status']) {
+        $data['paymentStatusClass'] = match($mapped['payment_status']) {
             'paid' => 'success',
             'pending' => 'warning',
             'refunded' => 'info',
@@ -393,48 +399,28 @@ class BookingController extends BaseController
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
         }
 
-        // Get the booking
-        // $booking = $this->bookingModel->find($id);
-        
-        // For now, use dummy data
-        $booking = [
-            'id' => $id,
-            'service_name' => 'Futsal Field A',
-            'price' => 150000,
-            'booking_code' => 'BK12345'
+        // Get the booking from DB
+        $booking = $this->bookingModel->getBookingDetails($id);
+        if (!$booking) {
+            return redirect()->to('/bookings')->with('error', 'Booking not found.');
+        }
+
+        // Map DB fields to view keys for consistency
+        $mapped = [
+            'id' => $booking['intBookingID'],
+            'booking_code' => $booking['txtBookingCode'],
+            'service_name' => $booking['txtServiceName'] ?? '',
+            'price' => $booking['decPrice'],
         ];
-        
-        // Check permissions - only admin, tenant owner of this service, or the booking owner can process payment
-        $userId = session()->get('userID');
-        $roleId = session()->get('roleID');
-        
-        // if (!$booking || 
-        //     ($roleId != 1 && 
-        //     !$this->isOwnerOfTenant($booking['service_id']) && 
-        //     $booking['customer_id'] != $userId)) {
-        //     return redirect()->to('/booking')->with('error', 'Booking not found or you do not have permission to process payment.');
-        // }
-
-        // Check if payment is needed
-        // if ($booking['payment_status'] == 'paid') {
-        //     return redirect()->to('/booking')->with('info', 'This booking has already been paid.');
-        // }
-
-        // Get tenant for payment settings
-        // $tenantId = $this->getTenantIdFromService($booking['service_id']);
-        // $tenant = $this->tenantModel->find($tenantId);
 
         $data = [
             'title' => 'Payment',
             'pageTitle' => 'Process Payment',
             'pageSubTitle' => 'Complete your booking payment',
             'icon' => 'credit-card',
-            'booking' => $booking,
-            // 'tenant' => $tenant
+            'booking' => $mapped,
         ];
 
-        // In a real application, here we would setup Midtrans or other payment gateway
-        // For now, just show a payment form
         return view('booking/payment', $data);
     }
 
@@ -681,55 +667,167 @@ class BookingController extends BaseController
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
         }
 
-        // Get the booking details
-        // $booking = $this->bookingModel->getBookingDetails($id);
-        
-        // For now, use dummy data
-        $booking = [
-            'id' => $id,
-            'booking_code' => 'BK12345',
-            'service_name' => 'Futsal Field A',
-            'tenant_name' => 'Sports Center ABC',
-            'tenant_email' => 'info@sportscenterabc.com',
-            'tenant_phone' => '08123456789',
-            'customer_name' => 'John Doe',
-            'customer_email' => 'john@example.com',
-            'customer_phone' => '081234567890',
-            'booking_date' => '2025-06-05',
-            'start_time' => '15:00',
-            'end_time' => '16:00',
-            'price' => 150000,
-            'status' => 'confirmed',
-            'payment_status' => 'paid',
-            'payment_reference' => 'TRX123456',
-            'payment_date' => '2025-05-30 14:22:33',
-            'created_date' => '2025-05-30 14:22:33'
-        ];
-        
-        // Check permissions - only admin, tenant owner, booking owner, or customer can view
-        $userId = session()->get('userID');
-        $roleId = session()->get('roleID');
-        
-        // if (!$booking || 
-        //     ($roleId != 1 && 
-        //     !$this->isOwnerOfTenant($booking['service_id']) && 
-        //     $booking['customer_id'] != $userId)) {
-        //     return redirect()->to('/booking')->with('error', 'Receipt not found or you do not have permission to view it.');
-        // }
-        
-        // Check if payment is completed
-        if ($booking['payment_status'] !== 'paid') {
-            return redirect()->to('/bookings/view/' . $id)->with('error', 'Cannot view receipt. Payment is not yet completed.');
+        // Get the booking from DB
+        $booking = $this->bookingModel->getBookingDetails($id);
+        if (!$booking) {
+            return redirect()->to('/bookings')->with('error', 'Booking not found.');
         }
+
+        // Map DB fields to view keys for consistency
+        $mapped = [
+            'id' => $booking['intBookingID'],
+            'booking_code' => $booking['txtBookingCode'],
+            'service_name' => $booking['txtServiceName'] ?? '',
+            'tenant_name' => $booking['txtTenantName'] ?? '',
+            'customer_name' => $booking['txtCustomerName'] ?? '',
+            'customer_email' => $booking['txtCustomerEmail'] ?? '',
+            'booking_date' => $booking['dtmBookingDate'],
+            'start_time' => $booking['dtmStartTime'],
+            'end_time' => $booking['dtmEndTime'],
+            'price' => $booking['decPrice'],
+            'service_duration' => $booking['intDuration'] ?? '',
+            'status' => $booking['txtStatus'],
+            'payment_status' => $booking['txtPaymentStatus'],
+            'created_date' => $booking['dtmCreatedDate'],
+            'cancelled_date' => $booking['dtmCancelledDate'] ?? null,
+            'cancelled_reason' => $booking['txtCancelledReason'] ?? null,
+            'notes' => $booking['txtNotes'] ?? null,
+            'payment_reference' => $booking['txtPaymentID'] ?? null,
+            'payment_date' => $booking['dtmUpdatedDate'] ?? $booking['dtmCreatedDate'],
+            'guid' => $booking['txtGUID'] ?? '',
+        ];
 
         $data = [
             'title' => 'Booking Receipt',
             'pageTitle' => 'Booking Receipt',
             'pageSubTitle' => 'View booking payment receipt',
             'icon' => 'file-invoice',
-            'booking' => $booking
+            'booking' => $mapped
         ];
 
+        // Check if payment is completed
+        if ($mapped['payment_status'] !== 'paid') {
+            return redirect()->to('/bookings/view/' . $id)->with('error', 'Cannot view receipt. Payment is not yet completed.');
+        }
+
         return view('booking/receipt', $data);
+    }
+
+    /**
+     * Update booking status (POST /bookings/update-status)
+     */
+    public function updateStatus()
+    {
+        // Pastikan user login
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
+        }
+
+        $bookingId = $this->request->getPost('booking_id');
+        $newStatus = $this->request->getPost('status');
+        if (!$bookingId || !$newStatus) {
+            return redirect()->back()->with('error', 'Invalid request.');
+        }
+
+        // Validasi status yang diperbolehkan
+        $allowed = ['pending', 'confirmed', 'completed', 'cancelled'];
+        if (!in_array($newStatus, $allowed)) {
+            return redirect()->back()->with('error', 'Invalid status value.');
+        }
+
+        // Update status booking
+        $update = [
+            'txtStatus' => $newStatus,
+            'txtUpdatedBy' => session()->get('userName'),
+            'dtmUpdatedDate' => date('Y-m-d H:i:s'),
+        ];
+        $this->bookingModel->update($bookingId, $update);
+
+        return redirect()->to('/bookings/view/' . $bookingId)->with('success', 'Booking status updated successfully.');
+    }
+
+    /**
+     * Public invoice view by GUID (no login required)
+     */
+    public function publicInvoice($guid)
+    {
+        $booking = $this->bookingModel->where('txtGUID', $guid)->first();
+        if (!$booking) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Invoice not found.');
+        }
+        // Ambil detail booking lengkap (join service, tenant, user)
+        $details = $this->bookingModel->getBookingDetails($booking['intBookingID']);
+        // Map DB fields ke view
+        $mapped = [
+            'id' => $details['intBookingID'],
+            'booking_code' => $details['txtBookingCode'],
+            'service_name' => $details['txtServiceName'] ?? '',
+            'tenant_name' => $details['txtTenantName'] ?? '',
+            'customer_name' => $details['txtCustomerName'] ?? '',
+            'customer_email' => $details['txtCustomerEmail'] ?? '',
+            'booking_date' => $details['dtmBookingDate'],
+            'start_time' => $details['dtmStartTime'],
+            'end_time' => $details['dtmEndTime'],
+            'price' => $details['decPrice'],
+            'service_duration' => $details['intDuration'] ?? '',
+            'status' => $details['txtStatus'],
+            'payment_status' => $details['txtPaymentStatus'],
+            'created_date' => $details['dtmCreatedDate'],
+            'cancelled_date' => $details['dtmCancelledDate'] ?? null,
+            'cancelled_reason' => $details['txtCancelledReason'] ?? null,
+            'notes' => $details['txtNotes'] ?? null,
+            'payment_reference' => $details['txtPaymentID'] ?? null,
+            'payment_date' => $details['dtmUpdatedDate'] ?? $details['dtmCreatedDate'],
+            'guid' => $details['txtGUID'] ?? '',
+        ];
+        $data = [
+            'title' => 'Public Invoice',
+            'pageTitle' => 'Public Invoice',
+            'pageSubTitle' => 'View invoice without login',
+            'icon' => 'file-invoice',
+            'booking' => $mapped
+        ];
+        return view('booking/receipt', $data);
+    }
+
+    // Refund booking (GET: show form, POST: process refund)
+    public function refund($id = null)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
+        }
+        if ($this->request->getMethod() === 'post') {
+            // Process refund logic (simple: set status refunded, add note)
+            $reason = $this->request->getPost('refund_reason');
+            $booking = $this->bookingModel->find($id);
+            if (!$booking) {
+                return redirect()->to('/bookings')->with('error', 'Booking not found.');
+            }
+            if ($booking['txtPaymentStatus'] !== 'paid') {
+                return redirect()->to("/bookings/view/$id")->with('error', 'Refund only allowed for paid bookings.');
+            }
+            $this->bookingModel->update($id, [
+                'txtPaymentStatus' => 'refunded',
+                'txtStatus' => 'cancelled',
+                'txtCancelledReason' => $reason,
+                'dtmCancelledDate' => date('Y-m-d H:i:s'),
+                'txtUpdatedBy' => session()->get('userName'),
+                'dtmUpdatedDate' => date('Y-m-d H:i:s'),
+            ]);
+            return redirect()->to("/bookings/view/$id")->with('success', 'Booking refunded successfully.');
+        } else {
+            // Show refund form
+            $booking = $this->bookingModel->find($id);
+            if (!$booking) {
+                return redirect()->to('/bookings')->with('error', 'Booking not found.');
+            }
+            if ($booking['txtPaymentStatus'] !== 'paid') {
+                return redirect()->to("/bookings/view/$id")->with('error', 'Refund only allowed for paid bookings.');
+            }
+            // Mapping agar view refund.php bisa akses $booking['id'] dan $booking['booking_code']
+            $booking['id'] = $booking['intBookingID'];
+            $booking['booking_code'] = $booking['txtBookingCode'];
+            return view('booking/refund', ['booking' => $booking]);
+        }
     }
 }

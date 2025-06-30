@@ -36,8 +36,9 @@ class Filters extends BaseFilters
         'cors'          => Cors::class,
         'forcehttps'    => ForceHTTPS::class,
         'pagecache'     => PageCache::class,
-        'performance'   => PerformanceMetrics::class,        'auth'          => AuthCheck::class,  // Tambahkan alias untuk AuthCheck F
-        'roleAccess'    => roleAccessFilter::class,
+        'performance'   => PerformanceMetrics::class,
+        'auth'          => AuthCheck::class,
+        'role'          => RoleAccessFilter::class,
         'tenantfilter'  => \App\Filters\TenantFilter::class,
     ];
 

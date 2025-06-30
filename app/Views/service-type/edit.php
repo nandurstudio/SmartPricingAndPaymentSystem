@@ -2,15 +2,26 @@
 
 <?= $this->section('content') ?>
 <div class="container-fluid px-4">
-    <h1 class="mt-4"><?= $pageTitle ?></h1>
-    <ol class="breadcrumb mb-4">
+    <h1 class="mt-4">
+        <i class="bi bi-pencil-square text-primary me-2"></i>
+        <?= $pageTitle ?>
+    </h1>
+    <ol class="breadcrumb mb-4" aria-label="breadcrumb">
         <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Dashboard</a></li>
         <li class="breadcrumb-item"><a href="<?= base_url('service-types') ?>">Service Types</a></li>
-        <li class="breadcrumb-item active"><?= $pageTitle ?></li>
+        <li class="breadcrumb-item active" aria-current="page"><?= $pageTitle ?></li>
     </ol>
 
+    <?php if (session()->getFlashdata('success')) : ?>
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
+            <?= session()->getFlashdata('success') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
     <?php if (session()->getFlashdata('error')) : ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
             <?= session()->getFlashdata('error') ?>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
@@ -54,18 +65,6 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <?php if (session()->getFlashdata('error')): ?>
-                        <div class="alert alert-danger alert-dismissible fade show">
-                            <h6 class="alert-heading">
-                                <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                                Error
-                            </h6>
-                            <hr>
-                            <p class="mb-0"><?= session()->getFlashdata('error') ?></p>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    <?php endif ?>
-
                     <?php if (session()->getFlashdata('errors')): ?>
                         <div class="alert alert-danger alert-dismissible fade show">
                             <h6 class="alert-heading">
@@ -84,7 +83,6 @@
 
                     <?= $this->include('service-type/_form') ?>
                 </div>
-
                 <?php if ($serviceType['txtCreatedBy'] || $serviceType['dtmCreatedDate']): ?>
                 <div class="card-footer">
                     <div class="row text-muted small">

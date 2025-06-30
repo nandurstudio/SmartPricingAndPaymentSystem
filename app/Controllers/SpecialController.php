@@ -19,23 +19,63 @@ class SpecialController extends BaseController
         if (!session()->get('isLoggedIn')) {
             return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
         }
+
         $tenantId = $this->getTenantId();
-        $roleId = session()->get('roleID');
-        $allServices = $this->serviceModel->where('intTenantID', $tenantId)->where('bitActive', 1)->findAll();
-        $data['services'] = array_map(function($svc) {
-            return [
-                'id' => (int)$svc['intServiceID'],
-                'name' => $svc['txtName']
-            ];
-        }, $allServices);
         $serviceId = $this->request->getGet('service_id');
-        $data['specialDates'] = [];
+        $roleId = session()->get('roleID');
+        $data['services'] = [];
+        $data['serviceWarning'] = null;
+
+        // Coba cari service dengan tenant
+        if ($serviceId) {
+            $service = $this->serviceModel->where('intServiceID', $serviceId)
+                ->where('intTenantID', $tenantId)
+                ->where('bitActive', 1)
+                ->first();
+            if ($service) {
+                $data['services'] = [[
+                    'id' => (int)$service['intServiceID'],
+                    'name' => $service['txtName']
+                ]];
+            } else {
+                // Fallback: cari service tanpa filter tenant
+                $service = $this->serviceModel->where('intServiceID', $serviceId)
+                    ->where('bitActive', 1)
+                    ->first();
+                if ($service) {
+                    $data['services'] = [[
+                        'id' => (int)$service['intServiceID'],
+                        'name' => $service['txtName']
+                    ]];
+                    $data['serviceWarning'] = 'Service ditemukan, tapi tenant ID tidak cocok!';
+                }
+            }
+        }
+        if (empty($data['services'])) {
+            $allServices = $this->serviceModel->where('intTenantID', $tenantId)
+                ->where('bitActive', 1)
+                ->findAll();
+            $data['services'] = array_map(function($svc) {
+                return [
+                    'id' => (int)$svc['intServiceID'],
+                    'name' => $svc['txtName']
+                ];
+            }, $allServices);
+        }
         $model = $this->specialScheduleModel;
+        $data['specialDates'] = [];
         if ($serviceId && is_numeric($serviceId)) {
-            $specials = $model->where('intServiceID', $serviceId)->where('bitActive', 1)->orderBy('dtmSpecialDate', 'ASC')->findAll();
+            $specials = $model->where('intServiceID', $serviceId)
+                ->where('bitActive', 1)
+                ->orderBy('dtmSpecialDate', 'ASC')
+                ->findAll();
         } else {
             $serviceIds = array_column($data['services'], 'id');
-            $specials = !empty($serviceIds) ? $model->whereIn('intServiceID', $serviceIds)->where('bitActive', 1)->orderBy('dtmSpecialDate', 'ASC')->findAll() : [];
+            $specials = !empty($serviceIds) ? 
+                $model->whereIn('intServiceID', $serviceIds)
+                    ->where('bitActive', 1)
+                    ->orderBy('dtmSpecialDate', 'ASC')
+                    ->findAll() : [];
         }
         if (!empty($specials)) {
             $serviceNames = array_column($data['services'], 'name', 'id');
@@ -44,7 +84,6 @@ class SpecialController extends BaseController
                 $serviceId = (int)$row['intServiceID'];
                 $serviceName = $serviceNames[$serviceId] ?? null;
                 if ($serviceName === null) {
-                    // Fallback: fetch from DB if not in the list
                     $svc = $serviceModel->find($serviceId);
                     $serviceName = $svc ? $svc['txtName'] : '';
                 }
@@ -62,7 +101,9 @@ class SpecialController extends BaseController
         }
         $data['selectedServiceId'] = $serviceId;
         $data['pageTitle'] = 'Special Schedule';
-
+        if (empty($data['services'])) {
+            $data['serviceNotFound'] = true;
+        }
         return view('schedules/special', $data);
     }
 

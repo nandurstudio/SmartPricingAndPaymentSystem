@@ -1,117 +1,75 @@
 <?= $this->extend('layouts/main') ?>
 
 <?= $this->section('content') ?>
+<link rel="stylesheet" href="<?= base_url('assets/css/receipt.css') ?>">
 <div class="container-fluid px-4">
-    <h1 class="mt-4"><?= $pageTitle ?></h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="<?= base_url('bookings') ?>">Bookings</a></li>
-        <li class="breadcrumb-item"><a href="<?= base_url('bookings/view/' . $booking['id']) ?>"><?= $booking['booking_code'] ?></a></li>
-        <li class="breadcrumb-item active">Receipt</li>
-    </ol>
-    
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <!-- Receipt Header -->
-                    <div class="d-flex justify-content-between align-items-start mb-4">
-                        <div>
-                            <h4 class="mb-1"><?= esc($booking['tenant_name']) ?></h4>
-                            <p class="mb-1"><?= esc($booking['tenant_email']) ?></p>
-                            <p class="mb-0"><?= esc($booking['tenant_phone']) ?></p>
-                        </div>
-                        <div class="text-end">
-                            <h5 class="mb-1">Receipt</h5>
-                            <p class="mb-1">#<?= esc($booking['booking_code']) ?></p>
-                            <p class="mb-0">Date: <?= date('M d, Y', strtotime($booking['payment_date'])) ?></p>
-                        </div>
-                    </div>
-                    
-                    <!-- Customer Details -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold mb-2">Customer Details</h6>
-                        <p class="mb-1"><strong>Name:</strong> <?= esc($booking['customer_name']) ?></p>
-                        <?php if (!empty($booking['customer_email'])) : ?>
-                            <p class="mb-1"><strong>Email:</strong> <?= esc($booking['customer_email']) ?></p>
-                        <?php endif; ?>
-                        <?php if (!empty($booking['customer_phone'])) : ?>
-                            <p class="mb-0"><strong>Phone:</strong> <?= esc($booking['customer_phone']) ?></p>
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <h1 class="mt-4"><i class="bi bi-receipt me-1"></i><?= $pageTitle ?></h1>
+        <div>
+            <button onclick="window.print()" class="btn btn-outline-primary me-2"><i class="bi bi-printer me-1"></i>Print</button>
+            <button id="export-pdf" class="btn btn-outline-success"><i class="bi bi-file-earmark-pdf me-1"></i>Export PDF</button>
+        </div>
+    </div>
+    <div class="receipt-card receipt-card-custom mx-auto" id="receipt-pdf-area">
+        <div class="receipt-header receipt-header-custom d-flex flex-column flex-md-row justify-content-between align-items-md-center align-items-start pb-3 mb-4 flex-wrap">
+            <div class="d-flex align-items-center flex-shrink-0 receipt-header-logo">
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width:56px;height:56px;font-size:2rem;"><i class="bi bi-receipt"></i></div>
+                <div class="ms-3 receipt-header-title">
+                    <div class="receipt-title receipt-title-custom mb-1 d-flex align-items-center flex-wrap">
+                        Receipt
+                        <?php if ($booking['payment_status'] === 'paid'): ?>
+                            <span class="badge bg-success ms-2 receipt-badge-paid"><i class="bi bi-check-circle me-1"></i>PAID / LUNAS</span>
                         <?php endif; ?>
                     </div>
-                    
-                    <!-- Booking Details -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold mb-2">Booking Details</h6>
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Description</th>
-                                        <th class="text-end">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <strong><?= esc($booking['service_name']) ?></strong><br>
-                                            <small class="text-muted">
-                                                <?= date('l, F j, Y', strtotime($booking['booking_date'])) ?><br>
-                                                <?= date('h:i A', strtotime($booking['start_time'])) ?> - <?= date('h:i A', strtotime($booking['end_time'])) ?>
-                                            </small>
-                                        </td>
-                                        <td class="text-end">Rp <?= number_format($booking['price'], 2) ?></td>
-                                    </tr>
-                                </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <th>Total</th>
-                                        <th class="text-end">Rp <?= number_format($booking['price'], 2) ?></th>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <!-- Payment Details -->
-                    <div class="mb-4">
-                        <h6 class="fw-bold mb-2">Payment Details</h6>
-                        <p class="mb-1"><strong>Reference:</strong> <?= esc($booking['payment_reference']) ?></p>
-                        <p class="mb-1"><strong>Status:</strong> <span class="badge bg-success">Paid</span></p>
-                        <p class="mb-0"><strong>Date:</strong> <?= date('F j, Y H:i', strtotime($booking['payment_date'])) ?></p>
-                    </div>
-                    
-                    <!-- Footer -->
-                    <div class="border-top pt-4 mt-4">
-                        <div class="text-center">
-                            <p class="mb-1">Thank you for your business!</p>
-                            <a href="<?= base_url('bookings/view/' . $booking['id']) ?>" class="btn btn-outline-primary">
-                                <i class="fas fa-arrow-left me-1"></i> Back to Booking
-                            </a>
-                            <button type="button" class="btn btn-primary" onclick="window.print()">
-                                <i class="fas fa-print me-1"></i> Print Receipt
-                            </button>
-                        </div>
-                    </div>
+                    <div class="receipt-meta receipt-meta-nowrap"><i class="bi bi-hash me-1"></i><?= esc($booking['booking_code']) ?> | <i class="bi bi-calendar-event me-1"></i><?= date('M d, Y', strtotime($booking['payment_date'])) ?></div>
+                    <div class="text-muted receipt-guid"><i class="bi bi-shield-check me-1"></i>No. Validasi: <span class="fw-semibold"><?= esc($booking['guid'] ?? '-') ?></span></div>
                 </div>
+            </div>
+            <div class="text-md-end text-start flex-shrink-0 receipt-tenant">
+                <div class="fw-bold mb-1"><i class="bi bi-building me-1"></i><?= esc($booking['tenant_name'] ?? '-') ?: '-' ?></div>
+            </div>
+        </div>
+        <div class="mb-4">
+            <div class="receipt-section-title"><i class="bi bi-person me-1"></i>Customer Details</div>
+            <table class="table table-borderless receipt-table mb-0">
+                <tr><th class="receipt-label">Name</th><td class="receipt-td"><span class="receipt-colon">:</span> <?= esc($booking['customer_name'] ?? '-') ?: '-' ?></td></tr>
+                <?php if (!empty($booking['customer_email'])) : ?>
+                <tr><th class="receipt-label">Email</th><td class="receipt-td"><span class="receipt-colon">:</span> <?= esc($booking['customer_email']) ?: '-' ?></td></tr>
+                <?php endif; ?>
+            </table>
+        </div>
+        <div class="mb-4">
+            <div class="receipt-section-title"><i class="bi bi-calendar-check me-1"></i>Booking Details</div>
+            <table class="table table-borderless receipt-table mb-0">
+                <tr><th class="receipt-label">Service</th><td class="receipt-td"><span class="receipt-colon">:</span> <?= esc($booking['service_name'] ?? '-') ?: '-' ?></td></tr>
+                <tr><th class="receipt-label">Date</th><td class="receipt-td"><span class="receipt-colon">:</span> <?= !empty($booking['booking_date']) ? date('M d, Y', strtotime($booking['booking_date'])) : '-' ?></td></tr>
+                <tr><th class="receipt-label">Time</th><td class="receipt-td"><span class="receipt-colon">:</span> <?= (!empty($booking['start_time']) ? esc($booking['start_time']) : '-') ?> - <?= (!empty($booking['end_time']) ? esc($booking['end_time']) : '-') ?></td></tr>
+                <tr><th class="receipt-label">Status</th><td class="receipt-td"><span class="receipt-colon">:</span> <?= !empty($booking['status']) ? ucfirst($booking['status']) : '-' ?></td></tr>
+            </table>
+        </div>
+        <div class="mb-4">
+            <div class="receipt-section-title"><i class="bi bi-credit-card me-1"></i>Payment Details</div>
+            <table class="table table-borderless receipt-table mb-0">
+                <tr><th class="receipt-label">Amount</th><td class="receipt-td"><span class="receipt-colon">:</span> <strong>Rp <?= isset($booking['price']) ? number_format($booking['price'], 2) : '-' ?></strong></td></tr>
+                <tr><th class="receipt-label">Reference</th><td class="receipt-td"><span class="receipt-colon">:</span> <?= esc($booking['payment_reference'] ?? '-') ?: '-' ?></td></tr>
+                <tr><th class="receipt-label">Payment Date</th><td class="receipt-td"><span class="receipt-colon">:</span> <?= !empty($booking['payment_date']) ? date('M d, Y H:i', strtotime($booking['payment_date'])) : '-' ?></td></tr>
+            </table>
+        </div>
+        <div class="text-center mt-5 receipt-footer-note">
+            <i class="bi bi-emoji-smile me-1"></i>Thank you for your booking.<br>
+            <span style="font-size:0.9rem;">This is a system generated receipt.</span>
+            <div class="mt-4">
+                <div class="mb-1 receipt-footer-guid">No. Validasi: <span class="fw-semibold"><?= esc($booking['guid'] ?? '-') ?></span></div>
+                <div id="receipt-qr" class="d-flex justify-content-center"></div>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-@media print {
-    .btn, .breadcrumb, .navbar, .sidenav {
-        display: none !important;
-    }
-    .card {
-        border: none !important;
-        box-shadow: none !important;
-    }
-    .container-fluid {
-        padding: 0 !important;
-    }
-}
-</style>
-
+<script>
+window.receiptBookingCode = "<?= esc($booking['booking_code']) ?>";
+window.receiptQRValue = "<?= base_url('public-invoice/' . ($booking['guid'] ?? $booking['id'])) ?>";
+</script>
+<script src="<?= base_url('assets/js/html2pdf.bundle.min.js') ?>"></script>
+<script src="<?= base_url('assets/js/qrious.min.js') ?>"></script>
+<script src="<?= base_url('assets/js/receipt.js') ?>"></script>
 <?= $this->endSection() ?>

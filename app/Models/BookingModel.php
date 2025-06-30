@@ -66,7 +66,7 @@ class BookingModel extends Model
     {
         return $this->db->table($this->table . ' b')
             ->select('b.*, s.txtName as txtServiceName, s.txtDescription as txtServiceDescription, 
-                     t.txtTenantName as txtTenantName, t.txtContactEmail as txtTenantEmail, t.txtContactPhone as txtTenantPhone,
+                     t.txtTenantName as txtTenantName,
                      u.txtFullName as txtCustomerName, u.txtEmail as txtCustomerEmail')
             ->join('m_services s', 'b.intServiceID = s.intServiceID', 'left')
             ->join('m_tenants t', 'b.intTenantID = t.intTenantID', 'left')

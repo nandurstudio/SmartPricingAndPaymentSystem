@@ -83,80 +83,78 @@
             
             <!-- Bookings table -->
             <div class="table-responsive">
-                <table id="bookingsTable" class="table table-striped table-bordered">
+                <table id="bookingsTable" class="table table-striped table-bordered align-middle">
                     <thead>
                         <tr>
-                            <th>Booking Code</th>
-                            <th>Customer</th>
-                            <th>Service</th>
-                            <th>Date & Time</th>
-                            <th>Price</th>
-                            <th>Status</th>
-                            <th>Payment</th>
-                            <th>Actions</th>
+                            <th class="text-center"><i class="bi bi-gear"></i> Actions</th>
+                            <th><i class="bi bi-hash"></i> Booking Code</th>
+                            <th><i class="bi bi-person"></i> Customer</th>
+                            <th><i class="bi bi-briefcase"></i> Service</th>
+                            <th><i class="bi bi-calendar-event"></i> Date & Time</th>
+                            <th><i class="bi bi-cash"></i> Price</th>
+                            <th><i class="bi bi-info-circle"></i> Status</th>
+                            <th><i class="bi bi-credit-card"></i> Payment</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (!empty($bookings)) : ?>
                             <?php foreach ($bookings as $booking) : ?>
                                 <tr>
-                                    <td><code><?= $booking['booking_code'] ?></code></td>
-                                    <td><?= esc($booking['customer_name'] ?? 'Guest') ?></td>
+                                    <td class="text-center">
+                                        <div class="btn-group">
+                                            <a href="<?= base_url('bookings/view/' . $booking['id']) ?>" class="btn btn-info btn-sm" title="View">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <?php if ($booking['status'] == 'pending') : ?>
+                                                <button type="button" class="btn btn-success btn-sm update-status" data-id="<?= $booking['id'] ?>" data-status="confirmed" title="Confirm">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </button>
+                                            <?php endif; ?>
+                                            <?php if ($booking['status'] == 'confirmed') : ?>
+                                                <button type="button" class="btn btn-primary btn-sm update-status" data-id="<?= $booking['id'] ?>" data-status="completed" title="Mark as Completed">
+                                                    <i class="bi bi-check2-all"></i>
+                                                </button>
+                                            <?php endif; ?>
+                                            <?php if (in_array($booking['status'], ['pending', 'confirmed'])) : ?>
+                                                <button type="button" class="btn btn-danger btn-sm update-status" data-id="<?= $booking['id'] ?>" data-status="cancelled" title="Cancel">
+                                                    <i class="bi bi-x-lg"></i>
+                                                </button>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td><code><?= esc($booking['booking_code']) ?></code></td>
+                                    <td><?= esc($booking['customer_name']) ?></td>
                                     <td><?= esc($booking['service_name']) ?></td>
                                     <td>
                                         <?= date('M d, Y', strtotime($booking['booking_date'])) ?><br>
-                                        <small><?= date('h:i A', strtotime($booking['start_time'])) ?> - <?= date('h:i A', strtotime($booking['end_time'])) ?></small>
+                                        <small><?= date('H:i', strtotime($booking['start_time'])) ?> - <?= date('H:i', strtotime($booking['end_time'])) ?></small>
                                     </td>
                                     <td>Rp <?= number_format($booking['price'], 2) ?></td>
                                     <td>
                                         <?php if ($booking['status'] == 'confirmed') : ?>
-                                            <span class="badge bg-success">Confirmed</span>
+                                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Confirmed</span>
                                         <?php elseif ($booking['status'] == 'pending') : ?>
-                                            <span class="badge bg-warning">Pending</span>
+                                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Pending</span>
                                         <?php elseif ($booking['status'] == 'cancelled') : ?>
-                                            <span class="badge bg-danger">Cancelled</span>
+                                            <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Cancelled</span>
                                         <?php elseif ($booking['status'] == 'completed') : ?>
-                                            <span class="badge bg-info">Completed</span>
+                                            <span class="badge bg-info text-dark"><i class="bi bi-check2-circle"></i> Completed</span>
                                         <?php else : ?>
-                                            <span class="badge bg-secondary"><?= ucfirst($booking['status']) ?></span>
+                                            <span class="badge bg-secondary"><i class="bi bi-question-circle"></i> <?= ucfirst($booking['status']) ?></span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
                                         <?php if ($booking['payment_status'] == 'paid') : ?>
-                                            <span class="badge bg-success">Paid</span>
+                                            <span class="badge bg-success"><i class="bi bi-cash-coin"></i> Paid</span>
                                         <?php elseif ($booking['payment_status'] == 'pending') : ?>
-                                            <span class="badge bg-warning">Pending</span>
+                                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split"></i> Pending</span>
                                         <?php elseif ($booking['payment_status'] == 'failed') : ?>
-                                            <span class="badge bg-danger">Failed</span>
+                                            <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Failed</span>
                                         <?php elseif ($booking['payment_status'] == 'refunded') : ?>
-                                            <span class="badge bg-info">Refunded</span>
+                                            <span class="badge bg-info text-dark"><i class="bi bi-arrow-counterclockwise"></i> Refunded</span>
                                         <?php else : ?>
-                                            <span class="badge bg-secondary">Not Paid</span>
+                                            <span class="badge bg-secondary"><i class="bi bi-credit-card"></i> Not Paid</span>
                                         <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group">                                            <a href="<?= base_url('bookings/view/' . $booking['id']) ?>" class="btn btn-info btn-sm">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            
-                                            <?php if ($booking['status'] == 'pending') : ?>
-                                                <button type="button" class="btn btn-success btn-sm update-status" data-id="<?= $booking['id'] ?>" data-status="confirmed" title="Confirm">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                            <?php endif; ?>
-                                            
-                                            <?php if ($booking['status'] == 'confirmed') : ?>
-                                                <button type="button" class="btn btn-primary btn-sm update-status" data-id="<?= $booking['id'] ?>" data-status="completed" title="Mark as Completed">
-                                                    <i class="fas fa-check-double"></i>
-                                                </button>
-                                            <?php endif; ?>
-                                            
-                                            <?php if (in_array($booking['status'], ['pending', 'confirmed'])) : ?>
-                                                <button type="button" class="btn btn-danger btn-sm update-status" data-id="<?= $booking['id'] ?>" data-status="cancelled" title="Cancel">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            <?php endif; ?>
-                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
