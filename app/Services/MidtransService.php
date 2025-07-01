@@ -27,8 +27,50 @@ class MidtransService
      */
     public function createPaymentToken($params)
     {
+        // Daftar VA yang memungkinkan free_text (berdasarkan dokumentasi Midtrans)
+        $vaWithFreeText = [
+            'bca_va' => [
+                'inquiry' => [
+                    ['en' => 'Please pay using the provided BCA Virtual Account number', 'id' => 'Silakan lakukan pembayaran ke nomor BCA Virtual Account di atas']
+                ],
+                'payment' => [
+                    ['en' => 'Thank you for your payment', 'id' => 'Terima kasih atas pembayaran Anda']
+                ]
+            ],
+            'mandiri_va' => [
+                'inquiry' => [
+                    ['en' => 'Please pay using the provided Mandiri Virtual Account number', 'id' => 'Silakan lakukan pembayaran ke nomor Mandiri Virtual Account di atas']
+                ],
+                'payment' => [
+                    ['en' => 'Thank you for your payment', 'id' => 'Terima kasih atas pembayaran Anda']
+                ]
+            ],
+            'permata_va' => [
+                'inquiry' => [
+                    ['en' => 'Please pay using the provided Permata Virtual Account number', 'id' => 'Silakan lakukan pembayaran ke nomor Permata Virtual Account di atas']
+                ],
+                'payment' => [
+                    ['en' => 'Thank you for your payment', 'id' => 'Terima kasih atas pembayaran Anda']
+                ]
+            ]
+        ];
+        // Inject free_text ke object VA yang support
+        foreach ($vaWithFreeText as $vaKey => $freeText) {
+            if ((isset($params['payment_type']) && $params['payment_type'] === 'bank_transfer' && isset($params['bank_transfer']['bank']) && strpos($vaKey, $params['bank_transfer']['bank']) !== false)
+                || (isset($params['payment_type']) && $params['payment_type'] === 'echannel' && $vaKey === 'mandiri_va')
+                || (isset($params['enabled_payments']) && in_array($vaKey, $params['enabled_payments']))) {
+                if (!isset($params[$vaKey])) {
+                    $params[$vaKey] = [];
+                }
+                // Permata VA: tambahkan recipient_name jika belum ada
+                if ($vaKey === 'permata_va' && !isset($params[$vaKey]['recipient_name'])) {
+                    $params[$vaKey]['recipient_name'] = 'SmartPay System';
+                }
+                $params[$vaKey]['free_text'] = $freeText;
+            }
+        }
         try {
-            $snapToken = Snap::getSnapToken($params);
+            $snapToken = \Midtrans\Snap::getSnapToken($params);
             return [
                 'success' => true,
                 'token' => $snapToken

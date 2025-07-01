@@ -55,7 +55,7 @@ class Auth extends BaseController
                     'bitActive' => $user['bitActive'], // bitActive untuk status aktif user
                     'lastLogin' => $user['dtmLastLogin'], // Menambahkan waktu login terakhir
                     'joinDate' => $user['dtmJoinDate'], // Menambahkan tanggal bergabung
-                    'photo' => $user['txtPhoto'], // Menambahkan foto user
+                    'photo' => $user['txtPhoto'] // Menambahkan foto user
                 ]);
 
                 // Pengguna langsung diarahkan ke Home
@@ -207,7 +207,8 @@ class Auth extends BaseController
         $user = $userModel->verifyLoginByUsernameOrEmail($identity, $password);
 
         if ($user) {
-            if ($userModel->updateLastLogin($user['intUserID'])) {                // Get user with role name
+            if ($userModel->updateLastLogin($user['intUserID'])) {
+                // Get user with role name
                 $userWithRole = $userModel->getUserWithRole($user['intUserID']);
                 
                 // Set session with role name
@@ -215,14 +216,14 @@ class Auth extends BaseController
                     'isLoggedIn' => true,
                     'userID' => $user['intUserID'],
                     'roleID' => $user['intRoleID'],
-                    'roleName' => $userWithRole['txtRoleName'] ?? 'Unknown Role', // Add role name to session
+                    'roleName' => $userWithRole['txtRoleName'] ?? 'Unknown Role',
                     'userName' => $user['txtUserName'],
                     'userFullName' => $user['txtFullName'],
                     'userEmail' => $user['txtEmail'],
                     'bitActive' => $user['bitActive'],
                     'lastLogin' => $user['dtmLastLogin'],
                     'joinDate' => $user['dtmJoinDate'],
-                    'photo' => $user['txtPhoto'],
+                    'photo' => $user['txtPhoto']
                 ]);log_message('debug', 'Session set for user: ' . $user['txtUserName']);
 
                 if ($rememberMe) {
@@ -251,10 +252,21 @@ class Auth extends BaseController
                     delete_cookie('email');
                     delete_cookie('password');
                 }
+
+                // Check if user has a tenant
+                $tenantModel = new MTenantModel();
+                $hasTenant = $tenantModel->where('intOwnerID', $user['intUserID'])->first();
+                
+                // Prepare redirect URL based on tenant ownership
+                $redirectUrl = $hasTenant ? '/dashboard' : '/tenants/create';
+                
                 if ($isAjax) {
-                    return $this->response->setJSON(['success' => true, 'redirect' => base_url('/users')]);
+                    return $this->response->setJSON([
+                        'success' => true, 
+                        'redirect' => base_url($redirectUrl)
+                    ]);
                 } else {
-                    return redirect()->to('/users'); // Redirect to user management page after login
+                    return redirect()->to($redirectUrl);
                 }
             } else {
                 $error = 'Failed to update last login time.';
@@ -355,8 +367,8 @@ class Auth extends BaseController
 
         // Update token di database
         $updateData = [
-            'reset_token' => $token,
-            'token_created_at' => date('Y-m-d H:i:s') // Menyimpan waktu sekarang
+            'txtResetToken' => $token, // was reset_token
+            'dtmTokenCreatedAt' => date('Y-m-d H:i:s') // was token_created_at
         ];
 
         $updated = $userModel->update($user['intUserID'], $updateData);
@@ -386,12 +398,13 @@ class Auth extends BaseController
         // Validate token format first - basic security check
         if (empty($token) || strlen($token) < 32) {
             log_message('warning', 'Invalid token format attempted: ' . substr($token, 0, 10) . '...');
-            return redirect()->to('/login')->with('error', 'Invalid password reset link');
+            set_flash_message('error', 'Invalid password reset link');
+            return redirect()->to('/login');
         }
 
         // Cek apakah token valid
         $userModel = new MUserModel();
-        $user = $userModel->where('reset_token', $token)->first();
+        $user = $userModel->where('txtResetToken', $token)->first();
         if (!$user) {
             log_message('warning', 'Reset token not found in database: ' . substr($token, 0, 10) . '...');
             set_flash_message('error', 'Invalid password reset link. Please request a new password reset.');
@@ -399,7 +412,7 @@ class Auth extends BaseController
         }
 
         // Cek apakah token kadaluarsa
-        if ($this->isTokenExpired($user['token_created_at'])) {
+        if ($this->isTokenExpired($user['dtmTokenCreatedAt'])) {
             log_message('warning', 'Expired reset token: ' . substr($token, 0, 10) . '...');
             set_flash_message('error', 'Your password reset link has expired. Please request a new link.');
             return redirect()->to('/auth/forgot_password');
@@ -428,14 +441,14 @@ class Auth extends BaseController
 
         // Validasi token dan update password di database
         $userModel = new MUserModel();
-        $user = $userModel->where('reset_token', $token)->first();        // Pastikan token valid        
+        $user = $userModel->where('txtResetToken', $token)->first();        // Pastikan token valid        
         if (!$user) {
             log_message('warning', 'Invalid token used for password reset');
             set_flash_message('error', 'Invalid password reset token. Please request a new password reset link.');
             return redirect()->to(base_url('/login'));
         }
 
-        if ($this->isTokenExpired($user['token_created_at'])) {
+        if ($this->isTokenExpired($user['dtmTokenCreatedAt'])) {
             log_message('warning', 'Expired token used for password reset');
             set_flash_message('error', 'Your password reset link has expired. Please request a new one.');
             return redirect()->to(base_url('/auth/forgot_password'));
@@ -446,8 +459,8 @@ class Auth extends BaseController
         $hashedPassword = password_hash($txtPassword, PASSWORD_DEFAULT);
         $updated = $userModel->update($user['intUserID'], [
             'txtPassword' => $hashedPassword,
-            'reset_token' => null, // Bersihkan token setelah digunakan
-            'token_created_at' => null // Bersihkan waktu token
+            'txtResetToken' => null, // Bersihkan token setelah digunakan
+            'dtmTokenCreatedAt' => null // Bersihkan waktu token
         ]);
 
         if (!$updated) {

@@ -61,7 +61,8 @@
                                                     <i class="bi bi-eye-slash" id="toggleConfirmPassword"></i>
                                                 </span>
                                                 <div id="passwordMatch" class="mt-2 small"></div>
-                                            </div>                                            <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
                                                 <a class="small text-decoration-none" href="<?= base_url('/login') ?>"><i class="bi bi-arrow-left me-1"></i>Return to login</a>
                                                 <button type="submit" class="btn btn-primary" id="submit-btn">
                                                     <span id="submit-text"><i class="bi bi-check-circle me-2"></i>Update Password</span>
@@ -69,11 +70,13 @@
                                                 </button>
                                             </div>
                                         </form>
-                                    <?php else: ?>                                        <div class="text-center mt-4">
+                                    <?php else: ?>
+                                        <div class="text-center mt-4">
                                             <a href="<?= base_url('/login') ?>" class="btn btn-primary"><i class="bi bi-arrow-left me-2"></i>Return to Login</a>
                                         </div>
                                     <?php endif; ?>
-                                </div>                                <div class="card-footer text-center py-3 bg-light">
+                                </div>
+                                <div class="card-footer text-center py-3 bg-light">
                                     <div class="small">
                                         <a href="<?= base_url('/register') ?>" class="text-decoration-none">
                                             <i class="bi bi-person-plus me-1"></i>Need an account? Sign up!
@@ -90,10 +93,7 @@
             <?= $this->include('layouts/footer') ?>
         </div>
     </div>
-    <script src="<?php echo base_url('assets/js/bootstrap/bootstrap.bundle.min.js'); ?>"></script>
-    <script src="<?php echo base_url('assets/js/scripts.js'); ?>"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js"></script>
+    <?= $this->include('layouts/scripts') ?>
     <style>
         .form-floating {
             position: relative;
@@ -103,10 +103,8 @@
             position: absolute;
             right: 15px;
             top: 18px;
-            /* Adjusted slightly down */
             cursor: pointer;
             z-index: 5;
-            /* Above the form-control */
             color: #6c757d;
             transition: color 0.2s;
             display: flex;
@@ -127,7 +125,6 @@
 
         .form-floating>.form-control {
             padding-right: 45px;
-            /* Increased padding to prevent text overlap */
         }
 
         .strength-weak {
@@ -142,7 +139,6 @@
             color: #198754;
         }
     </style>
-
     <script>
         // Toggle password visibility
         function togglePasswordVisibility(inputId) {

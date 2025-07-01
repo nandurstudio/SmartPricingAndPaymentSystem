@@ -22,14 +22,15 @@ class MUserModel extends Model
         'txtUpdatedBy',
         'dtmUpdatedDate',
         'txtGUID',
-        'reset_token',
-        'token_created_at',
+        'txtResetToken', // was reset_token
+        'dtmTokenCreatedAt', // was token_created_at
         'txtPhoto',
         'dtmJoinDate',
-        'bitOnlineStatus',        'txtGoogleAuthToken',
-        'intTenantID',        // Foreign key untuk relasi dengan tenant
-        'is_tenant_owner',  // Flag untuk menandai user adalah owner tenant
-        'intDefaultTenantID' // Tenant default untuk user yang memiliki akses ke multiple tenant
+        'bitOnlineStatus',
+        'txtGoogleAuthToken',
+        'intTenantID',
+        'is_tenant_owner',
+        'intDefaultTenantID'
     ];
 
     // Optional: Untuk timestamps otomatis

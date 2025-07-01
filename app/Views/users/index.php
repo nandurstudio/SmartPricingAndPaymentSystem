@@ -59,11 +59,14 @@
                                 <div class="d-flex align-items-center">
                                     <div class="avatar avatar-sm me-2">
                                         <?php 
-                                        $photoUrl = !empty($user['txtPhoto']) ? 
-                                            (filter_var($user['txtPhoto'], FILTER_VALIDATE_URL) ? 
+                                        if (!empty($user['txtPhoto']) && $user['txtPhoto'] !== 'default.png') {
+                                            $photoUrl = filter_var($user['txtPhoto'], FILTER_VALIDATE_URL) ? 
                                                 $user['txtPhoto'] : 
-                                                base_url('uploads/photos/' . $user['txtPhoto'])) : 
-                                            base_url('assets/img/illustrations/profiles/default.png');
+                                                base_url('uploads/photos/' . $user['txtPhoto']);
+                                        } else {
+                                            $rand = rand(1,5);
+                                            $photoUrl = base_url('assets/img/illustrations/profiles/profile-' . $rand . '.png');
+                                        }
                                         ?>
                                         <img class="avatar-img img-fluid" src="<?= esc($photoUrl) ?>" alt="User photo"/>
                                     </div>

@@ -9,18 +9,23 @@
                     <h3 class="card-title">User Details</h3>
                 </div>
                 <div class="card-body">
-                    <div class="row">                        <div class="col-md-3">
-                            <?php
-                            $photoPath = FCPATH . 'uploads/photos/' . ($user['txtPhoto'] ?? 'default.png');
-                            if (!empty($user['txtPhoto']) && file_exists($photoPath)) {
-                                $imgSrc = base_url('uploads/photos/' . $user['txtPhoto']);
-                            } else {
-                                $imgSrc = base_url('assets/img/default-avatar.png');
-                            }
-                            ?>
-                            <img src="<?= $imgSrc ?>" 
-                                 class="img-fluid rounded" 
-                                 alt="Profile Picture">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <div class="logo-wrapper mb-3">
+                                <?php if (!empty($user['txtPhoto']) && $user['txtPhoto'] !== 'default.png'): ?>
+                                    <img src="<?= base_url('uploads/photos/' . $user['txtPhoto']) ?>"
+                                         alt="<?= esc($user['txtFullName']) ?>"
+                                         class="img-thumbnail rounded-circle"
+                                         style="width: 150px; height: 150px; object-fit: cover;"
+                                         onerror="this.onerror=null; this.src='<?= base_url('assets/img/default-avatar.png') ?>'; this.classList.add('bg-light');">
+                                <?php else: ?>
+                                    <?php $rand = rand(1,5); ?>
+                                    <img src="<?= base_url('assets/img/illustrations/profiles/profile-' . $rand . '.png') ?>"
+                                         alt="Default profile picture"
+                                         class="img-thumbnail rounded-circle bg-light"
+                                         style="width: 150px; height: 150px; object-fit: cover;">
+                                <?php endif; ?>
+                            </div>
                         </div>
                         <div class="col-md-9">
                             <table class="table">
@@ -55,7 +60,8 @@
                             </table>
                         </div>
                     </div>
-                </div>                <div class="card-footer">
+                </div>
+                <div class="card-footer">
                     <div class="d-flex">
                         <div class="me-2">
                             <a href="<?= base_url('users') ?>" class="btn btn-outline-primary btn-sm">

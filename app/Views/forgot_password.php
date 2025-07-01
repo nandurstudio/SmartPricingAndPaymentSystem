@@ -8,7 +8,8 @@
                     <div class="row justify-content-center">
                         <div class="col-lg-5 col-md-8">
                             <!-- Modern forgot password form-->
-                            <div class="card shadow-lg border-0 rounded-lg mt-5">                                <div class="card-header bg-primary text-center py-4">
+                            <div class="card shadow-lg border-0 rounded-lg mt-5">
+                                <div class="card-header bg-primary text-center py-4">
                                     <h3 class="fw-bold text-white my-2"><i class="bi bi-key-fill me-2 text-white"></i>Password Recovery</h3>
                                 </div>
                                 <div class="card-body p-4">
@@ -17,16 +18,16 @@
                                             <i class="bi bi-envelope-paper text-primary" style="font-size: 3rem;"></i>
                                         </div>
                                         <div class="mb-3 text-muted">Enter your email address and we will send you a link to reset your password.</div>
-                                    </div>                                    <!-- Menampilkan pesan sukses atau error dengan helper -->
+                                    </div> <!-- Menampilkan pesan sukses atau error dengan helper -->
                                     <?= display_flash_messages() ?>
-                                    
+
                                     <!-- Debug Flash Data (hidden) -->
                                     <div id="debug-flash-messages" style="display: none;">
-                                        <p>Session flashdata: 
-                                        <?php 
-                                        $flashData = session()->getFlashdata();
-                                        echo !empty($flashData) ? print_r($flashData, true) : 'No flash data';
-                                        ?>
+                                        <p>Session flashdata:
+                                            <?php
+                                            $flashData = session()->getFlashdata();
+                                            echo !empty($flashData) ? print_r($flashData, true) : 'No flash data';
+                                            ?>
                                         </p>
                                     </div>
 
@@ -51,7 +52,8 @@
                                             <a href="/login" class="btn btn-primary"><i class="bi bi-arrow-left me-2"></i>Return to Login</a>
                                         </div>
                                     <?php endif; ?>
-                                </div>                                <div class="card-footer text-center py-3 bg-light">
+                                </div>
+                                <div class="card-footer text-center py-3 bg-light">
                                     <div class="small">
                                         <a href="/register" class="text-decoration-none">
                                             <i class="bi bi-person-plus me-1"></i>Need an account? Sign up!
@@ -68,28 +70,36 @@
             <?= $this->include('layouts/footer') ?>
         </div>
     </div>
+    <!-- jQuery First -->
+    <script src="<?= base_url('assets/js/jquery/jquery.min.js'); ?>"></script>
     <script src="<?php echo base_url('assets/js/bootstrap/bootstrap.bundle.min.js'); ?>"></script>
     <script src="<?php echo base_url('assets/js/scripts.js'); ?>"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-
     <script>
         // Menghapus pesan error ketika input email di-fokuskan
-        document.getElementById('email').addEventListener('focus', function() {
-            var errorMessage = document.getElementById('error-message');
-            if (errorMessage) {
-                errorMessage.style.display = 'none';
-            }
-        });
+        var emailInput = document.getElementById('email');
+        if (emailInput) {
+            emailInput.addEventListener('focus', function() {
+                var errorMessage = document.getElementById('error-message');
+                if (errorMessage) {
+                    errorMessage.style.display = 'none';
+                }
+            });
+        }
 
         // Loading spinner saat submit
-        document.getElementById('forgot-password-form')?.addEventListener('submit', function() {
-            var submitBtn = document.getElementById('submit-btn');
-            var submitText = document.getElementById('submit-text');
-            var spinner = document.getElementById('loading-spinner');
-            submitBtn.disabled = true;
-            submitText.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Sending...';
-            spinner.classList.remove('d-none');
-        });
+        var forgotForm = document.getElementById('forgot-password-form');
+        if (forgotForm) {
+            forgotForm.addEventListener('submit', function() {
+                var submitBtn = document.getElementById('submit-btn');
+                var submitText = document.getElementById('submit-text');
+                var spinner = document.getElementById('loading-spinner');
+                if (submitBtn && submitText && spinner) {
+                    submitBtn.disabled = true;
+                    submitText.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Sending...';
+                    spinner.classList.remove('d-none');
+                }
+            });
+        }
 
         // Console logging for debugging flash data
         console.log('Flash Data:', <?= json_encode(session()->getFlashdata()) ?>);

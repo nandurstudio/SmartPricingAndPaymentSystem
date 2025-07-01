@@ -67,12 +67,18 @@
                         <!-- Profile Picture -->
                         <div class="mb-3">
                             <label class="small mb-1" for="txtPhoto">Profile Picture</label>
-                            <?php if (!empty($user['txtPhoto'])): ?>
+                            <?php if (!empty($user['txtPhoto']) && $user['txtPhoto'] !== 'default.png'): ?>
                                 <div class="mb-2">
-                                    <img src="<?= filter_var($user['txtPhoto'], FILTER_VALIDATE_URL) ? 
-                                        $user['txtPhoto'] : base_url('uploads/photos/' . $user['txtPhoto']) ?>" 
-                                         alt="Current profile picture" class="rounded" style="max-width: 150px">
+                                    <img src="<?= base_url('uploads/photos/' . $user['txtPhoto']) ?>"
+                                         alt="Current profile picture" class="img-thumbnail rounded-circle"
+                                         style="width: 150px; height: 150px; object-fit: cover;"
+                                         onerror="this.onerror=null; this.src='<?= base_url('assets/img/default-avatar.png') ?>'; this.classList.add('bg-light');">
                                 </div>
+                            <?php else: ?>
+                                <?php $rand = rand(1,5); ?>
+                                <img src="<?= base_url('assets/img/illustrations/profiles/profile-' . $rand . '.png') ?>"
+                                     alt="Default profile picture" class="img-thumbnail rounded-circle bg-light mb-2"
+                                     style="width: 150px; height: 150px; object-fit: cover;">
                             <?php endif; ?>
                             <input class="form-control" id="txtPhoto" name="txtPhoto" type="file" accept="image/*">
                             <div class="form-text">Allowed formats: JPG, PNG. Max size: 2MB</div>

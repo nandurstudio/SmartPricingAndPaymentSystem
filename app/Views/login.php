@@ -208,9 +208,12 @@
           </div>
           
           <!-- Flash Messages -->
-          <?= display_flash_messages() ?>
+          <?php if (function_exists('display_flash_messages')): ?>
+            <?= display_flash_messages() ?>
+          <?php endif; ?>
           
-          <!-- Debugging Flash Messages -->
+          <!-- Debugging Flash Messages (opsional, bisa dihapus di production) -->
+          <!--
           <div id="debug-flash-messages" style="display: none;">
             <p>Session flashdata: 
               <?php 
@@ -223,23 +226,8 @@
               echo !empty($_SESSION) ? print_r($_SESSION, true) : 'No session data';
               ?>
             </p>
-          </div>          
-          <?= display_flash_messages() ?>
-          
-          <!-- Debugging Flash Messages -->
-          <div id="debug-flash-messages" style="display: none;">
-            <p>Session flashdata: 
-              <?php 
-              $flashData = session()->getFlashdata();
-              echo !empty($flashData) ? print_r($flashData, true) : 'No flash data';
-              ?>
-            </p>
-            <p>Raw Session: 
-              <?php 
-              echo !empty($_SESSION) ? print_r($_SESSION, true) : 'No session data';
-              ?>
-            </p>
-          </div>          <!-- Login Form -->
+          </div>
+          -->          <!-- Login Form -->
           <form id="loginForm" action="<?php echo base_url('/login'); ?>" method="post">
             <?= csrf_field() ?>
               <!-- Email or Username Field -->

@@ -57,8 +57,9 @@ Thumbs.db
 /app/Config/Development/*
 /app/Config/Testing/*
 /app/Config/Production/*
-/app/Config/Email.php       # Contains sensitive email settings
 /app/Config/Encryption.php  # Contains sensitive encryption keys
+/app/Config/Database.php   # May contain sensitive database credentials
+/app/Config/Midtrans.php  # Payment gateway settings
 
 # Multi-tenant Specific
 /public/uploads/*          # User uploaded content
@@ -95,3 +96,6 @@ Thumbs.db
 .phpstorm.meta.php
 _ide_helper.php
 .env.backup
+
+# Production Build
+/production/*

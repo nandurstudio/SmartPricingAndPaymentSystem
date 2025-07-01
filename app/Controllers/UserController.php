@@ -25,7 +25,9 @@ class UserController extends Controller
     public function index()
     {
         if (!session()->get('isLoggedIn')) {
-            return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
+            helper('flashmessage');
+            set_flash_message('error', 'You must be logged in to access this page.');
+            return redirect()->to('/login');
         }
 
         $roleID = session()->get('roleID');
@@ -46,7 +48,9 @@ class UserController extends Controller
     public function edit($id = null)
     {
         if (!session()->get('isLoggedIn')) {
-            return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
+            helper('flashmessage');
+            set_flash_message('error', 'You must be logged in to access this page.');
+            return redirect()->to('/login');
         }
 
         $user = $this->userModel->find($id);
@@ -123,12 +127,12 @@ class UserController extends Controller
         if ($photo = $this->request->getFile('txtPhoto')) {
             if ($photo->isValid() && !$photo->hasMoved()) {
                 $newName = $photo->getRandomName();
-                $photo->move(ROOTPATH . 'public/uploads/photos', $newName);
+                $photo->move(FCPATH . 'uploads/photos', $newName); // Ubah ke FCPATH
                 $updateData['txtPhoto'] = $newName;
 
                 // Delete old photo if exists
-                if ($user['txtPhoto'] && $user['txtPhoto'] !== 'default.png' && file_exists(ROOTPATH . 'public/uploads/photos/' . $user['txtPhoto'])) {
-                    unlink(ROOTPATH . 'public/uploads/photos/' . $user['txtPhoto']);
+                if ($user['txtPhoto'] && $user['txtPhoto'] !== 'default.png' && file_exists(FCPATH . 'uploads/photos/' . $user['txtPhoto'])) {
+                    unlink(FCPATH . 'uploads/photos/' . $user['txtPhoto']);
                 }
             }
         }
@@ -178,7 +182,9 @@ class UserController extends Controller
     public function view($id = null)
     {
         if (!session()->get('isLoggedIn')) {
-            return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
+            helper('flashmessage');
+            set_flash_message('error', 'You must be logged in to access this page.');
+            return redirect()->to('/login');
         }
 
         if ($id === null) {
