@@ -9,15 +9,12 @@ class RoleMenuAccessModel extends Model
     protected $table = 'm_role_menu';
     protected $primaryKey = 'intRoleMenuID';    // Sesuaikan dengan nama field di database
     protected $allowedFields = [
+        'txtGUID',
         'intRoleID',
         'intMenuID',
         'bitActive',
-        'bitCanView',
-        'bitCanAdd', 
-        'bitCanEdit',
-        'bitCanDelete',
-        'txtInsertedBy',
-        'dtmInsertedDate',
+        'txtCreatedBy',
+        'dtmCreatedDate',
         'txtUpdatedBy',
         'dtmUpdatedDate'
     ];
@@ -61,8 +58,8 @@ class RoleMenuAccessModel extends Model
 
     public function saveAccess(array $data)
     {
-        $data['txtInsertedBy'] = session()->get('userName') ?? 'system';
-        $data['dtmInsertedDate'] = date('Y-m-d H:i:s');
+        $data['txtCreatedBy'] = session()->get('userName') ?? 'system';
+        $data['dtmCreatedDate'] = date('Y-m-d H:i:s');
         
         log_message('debug', 'Saving Role Menu Access: ' . print_r($data, true));
         return $this->insert($data);

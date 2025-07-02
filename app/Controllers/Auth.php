@@ -120,7 +120,8 @@ class Auth extends BaseController
                         'intRoleID' => 5, // Default role for Customer
                         'dtmJoinDate' => date('Y-m-d H:i:s'),
                         'dtmLastLogin' => date('Y-m-d H:i:s'),
-                        'txtGUID' => uniqid('google_', true), // Generate a unique ID dengan prefix google_ untuk tracking                        'dtmCreatedDate' => date('Y-m-d H:i:s'),
+                        'txtGUID' => uniqid('google_', true), // Generate a unique ID dengan prefix google_ untuk tracking
+                        'dtmCreatedDate' => date('Y-m-d H:i:s'),
                         'txtCreatedBy' => 'google_auth',
                         'txtGoogleAuthToken' => $googleUser->id,
                     ];
@@ -164,10 +165,10 @@ class Auth extends BaseController
                 // Redirect ke dashboard jika sudah punya tenant
                 return redirect()->to('/dashboard');
             } else {
-                return redirect()->to('/auth')->with('error', 'Failed to get access token');
+                return redirect()->to('/login')->with('error', 'Failed to get access token');
             }
         } else {
-            return redirect()->to('/auth')->with('error', 'Invalid request');
+            return redirect()->to('/login')->with('error', 'Invalid request');
         }
     } // End of googleCallback method
     public function login()

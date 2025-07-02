@@ -42,7 +42,7 @@ class RoleMenuAccessController extends BaseController
             log_message('debug', 'Role Menu Access Data: ' . print_r($roleMenuAccess, true));
 
             // Kirim data ke view
-            return view('role_menu_access/index', [
+            return view('role-menu-access/index', [
                 'menus' => $menus,
                 'roles' => $this->roleModel->findAll(),
                 'roleMenuAccess' => $roleMenuAccess,
@@ -70,7 +70,7 @@ class RoleMenuAccessController extends BaseController
             'icon' => 'eye'
         ];
 
-        return view('role_menu_access/view', $data);
+        return view('role-menu-access/view', $data);
     }
 
     public function create()
@@ -80,7 +80,7 @@ class RoleMenuAccessController extends BaseController
         // Get pre-selected menu from URL if any
         $selectedMenuId = $this->request->getGet('menu');
         
-        return view('role_menu_access/create', [
+        return view('role-menu-access/create', [
             'title' => 'Create Role Menu Access',
             'roles' => $this->roleModel->findAll(),
             'menus' => $this->menuModel->findAll(),
@@ -95,7 +95,6 @@ class RoleMenuAccessController extends BaseController
     public function store()
     {
         $session = session();
-        
         $intRoleID = $this->request->getPost('intRoleID');
         $intMenuID = $this->request->getPost('intMenuID');
 
@@ -114,7 +113,10 @@ class RoleMenuAccessController extends BaseController
         $data = [
             'intRoleID' => $intRoleID,
             'intMenuID' => $intMenuID,
-            'bitActive' => $this->request->getPost('bitActive') ? 1 : 0
+            'bitActive' => $this->request->getPost('bitActive') ? 1 : 0,
+            'txtCreatedBy' => session()->get('userName') ?? 'system',
+            'dtmCreatedDate' => date('Y-m-d H:i:s'),
+            'txtGUID' => uniqid()
         ];
 
         if ($this->roleMenuAccessModel->save($data)) {
@@ -136,25 +138,22 @@ class RoleMenuAccessController extends BaseController
             'icon' => 'edit'
         ];
 
-        return view('role_menu_access/edit', $data);
+        return view('role-menu-access/edit', $data);
     }
 
     public function update($id)
     {
         $data = $this->request->getPost();
 
-        // Set default values for unchecked checkboxes
-        $data['bitCanView'] = isset($data['bitCanView']) ? 1 : 0;
-        $data['bitCanAdd'] = isset($data['bitCanAdd']) ? 1 : 0;
-        $data['bitCanEdit'] = isset($data['bitCanEdit']) ? 1 : 0;
-        $data['bitCanDelete'] = isset($data['bitCanDelete']) ? 1 : 0;
+        // Set default value for unchecked checkbox
+        $data['bitActive'] = isset($data['bitActive']) ? 1 : 0;
 
         // Add metadata
         $data['txtUpdatedBy'] = session()->get('userName') ?? 'system';
         $data['dtmUpdatedDate'] = date('Y-m-d H:i:s');
 
         if ($this->roleMenuAccessModel->update($id, $data)) {
-            return redirect()->to('/role_menu_access')->with('success', 'Role menu access updated successfully');
+            return redirect()->to('/role-menu-access')->with('success', 'Role menu access updated successfully');
         } else {
             return redirect()->back()->with('error', 'Failed to update role menu access');
         }
@@ -162,9 +161,9 @@ class RoleMenuAccessController extends BaseController
     public function delete($id)
     {
         if ($this->roleMenuAccessModel->delete($id)) {
-            return redirect()->to('/role_menu_access')->with('success', 'Role menu access deleted successfully');
+            return redirect()->to('/role-menu-access')->with('success', 'Role menu access deleted successfully');
         }
         
-        return redirect()->to('/role_menu_access')->with('error', 'Failed to delete role menu access');
+        return redirect()->to('/role-menu-access')->with('error', 'Failed to delete role menu access');
     }
 }
