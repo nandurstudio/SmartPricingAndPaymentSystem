@@ -6,8 +6,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>Register Your Account - Smart Pricing System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons - Load first to avoid overrides -->
+    <link rel="stylesheet" href="<?= base_url('assets/css/bootstrap/bootstrap-icons/font/bootstrap-icons.css') ?>" />
+    
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="<?= base_url('assets/css/bootstrap/bootstrap.min.css') ?>" />
+    
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="<?= base_url('assets/css/themes/default.css') ?>" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="<?= base_url('assets/css/styles.css') ?>" />
+    
     <?= $this->renderSection('styles') ?>
     <style>
         .password-toggle {
@@ -78,41 +89,41 @@
                             <?= csrf_field() ?>
                             <div class="form-floating mb-3">
                                 <input class="form-control" id="fullName" name="txtFullName" type="text" placeholder="Full Name" required />
-                                <label for="fullName"><i class="fa fa-user me-2"></i>Full Name</label>
+                                <label for="fullName"><i class="bi bi-person me-2"></i>Full Name</label>
                             </div>
                             <div class="form-floating mb-3">
                                 <input class="form-control" id="userName" name="txtUserName" type="text" placeholder="Username" required />
-                                <label for="userName"><i class="fa fa-user-tag me-2"></i>Username</label>
+                                <label for="userName"><i class="bi bi-person-badge me-2"></i>Username</label>
                             </div>
                             <div class="form-floating mb-3">
                                 <input class="form-control" id="email" name="txtEmail" type="email" placeholder="name@example.com" required />
-                                <label for="email"><i class="fa fa-envelope me-2"></i>Email address</label>
+                                <label for="email"><i class="bi bi-envelope me-2"></i>Email address</label>
                             </div>
                             <div class="form-floating mb-3 position-relative">
                                 <input class="form-control" id="password" name="txtPassword" type="password" placeholder="Password" required />
-                                <label for="password"><i class="fa fa-lock me-2"></i>Password</label>
-                                <span class="password-toggle fa fa-eye" data-target="password" style="top: 50%; right: 15px; position: absolute;"></span>
+                                <label for="password"><i class="bi bi-lock me-2"></i>Password</label>
+                                <span class="password-toggle bi bi-eye" data-target="password" style="top: 50%; right: 15px; position: absolute;"></span>
                                 <div id="passwordStrength" class="password-strength"></div>
                             </div>
                             <div class="form-floating mb-3 position-relative">
                                 <input class="form-control" id="passwordConfirm" name="password_confirm" type="password" placeholder="Confirm Password" required />
-                                <label for="passwordConfirm"><i class="fa fa-lock me-2"></i>Confirm Password</label>
-                                <span class="password-toggle fa fa-eye" data-target="passwordConfirm" style="top: 50%; right: 15px; position: absolute;"></span>
+                                <label for="passwordConfirm"><i class="bi bi-lock me-2"></i>Confirm Password</label>
+                                <span class="password-toggle bi bi-eye" data-target="passwordConfirm" style="top: 50%; right: 15px; position: absolute;"></span>
                                 <div id="passwordMatch" class="match-indicator"></div>
                             </div>
                             <div class="form-check mb-3">
                                 <input class="form-check-input" id="terms" name="terms_agreement" type="checkbox" value="1" required />
                                 <label class="form-check-label" for="terms">
-                                    I agree to the <a href="#" target="_blank">Terms of Service</a> and <a href="#" target="_blank">Privacy Policy</a>
+                                    I agree to the <a href="<?= base_url('terms') ?>">Terms of Service</a> and <a href="<?= base_url('privacy-policy') ?>">Privacy Policy</a>
                                 </label>
                             </div>
                             <button type="submit" class="btn btn-primary w-100" id="submitBtn">
-                                <span id="btnText"><i class="fa fa-user-plus me-2"></i>Create Account</span>
+                                <span id="btnText"><i class="bi bi-person-plus me-2"></i>Create Account</span>
                                 <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
                             </button>
                         </form>
                         <div class="text-center mt-3">
-                            <a href="<?= base_url('login') ?>" class="small text-decoration-none"><i class="fa fa-arrow-left me-1"></i>Already have an account? Login</a>
+                            <a href="<?= base_url('login') ?>" class="small text-decoration-none"><i class="bi bi-arrow-left me-1"></i>Already have an account? Login</a>
                         </div>
                     </div>
                 </div>
@@ -122,7 +133,15 @@
     <!-- Footer -->
     <footer class="text-center mt-5 pb-4">
         <p class="text-muted">&copy; 2025 Smart Pricing System - Kelompok 5</p>
-    </footer> <!-- JavaScript -->
+    </footer>
+    
+    <!-- Scripts -->
+    <!-- jQuery First -->
+    <script src="<?= base_url('assets/js/jquery/jquery.min.js'); ?>"></script>
+    
+    <!-- Bootstrap Bundle -->
+    <script src="<?= base_url('assets/js/bootstrap/bootstrap.bundle.min.js'); ?>"></script>
+
     <?= $this->renderSection('scripts') ?>
     <script>
         // Password visibility toggle
@@ -150,7 +169,7 @@
                     const strength = getPasswordStrength(password);
                     passwordStrength.innerHTML = `
                         <div class="strength-${strength.class}">
-                            <i class="fas fa-shield-alt me-1"></i>
+                            <i class="bi bi-shield-lock me-1"></i>
                             Password strength: ${strength.text}
                         </div>
                     `;
@@ -177,14 +196,14 @@
                 if (password === confirmPassword) {
                     passwordMatch.innerHTML = `
                         <div class="text-success">
-                            <i class="fas fa-check-circle me-1"></i>
+                            <i class="bi bi-check-circle me-1"></i>
                             Passwords match
                         </div>
                     `;
                 } else {
                     passwordMatch.innerHTML = `
                         <div class="text-danger">
-                            <i class="fas fa-times-circle me-1"></i>
+                            <i class="bi bi-x-circle me-1"></i>
                             Passwords do not match
                         </div>
                     `;
@@ -235,7 +254,7 @@
                     }
                     // Show loading state
                     submitBtn.disabled = true;
-                    btnText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating Account...';
+                    btnText.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i>Creating Account...';
                     // Don't use separate spinner since we already have one in the text
                     // Submit form via AJAX
                     const formData = new FormData(form);
@@ -253,7 +272,7 @@
                                 const alertDiv = document.createElement('div');
                                 alertDiv.className = 'alert alert-success alert-dismissible fade show';
                                 alertDiv.innerHTML = `
-                                <i class="fas fa-check-circle me-2"></i>
+                                <i class="bi bi-check-circle me-2"></i>
                                 ${data.message}
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             `;
@@ -284,7 +303,7 @@
                                     const alertDiv = document.createElement('div');
                                     alertDiv.className = 'alert alert-danger alert-dismissible fade show';
                                     alertDiv.innerHTML = `
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <i class="bi bi-exclamation-triangle me-2"></i>
                                     ${data.message || 'Registration failed. Please try again.'}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                 `;
@@ -292,7 +311,7 @@
                                 }
                                 // Reset button state
                                 submitBtn.disabled = false;
-                                btnText.innerHTML = '<i class="fas fa-user-plus me-2"></i>Create Account';
+                                btnText.innerHTML = '<i class="bi bi-person-plus me-2"></i>Create Account';
                             }
                         })
                         .catch(error => {
@@ -301,14 +320,14 @@
                             const alertDiv = document.createElement('div');
                             alertDiv.className = 'alert alert-danger alert-dismissible fade show';
                             alertDiv.innerHTML = `
-                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <i class="bi bi-exclamation-triangle me-2"></i>
                             An error occurred. Please try again.
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         `;
                             form.parentNode.insertBefore(alertDiv, form);
                             // Reset button state
                             submitBtn.disabled = false;
-                            btnText.innerHTML = '<i class="fas fa-user-plus me-2"></i>Create Account';
+                            btnText.innerHTML = '<i class="bi bi-person-plus me-2"></i>Create Account';
                         });
                 });
             }

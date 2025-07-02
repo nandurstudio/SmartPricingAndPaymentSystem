@@ -12,7 +12,7 @@
 
     <div class="card mb-4">
         <div class="card-header">
-            <i class="fas fa-edit me-1"></i>
+            <i class="bi bi-pencil-square me-1"></i>
             Edit Role Menu Access
         </div>
         <div class="card-body">
@@ -23,7 +23,7 @@
                 </div>
             <?php endif ?>
 
-            <form action="<?= base_url("role_menu_access/update/{$roleMenuAccess['intRoleMenuAccessID']}") ?>" method="post">
+            <form action="<?= base_url("role_menu_access/update/{$roleMenuAccess['intRoleMenuID']}") ?>" method="post">
                 <?= csrf_field() ?>
 
                 <div class="mb-3">
@@ -84,10 +84,10 @@
 
                 <div class="mt-4">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save me-1"></i> Update Access
+                        <i class="bi bi-check-lg me-1"></i> Update Access
                     </button>
                     <a href="<?= base_url('role_menu_access') ?>" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-1"></i> Cancel
+                        <i class="bi bi-arrow-left me-1"></i> Cancel
                     </a>
                 </div>
             </form>

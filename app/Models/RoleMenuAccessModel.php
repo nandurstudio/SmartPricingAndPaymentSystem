@@ -7,42 +7,73 @@ use CodeIgniter\Model;
 class RoleMenuAccessModel extends Model
 {
     protected $table = 'm_role_menu';
-    protected $primaryKey = 'intRoleMenuAccessID';    protected $allowedFields = [
+    protected $primaryKey = 'intRoleMenuID';    // Sesuaikan dengan nama field di database
+    protected $allowedFields = [
         'intRoleID',
         'intMenuID',
-        'bitActive'
-    ];    protected $returnType = 'array';
+        'bitActive',
+        'bitCanView',
+        'bitCanAdd', 
+        'bitCanEdit',
+        'bitCanDelete',
+        'txtInsertedBy',
+        'dtmInsertedDate',
+        'txtUpdatedBy',
+        'dtmUpdatedDate'
+    ];
+    protected $returnType = 'array';
     protected $useTimestamps = false;
+
+    public function getAllRoleMenuAccess()
+    {
+        $builder = $this->db->table($this->table);
+        $builder->select($this->table.'.*, m_role.txtRoleName, m_menu.txtMenuName');
+        $builder->join('m_role', 'm_role.intRoleID = '.$this->table.'.intRoleID', 'left');
+        $builder->join('m_menu', 'm_menu.intMenuID = '.$this->table.'.intMenuID', 'left');
+        $builder->orderBy('m_role.txtRoleName', 'ASC');
+        $builder->orderBy('m_menu.txtMenuName', 'ASC');
+        
+        $result = $builder->get()->getResultArray();
+        
+        // Debug log
+        log_message('debug', 'Role Menu Access Query: ' . $this->db->getLastQuery());
+        log_message('debug', 'Role Menu Access Data: ' . print_r($result, true));
+        
+        return $result;
+    }
 
     public function getRoleMenuAccess($id = null)
     {
         if ($id) {
-            return $this->where(['intRoleMenuAccessID' => $id])->first();
+            $result = $this->where($this->primaryKey, $id)->first();
+            log_message('debug', 'Get Single Role Menu Access: ' . print_r($result, true));
+            return $result;
         }
         return $this->findAll();
     }
 
     public function getAccessByRole($roleID)
     {
-        return $this->where('intRoleID', $roleID)->findAll();
+        return $this->where('intRoleID', $roleID)
+                    ->orderBy('intMenuID', 'ASC')
+                    ->findAll();
     }
 
     public function saveAccess(array $data)
     {
-        $data['txtInsertedBy'] = session()->get('username') ?? 'system';
+        $data['txtInsertedBy'] = session()->get('userName') ?? 'system';
+        $data['dtmInsertedDate'] = date('Y-m-d H:i:s');
+        
+        log_message('debug', 'Saving Role Menu Access: ' . print_r($data, true));
         return $this->insert($data);
     }
 
     public function updateAccess($id, array $data)
     {
-        $data['txtUpdatedBy'] = session()->get('username') ?? 'system';
+        $data['txtUpdatedBy'] = session()->get('userName') ?? 'system';
+        $data['dtmUpdatedDate'] = date('Y-m-d H:i:s');
+        
+        log_message('debug', 'Updating Role Menu Access ID ' . $id . ': ' . print_r($data, true));
         return $this->update($id, $data);
-    }
-
-    public function index()
-    {
-        $data['menus'] = $this->getMenu(); // Mengambil menu dinamis
-        // Data lainnya yang perlu dikirim ke view
-        return view('role_menu_access/index', $data);
     }
 }

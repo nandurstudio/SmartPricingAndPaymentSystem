@@ -48,6 +48,10 @@ $routes->post('login', 'Auth::login');
 $routes->post('auth/login', 'Auth::login');
 $routes->get('logout', 'Auth::logout');
 
+// Public pages
+$routes->get('terms', 'Auth::terms');
+$routes->get('privacy-policy', 'Auth::privacy');
+
 // Registration routes
 $routes->get('/register', 'Register::index');
 $routes->post('/register/createUser', 'Register::createUser');

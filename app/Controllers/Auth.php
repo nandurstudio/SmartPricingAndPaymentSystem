@@ -228,14 +228,13 @@ class Auth extends BaseController
 
                 if ($rememberMe) {
                     log_message('debug', 'Setting remember me cookies...');
-                    
-                    // Cookie settings
+                      // Cookie settings
                     $cookieExpiry = 30 * 86400; // 30 days in seconds
-                    $domain = '.smartpricingandpaymentsystem.localhost.com';
-                    $path = '/';
-                    
-                    // Set email cookie
-                    $result1 = set_cookie('email', $user['txtEmail'], $cookieExpiry);
+                    $domain = getenv('cookie.domain') ?: '.smartpricingandpaymentsystem.localhost.com';
+                    $path = getenv('cookie.path') ?: '/';
+
+                    // Set email cookie with secure settings
+                    $result1 = set_cookie('email', $user['txtEmail'], $cookieExpiry, $domain, $path, true, true);
                     
                     // Set password cookie (consider encrypting for better security)
                     $result2 = set_cookie('password', $password, $cookieExpiry);
@@ -318,11 +317,55 @@ class Auth extends BaseController
 
     public function logout()
     {
-        // Hapus semua session
+        // Get domain settings from .env
+        $domain = getenv('cookie.domain') ?: '.smartpricingandpaymentsystem.localhost.com';
+        $mainDomain = trim($domain, '.'); // Remove leading dot for alternate format
+        $path = getenv('cookie.path') ?: '/';
+        
+        // Common paths to try
+        $paths = ['/', '/login', '/auth', ''];
+        
+        // Delete cookies using multiple approaches for redundancy
+        foreach ($paths as $path) {
+            // Using CI's delete_cookie helper
+            delete_cookie('email', $domain, $path);
+            delete_cookie('password', $domain, $path);
+            delete_cookie('email', $mainDomain, $path);
+            delete_cookie('password', $mainDomain, $path);
+            
+            // Using PHP native setcookie with domain
+            setcookie('email', '', time() - 3600, $path, $domain, true, true);
+            setcookie('password', '', time() - 3600, $path, $domain, true, true);
+            setcookie('email', '', time() - 3600, $path, $mainDomain, true, true);
+            setcookie('password', '', time() - 3600, $path, $mainDomain, true, true);
+            
+            // Also try without domain
+            setcookie('email', '', time() - 3600, $path, '', true, true);
+            setcookie('password', '', time() - 3600, $path, '', true, true);
+        }
+        
+        // Double check: unset cookies from $_COOKIE array
+        if (isset($_COOKIE['email'])) unset($_COOKIE['email']);
+        if (isset($_COOKIE['password'])) unset($_COOKIE['password']);
+        
+        // Set flash message before destroying session
+        session()->setFlashdata('success', 'You have been logged out successfully.');
+        
+        // Destroy all session data
         session()->destroy();
-
-        // Redirect ke halaman login dengan pesan sukses
-        return redirect()->to('/login')->with('success', 'You have been logged out.');
+        
+        // Clear any remaining session cookies
+        $session = session();
+        $session->remove(['isLoggedIn', 'userID', 'roleID', 'userName', 'userFullName', 'userEmail']);
+        
+        // Log for debugging
+        log_message('debug', 'Logout executed - Cookies and session cleared');
+        
+        // Redirect with cache control headers
+        $response = redirect()->to('/login');
+        $response->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+        $response->setHeader('Pragma', 'no-cache');
+        return $response;
     }
 
     public function forgotPassword()
@@ -566,5 +609,25 @@ HTML;
             log_message('error', 'Email not sent: ' . $emailService->printDebugger());
             return false;
         }
+    }
+
+    /**
+     * Display Terms of Service page
+     */
+    public function terms()
+    {
+        return view('terms', [
+            'title' => 'Terms of Service'
+        ]);
+    }
+
+    /**
+     * Display Privacy Policy page
+     */
+    public function privacy()
+    {
+        return view('privacy', [
+            'title' => 'Privacy Policy'
+        ]);
     }
 }

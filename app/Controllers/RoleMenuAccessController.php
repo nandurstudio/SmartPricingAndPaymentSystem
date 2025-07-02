@@ -24,35 +24,38 @@ class RoleMenuAccessController extends BaseController
     {
         // Cek apakah user sudah login
         if (!session()->get('isLoggedIn')) {
-            return redirect()->to('/login')->with('error', 'You must be logged in to access this page.');
+            return redirect()->to('/login')
+                ->with('error', 'You must be logged in to access this page.');
         }
 
-        // Ambil roleID dari session dan menu berdasarkan role
+        // Ambil roleID dari session
         $roleID = session()->get('roleID');
 
-        // Ganti MenuModel menjadi MenusModel
-        $menusModel = new MenuModel();  // Menyesuaikan dengan model baru
-        $menus = $menusModel->getMenusByRole($roleID);  // Memanggil method dari MenusModel
+        try {
+            // Ambil data menu untuk navigasi
+            $menus = $this->menuModel->getMenusByRole($roleID);
+            
+            // Ambil data lengkap role menu access dengan join
+            $roleMenuAccess = $this->roleMenuAccessModel->getAllRoleMenuAccess();
 
-        // Ambil data lines dari model
-        $rolesModel = new MRoleModel();
-        $roles = $rolesModel->findAll();
+            // Debug log
+            log_message('debug', 'Role Menu Access Data: ' . print_r($roleMenuAccess, true));
 
-        // Ambil data lines dari model
-        $roleMenuAccessModel = new RoleMenuAccessModel();
-        $roleMenuAccess = $roleMenuAccessModel->findAll();
-
-        // Kirim data ke view
-        return view('role_menu_access/index', [
-            'menus' => $menus,
-            'roles' => $roles,
-            'roleMenuAccess' => $roleMenuAccess,
-            'title' => 'Role Menu Access',
-            'pageTitle' => 'Role Menu Access',
-            'pageSubTitle' => 'Manage menu access permissions per role',
-            'icon' => 'lock',
-            'cardTitle' => 'Role Menu Access'
-        ]);
+            // Kirim data ke view
+            return view('role_menu_access/index', [
+                'menus' => $menus,
+                'roles' => $this->roleModel->findAll(),
+                'roleMenuAccess' => $roleMenuAccess,
+                'title' => 'Role Menu Access',
+                'pageTitle' => 'Role Menu Access Management',
+                'pageSubTitle' => 'Manage role menu access permissions',
+                'icon' => 'shield-lock'
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error in RoleMenuAccess/index: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Failed to load role menu access data. Please try again.');
+        }
     }
 
     public function view($id)
