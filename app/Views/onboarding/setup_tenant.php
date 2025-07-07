@@ -59,10 +59,11 @@
                                 <div class="form-floating">
                                     <select class="form-select" id="subscription_plan" name="subscription_plan" required>
                                         <option value="" selected disabled>Select Plan</option>
-                                        <option value="free" <?= old('subscription_plan') == 'free' ? 'selected' : '' ?>>Free</option>
-                                        <option value="basic" <?= old('subscription_plan') == 'basic' ? 'selected' : '' ?>>Basic</option>
-                                        <option value="premium" <?= old('subscription_plan') == 'premium' ? 'selected' : '' ?>>Premium</option>
-                                        <option value="enterprise" <?= old('subscription_plan') == 'enterprise' ? 'selected' : '' ?>>Enterprise</option>
+                                        <?php foreach ($plans as $plan): ?>
+                                            <option value="<?= esc($plan['txtCode']) ?>" <?= old('subscription_plan') == $plan['txtCode'] ? 'selected' : '' ?>>
+                                                <?= esc($plan['txtName']) ?> - Rp <?= number_format($plan['decAmount'], 0, ',', '.') ?>
+                                            </option>
+                                        <?php endforeach; ?>
                                     </select>
                                     <label for="subscription_plan">Subscription Plan</label>
                                 </div>

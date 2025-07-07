@@ -7,6 +7,7 @@ use App\Models\MTenantModel;
 use App\Models\ServiceTypeModel;
 use App\Services\MidtransService;
 use App\Entities\MidtransNotification;
+use App\Models\MSubscriptionPlanModel;
 
 class OnboardingController extends BaseController
 {
@@ -17,6 +18,7 @@ class OnboardingController extends BaseController
     protected $menuModel;
     protected $baseDomain;
     protected $midtransService;
+    protected $subscriptionPlanModel;
 
     public function __construct()
     {
@@ -27,6 +29,7 @@ class OnboardingController extends BaseController
         $this->menuModel = new \App\Models\MenuModel();
         $this->baseDomain = env('BASE_DOMAIN', 'smartpricingandpaymentsystem.localhost.com');
         $this->midtransService = new MidtransService();
+        $this->subscriptionPlanModel = new MSubscriptionPlanModel();
     }
 
     /**
@@ -46,11 +49,13 @@ class OnboardingController extends BaseController
         $roleId = session()->get('roleID');
         $menus = $this->menuModel->getMenusByRole($roleId);
         
+        $plans = $this->subscriptionPlanModel->getAllActivePlans();
         $data = [
             'title' => 'Setup Your Business',
             'serviceTypes' => $this->serviceTypeModel->where('bitActive', 1)->findAll(),
             'validation' => \Config\Services::validation(),
-            'menus' => $menus
+            'menus' => $menus,
+            'plans' => $plans
         ];
 
         return view('onboarding/setup_tenant', $data);
@@ -80,6 +85,10 @@ class OnboardingController extends BaseController
 
         $userId = session()->get('userID');
         $subscriptionPlan = $this->request->getPost('subscription_plan');
+        $planData = $this->subscriptionPlanModel->getPlanByCode($subscriptionPlan);
+        if (!$planData) {
+            return redirect()->back()->withInput()->with('error', 'Invalid subscription plan selected.');
+        }
 
         try {
             // Generate normalized subdomain from business name
@@ -139,8 +148,11 @@ class OnboardingController extends BaseController
                 // Redirect to tenant subdomain since free plan is automatically activated
                 return redirect()->to($tenantUrl)->with('success', 'Business tenant created successfully!');
             } else {
-                // Get subscription pricing
-                $pricing = $this->getSubscriptionPricing($subscriptionPlan);
+                // Get subscription pricing from DB
+                $pricing = [
+                    'amount' => $planData['decAmount'],
+                    'name' => $planData['txtName']
+                ];
                   // Setup Midtrans payment
                 try {
                     $orderId = 'TENANT-' . $tenantId . '-' . time();
@@ -159,7 +171,7 @@ class OnboardingController extends BaseController
                                 'id' => 'SUBSCRIPTION-' . strtoupper($subscriptionPlan),
                                 'price' => $pricing['amount'],
                                 'quantity' => 1,
-                                'name' => ucfirst($subscriptionPlan) . ' Plan Subscription'
+                                'name' => $pricing['name'] . ' Subscription'
                             ]
                         ]
                     ];
@@ -169,11 +181,13 @@ class OnboardingController extends BaseController
                         throw new \Exception($result['message']);
                     }
 
-                    return view('onboarding/payment', [                        'title' => 'Complete Subscription Payment',
+                    return view('onboarding/payment', [
+                        'title' => 'Complete Subscription Payment',
                         'tenantId' => $tenantId,
                         'snapToken' => $result['token'],
                         'plan' => $subscriptionPlan,
                         'amount' => $pricing['amount'],
+                        'planName' => $pricing['name'],
                         'tenantUrl' => $tenantUrl // Pass tenant URL to view for post-payment redirection
                     ]);
                 } catch (\Exception $e) {
@@ -190,14 +204,11 @@ class OnboardingController extends BaseController
 
     private function getSubscriptionPricing($plan)
     {
-        $pricing = [
-            'free' => ['amount' => 0],
-            'basic' => ['amount' => 99000],
-            'premium' => ['amount' => 299000],
-            'enterprise' => ['amount' => 999000]
-        ];
-
-        return $pricing[$plan] ?? ['amount' => 0];
+        $planData = $this->subscriptionPlanModel->getPlanByCode($plan);
+        if ($planData) {
+            return ['amount' => $planData['decAmount']];
+        }
+        return ['amount' => 0];
     }
 
     /**

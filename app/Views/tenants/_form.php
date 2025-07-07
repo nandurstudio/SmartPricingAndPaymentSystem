@@ -106,18 +106,12 @@ $baseUrl = 'https://' . trim(service('request')->getServer('HTTP_HOST'), '/');
             <div class="col-md-6">
                 <label for="txtSubscriptionPlan" class="form-label">Subscription Plan</label>
                 <select class="form-select" id="txtSubscriptionPlan" name="txtSubscriptionPlan">
-                    <option value="free" <?= (old('txtSubscriptionPlan') ?? ($isEdit ? $tenant['txtSubscriptionPlan'] : '')) == 'free' ? 'selected' : '' ?>>
-                        <i class="bi bi-star"></i> Free
-                    </option>
-                    <option value="basic" <?= (old('txtSubscriptionPlan') ?? ($isEdit ? $tenant['txtSubscriptionPlan'] : '')) == 'basic' ? 'selected' : '' ?>>
-                        <i class="bi bi-star-half"></i> Basic
-                    </option>
-                    <option value="premium" <?= (old('txtSubscriptionPlan') ?? ($isEdit ? $tenant['txtSubscriptionPlan'] : '')) == 'premium' ? 'selected' : '' ?>>
-                        <i class="bi bi-star-fill"></i> Premium
-                    </option>
-                    <option value="enterprise" <?= (old('txtSubscriptionPlan') ?? ($isEdit ? $tenant['txtSubscriptionPlan'] : '')) == 'enterprise' ? 'selected' : '' ?>>
-                        <i class="bi bi-stars"></i> Enterprise
-                    </option>
+                    <?php foreach (($plans ?? []) as $plan): ?>
+                        <option value="<?= esc($plan['txtCode']) ?>" 
+                            <?= (old('txtSubscriptionPlan') ?? ($isEdit ? $tenant['txtSubscriptionPlan'] : '')) == $plan['txtCode'] ? 'selected' : '' ?>>
+                            <?= esc($plan['txtName']) ?> - Rp <?= number_format($plan['decAmount'], 0, ',', '.') ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
                 <div class="form-text">
                     <i class="bi bi-box me-1"></i> Choose a plan that fits your business needs

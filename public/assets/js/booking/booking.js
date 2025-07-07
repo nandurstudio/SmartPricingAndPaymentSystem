@@ -63,10 +63,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
           timeSlotSelect.innerHTML = '<option value="" selected disabled>Loading time slots...</option>';
         
-        // Construct URL without duplicating path segments
-        const baseUrl = new URL(document.baseURI);
-        const apiPath = `/createapi/slots/available/${serviceId}?date=${date}`;
-        fetch(`${baseUrl.origin}${apiPath}`)
+        // Get base URL from window.location to ensure we have the correct origin
+        const origin = window.location.origin;
+        const apiPath = `/api/slots/available/${serviceId}?date=${date}`;
+        
+        // Log the full URL for debugging
+        console.log('Fetching time slots from:', `${origin}${apiPath}`);
+        
+        fetch(`${origin}${apiPath}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
@@ -74,33 +78,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
+                console.log('API Response:', data); // For debugging
                 timeSlotSelect.innerHTML = '';
                 
-                if (data.error) {
-                    timeSlotSelect.innerHTML = `<option value="" selected disabled>${data.error}</option>`;
+                if (data.status === 'error') {
+                    timeSlotSelect.innerHTML = `<option value="" selected disabled>${data.message}</option>`;
                     return;
                 }
                 
-                if (data.slots && data.slots.length > 0) {
-                    const availableSlots = data.slots.filter(slot => slot.available);
-                    
-                    if (availableSlots.length > 0) {
-                        // Add a default option
-                        timeSlotSelect.innerHTML = '<option value="" selected disabled>Select a time slot</option>';
-                        
-                        availableSlots.forEach(slot => {
-                            const option = document.createElement('option');
-                            option.value = slot.time;
-                            option.textContent = `${slot.time} - ${slot.end_time}`;
-                            option.dataset.endTime = slot.end_time;
-                            timeSlotSelect.appendChild(option);
-                        });
-                    } else {
-                        timeSlotSelect.innerHTML = '<option value="" selected disabled>No available slots for this date</option>';
-                    }
-                } else {
-                    timeSlotSelect.innerHTML = '<option value="" selected disabled>No schedule available for this date</option>';
+                if (!data.data || data.data.length === 0) {
+                    timeSlotSelect.innerHTML = '<option value="" selected disabled>No time slots available</option>';
+                    return;
                 }
+                
+                // Add default option
+                timeSlotSelect.innerHTML = '<option value="" selected disabled>Select a time slot</option>';
+                
+                // Add available time slots
+                data.data.forEach(slot => {
+                    const option = document.createElement('option');
+                    option.value = slot.time;
+                    option.textContent = `${slot.time} - ${slot.end_time}`;
+                    option.dataset.endTime = slot.end_time;
+                    timeSlotSelect.appendChild(option);
+                });
                 
                 updateDateTimeInfo();
             })
@@ -121,7 +122,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     serviceSelect.innerHTML = '<option value="" selected disabled>Select Service</option>';
                     
-                    if (data.services && data.services.length > 0) {                        data.services.forEach(service => {
+                    if (data.services && data.services.length > 0) {
+                        data.services.forEach(service => {
                             const option = document.createElement('option');
                             option.value = service.intServiceID;
                             option.dataset.price = service.decPrice;

@@ -16,7 +16,7 @@ $routes->group('', ['subdomain' => '(:any)'], function($routes) {
     $routes->get('services', 'TenantWebsiteController::services/$1');
     $routes->get('bookings', 'TenantWebsiteController::bookings/$1');
     $routes->get('bookings/create', 'TenantWebsiteController::createBooking/$1');
-    $routes->get('createapi/slots/available/(:num)', 'Api\TimeSlotController::getAvailableSlots/$1');
+    $routes->get('api/slots/available/(:num)', 'Api\TimeSlotController::getAvailableSlots/$1');
     $routes->get('schedules', 'TenantWebsiteController::schedules/$1');
     $routes->get('settings', 'TenantWebsiteController::settings/$1');
     $routes->get('assets/(:any)', 'TenantWebsiteController::assets/$1/$2');
@@ -218,6 +218,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
         $routes->get('receipt/(:num)', 'BookingController::receipt/$1');
         $routes->post('update-status', 'BookingController::updateStatus');
         $routes->match(['get', 'post'], 'refund/(:num)', 'BookingController::refund/$1');
+        $routes->get('tenant/(:num)', 'BookingController::tenant/$1'); // Tambahan route
     });
     
     // Redirect old booking URLs to new ones

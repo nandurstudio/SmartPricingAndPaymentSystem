@@ -1,5 +1,48 @@
 # SmartPricingAndPaymentSystem
 
+**Kriteria Penilaian:**
+
+| No | Kriteria Penilaian                  | Status      |
+|----|-------------------------------------|-------------|
+| 1  | Login with Google                   | ✅ Selesai  |
+| 2  | Tombol aksi di kiri                 | ✅ Selesai  |
+| 3  | Field audit (CreatedBy, etc)        | ✅ Selesai  |
+| 4  | Hosting/deploy domain               | ✅ Aktif    |
+| 5  | Payment Gateway (Midtrans Sandbox)  | ✅ Selesai  |
+| 6  | Reporting                           | ✅ Ditampilkan |
+| 7  | Chart Dashboard                     | ✅ Ditampilkan |
+
+**Team Members:**
+1. 312310233  NANDANG DURYAT (Leader)
+2. 312310555  IRA YUSAN
+3. 312310158  RADHIKA BASSAM
+4. 312310453  BRIAN L JUNIOR
+5. 312310209  MUHAMMAD GHALY BINTANG
+6. 312310385  SYAB AKHMAD ZAKI <sup>🚫 Inactive</sup>
+7. 312310728  RAFIZA ADLIN NABIHA <sup>🚫 Inactive</sup>
+
+**Website:** [https://smartpaymentplus.com](https://smartpaymentplus.com)
+
+**GitHub Repository:** [https://github.com/your-org/SmartPricingAndPaymentSystem](https://github.com/your-org/SmartPricingAndPaymentSystem)
+
+---
+
+🎓 **Academic Identity & Project Context**
+
+Assalamualaikum warahmatullahi wabarakatuh, dan salam sejahtera bagi kita semua.
+
+Sebelum memulai, berikut identitas akademik kami sebagai bentuk pelaporan dan tanggung jawab dalam mengerjakan tugas ini:
+
+- **Mata Kuliah:** Pemrograman Web 2 (Semester 4)
+- **Kelas:** TI.23.B.1
+- **Jurusan:** Teknik Informatika, Universitas Pelita Bangsa
+- **Dosen Pengampu:** Bapak Sanudin, S.Kom., M.Kom.
+- **Tahun Akademik:** 2024/2025
+
+Dokumen ini merupakan naskah presentasi dan dokumentasi pengembangan aplikasi **SmartPricingAndPaymentSystem** sebagai tugas akhir dari mata kuliah Pemrograman Web 2. Aplikasi ini dikembangkan oleh tim mahasiswa TI.23.B.1 sebagai bentuk penerapan praktik pemrograman web lanjutan berbasis framework modern.
+
+---
+
 ![CI4 Version](https://img.shields.io/badge/CodeIgniter-4.4.3-orange.svg)
 ![PHP Version](https://img.shields.io/badge/PHP-%3E=8.1-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
@@ -7,6 +50,22 @@
 > Multi-tenant Booking SaaS Platform built with CodeIgniter 4
 
 [English](#english) | [Bahasa Indonesia](#bahasa-indonesia)
+
+---
+
+## Tambahan Penting (ID)
+
+- **File SQL Lengkap:**
+  Jika ingin setup database secara manual, gunakan file `production/migrations/complete_migration_v2.sql` untuk membuat seluruh struktur dan seed data awal.
+
+- **Folder `production/`:**
+  Berisi konfigurasi, script, dan file pendukung untuk deployment production (termasuk .env, migrasi, dan dokumentasi troubleshooting).
+
+- **Midtrans Payment:**
+  Sudah mendukung mode sandbox & production. Atur kunci MIDTRANS di file `.env` sesuai kebutuhan. Pastikan environment variable sudah benar agar pembayaran berjalan lancar.
+
+- **Keamanan:**
+  Pastikan file `.env` dan file sensitif lain tidak dapat diakses publik (sudah ada proteksi di `.htaccess`).
 
 ---
 
@@ -89,11 +148,15 @@ Required PHP Extensions:
    ```
 
 4. **Initialize Database**
-   ```powershell
-   # Run database migrations and seed initial data
-   php spark migrate
-   php spark db:seed InitialSetupSeeder
-   ```
+   Pilihan:
+   - **Opsi A:**
+     ```powershell
+     # Run database migrations and seed initial data
+     php spark migrate
+     php spark db:seed InitialSetupSeeder
+     ```
+   - **Opsi B (Manual SQL):**
+     Import file `production/migrations/complete_migration_v2.sql` ke database MySQL Anda.
 
 ### Development Workflow
 
@@ -244,11 +307,15 @@ Ekstensi PHP yang diperlukan:
    ```
 
 4. **Inisialisasi Database**
-   ```powershell
-   # Jalankan migrasi database dan seed data awal
-   php spark migrate
-   php spark db:seed InitialSetupSeeder
-   ```
+   Pilihan:
+   - **Opsi A:**
+     ```powershell
+     # Jalankan migrasi database dan seed data awal
+     php spark migrate
+     php spark db:seed InitialSetupSeeder
+     ```
+   - **Opsi B (Manual SQL):**
+     Import file `production/migrations/complete_migration_v2.sql` ke database MySQL Anda.
 
 ### Alur Kerja Pengembangan
 

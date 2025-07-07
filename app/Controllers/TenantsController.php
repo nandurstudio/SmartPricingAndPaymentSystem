@@ -3,12 +3,14 @@
 namespace App\Controllers;
 
 use App\Models\MTenantModel;
+use App\Models\MSubscriptionPlanModel;
 
 class TenantsController extends BaseController
 {
     protected $tenantModel;
     protected $menuModel;
     protected $serviceTypeModel;
+    protected $subscriptionPlanModel;
     protected $baseDomain;
     protected $db;
 
@@ -17,6 +19,7 @@ class TenantsController extends BaseController
         $this->tenantModel = new MTenantModel();
         $this->menuModel = new \App\Models\MenuModel();
         $this->serviceTypeModel = new \App\Models\ServiceTypeModel();
+        $this->subscriptionPlanModel = new MSubscriptionPlanModel();
         $this->baseDomain = env('BASE_DOMAIN', 'smartpricingandpaymentsystem.localhost.com');
         $this->db = \Config\Database::connect();
     }
@@ -62,9 +65,8 @@ class TenantsController extends BaseController
         }
 
         $menus = $this->menuModel->getMenusByRole($roleId);
-
-        // Get all active service types
         $serviceTypes = $this->serviceTypeModel->where('bitActive', 1)->findAll();
+        $plans = $this->subscriptionPlanModel->getAllActivePlans();
         return view('tenants/create', [
             'title' => 'Create Tenant',
             'pageTitle' => 'Create New Tenant',
@@ -72,6 +74,7 @@ class TenantsController extends BaseController
             'icon' => 'plus-circle',
             'menus' => $menus,
             'serviceTypes' => $serviceTypes,
+            'plans' => $plans,
             'validation' => \Config\Services::validation()
         ]);
     }
@@ -224,10 +227,8 @@ class TenantsController extends BaseController
             return redirect()->to('/tenants')->with('error', 'You do not have permission to edit this tenant.');
         }
         $menus = $this->menuModel->getMenusByRole($roleId);
-
-        // Get all active service types
         $serviceTypes = $this->serviceTypeModel->where('bitActive', 1)->findAll();
-
+        $plans = $this->subscriptionPlanModel->getAllActivePlans();
         return view('tenants/edit', [
             'title' => 'Edit Tenant',
             'pageTitle' => 'Edit Tenant',
@@ -236,6 +237,7 @@ class TenantsController extends BaseController
             'menus' => $menus,
             'tenant' => $tenant,
             'serviceTypes' => $serviceTypes,
+            'plans' => $plans,
             'validation' => \Config\Services::validation()
         ]);
     }

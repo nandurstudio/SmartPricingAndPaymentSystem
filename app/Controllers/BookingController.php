@@ -36,7 +36,8 @@ class BookingController extends BaseController
         ];
 
         // Get tenant ID - in a multi-tenant app, we need to filter by tenant
-        $tenantId = $this->getTenantId();        $userId = session()->get('userID');
+        $tenantId = $this->getTenantId();
+        $userId = session()->get('userID');
         $roleId = session()->get('roleID');
 
         if (!$tenantId && $roleId != 1) {
@@ -85,7 +86,7 @@ class BookingController extends BaseController
             ->findAll();
 
         // Map DB fields to view keys for consistency
-        $data['bookings'] = array_map(function($b) {
+        $data['bookings'] = array_map(function ($b) {
             return [
                 'id' => $b['intBookingID'],
                 'booking_code' => $b['txtBookingCode'],
@@ -128,27 +129,28 @@ class BookingController extends BaseController
         $isOnTenantSubdomain = strpos($host, '.') !== false;
         $data['isOnTenantSubdomain'] = $isOnTenantSubdomain;
 
-        // For tenant subdomains or tenant owners, only show services from that tenant
+        // For tenant subdomains or tenant owners, show services from that tenant
         if ($isOnTenantSubdomain || $roleId == 2) {
-            if (!$tenantId) {
-                return redirect()->to('/tenants/create')->with('info', 'Please create a tenant first to manage bookings.');
-            }
+            // If on subdomain or tenant owner with tenantId, filter services
+            if ($tenantId) {
+                $data['services'] = $this->serviceModel
+                    ->where('intTenantID', $tenantId)
+                    ->where('bitActive', 1)
+                    ->findAll();
 
-            // Get tenant's active services
-            $data['services'] = $this->serviceModel
-                ->where('intTenantID', $tenantId)
-                ->where('bitActive', 1)
-                ->findAll();
-
-            // Get current tenant info
-            if (!isset($this->tenantModel)) {
-                $this->tenantModel = new \App\Models\MTenantModel();
+                // Get current tenant info
+                if (!isset($this->tenantModel)) {
+                    $this->tenantModel = new \App\Models\MTenantModel();
+                }
+                $currentTenant = $this->tenantModel->find($tenantId);
+                if ($currentTenant) {
+                    $data['tenants'] = [$currentTenant];
+                }
+            } else {
+                // If no tenant ID, show all active services
+                $data['services'] = $this->serviceModel->where('bitActive', 1)->findAll();
             }
-            $currentTenant = $this->tenantModel->find($tenantId);
-            if ($currentTenant) {
-                $data['tenants'] = [$currentTenant];
-            }
-        } 
+        }
         // For admin, show all services or filter by tenant
         else if ($roleId == 1) {
             $selectedTenantId = $this->request->getGet('tenant_id');
@@ -213,7 +215,7 @@ class BookingController extends BaseController
 
         // Determine the customer ID
         $customerId = $userId; // Default to current user
-        
+
         // If admin or tenant owner, they can book on behalf of a customer
         if (($roleId == 1 || $roleId == 2) && $this->request->getPost('customer_id')) {
             $customerId = $this->request->getPost('customer_id');
@@ -222,7 +224,7 @@ class BookingController extends BaseController
         $serviceId = $this->request->getPost('service_id');
         $bookingDate = $this->request->getPost('booking_date');
         $startTime = $this->request->getPost('start_time');
-        
+
         // Get the service details
         $service = $this->serviceModel->find($serviceId);
         if (!$service) {
@@ -242,7 +244,7 @@ class BookingController extends BaseController
 
         // Generate a unique booking code
         $bookingCode = $this->generateBookingCode();
-        
+
         // Prepare data for insert
         $data = [
             'txtBookingCode' => $bookingCode,
@@ -265,7 +267,7 @@ class BookingController extends BaseController
         ];        // Insert the booking
         try {
             $bookingId = $this->bookingModel->insert($data);
-            
+
             if (!$bookingId) {
                 return redirect()->back()->withInput()->with('error', 'Failed to create booking. Please try again.');
             }
@@ -277,7 +279,6 @@ class BookingController extends BaseController
 
             // Otherwise redirect to bookings list
             return redirect()->to('/bookings')->with('success', 'Booking created successfully.');
-            
         } catch (\Exception $e) {
             log_message('error', 'Booking creation failed: ' . $e->getMessage());
             return redirect()->back()->withInput()->with('error', 'An error occurred while creating the booking.');
@@ -329,7 +330,7 @@ class BookingController extends BaseController
         ];
 
         // Add status class based on booking status
-        $data['statusClass'] = match($mapped['status']) {
+        $data['statusClass'] = match ($mapped['status']) {
             'confirmed' => 'success',
             'pending' => 'warning',
             'cancelled' => 'danger',
@@ -338,7 +339,7 @@ class BookingController extends BaseController
         };
 
         // Add payment status class
-        $data['paymentStatusClass'] = match($mapped['payment_status']) {
+        $data['paymentStatusClass'] = match ($mapped['payment_status']) {
             'paid' => 'success',
             'pending' => 'warning',
             'refunded' => 'info',
@@ -357,11 +358,11 @@ class BookingController extends BaseController
 
         // Get the booking
         // $booking = $this->bookingModel->find($id);
-        
+
         // Check permissions - only admin, tenant owner of this service, or the booking owner can cancel
         $userId = session()->get('userID');
         $roleId = session()->get('roleID');
-        
+
         // if (!$booking || 
         //     ($roleId != 1 && 
         //     !$this->isOwnerOfTenant($booking['service_id']) && 
@@ -371,7 +372,7 @@ class BookingController extends BaseController
 
         // Check if booking can be cancelled (e.g., not too close to booking time)
         // $canCancel = $this->bookingModel->canCancel($id);
-        
+
         // if (!$canCancel) {
         //     return redirect()->to('/booking')->with('error', 'This booking cannot be cancelled at this time.');
         // }
@@ -464,8 +465,8 @@ class BookingController extends BaseController
                 $bookings = $this->bookingModel->getTenantBookings($filterTenantId);
             } else {
                 $bookings = $this->bookingModel->where('dtmBookingDate >=', $startDate)
-                                             ->where('dtmBookingDate <=', $endDate)
-                                             ->findAll();
+                    ->where('dtmBookingDate <=', $endDate)
+                    ->findAll();
             }
         } elseif ($roleId == 2) { // Tenant owner - their tenant's bookings
             $bookings = $this->bookingModel->getTenantBookings($tenantId);
@@ -508,7 +509,7 @@ class BookingController extends BaseController
         // Get services for filter dropdown
         if ($roleId == 1) {
             // Admin can see all services
-            $data['services'] = array_map(function($service) {
+            $data['services'] = array_map(function ($service) {
                 return [
                     'id' => $service['intServiceID'],
                     'name' => $service['txtName']
@@ -516,7 +517,7 @@ class BookingController extends BaseController
             }, $this->serviceModel->findAll());
         } elseif ($roleId == 2 && $tenantId) {
             // Tenant owner sees their services
-            $data['services'] = array_map(function($service) {
+            $data['services'] = array_map(function ($service) {
                 return [
                     'id' => $service['intServiceID'],
                     'name' => $service['txtName']
@@ -527,7 +528,7 @@ class BookingController extends BaseController
 
         // Also handle tenants array format if it exists
         if (isset($data['tenants'])) {
-            $data['tenants'] = array_map(function($tenant) {
+            $data['tenants'] = array_map(function ($tenant) {
                 return [
                     'id' => $tenant['intTenantID'],
                     'name' => $tenant['txtTenantName']
@@ -545,22 +546,23 @@ class BookingController extends BaseController
     {
         // 1. First check if we're on a tenant subdomain
         $host = $_SERVER['HTTP_HOST'] ?? '';
-        if (strpos($host, '.') !== false) {
-            // Extract subdomain from host
-            $baseDomain = env('app.baseURL') ?: 'smartpricingandpaymentsystem.localhost.com';
+        if (strpos($host, '.') !== false) {            // Extract subdomain from host
+            $baseDomain = env('app.baseURL') ?: 'smartpaymentplus.com';
             $baseDomain = rtrim(preg_replace('#^https?://#', '', $baseDomain), '/');
-            $subdomain = str_replace('.' . $baseDomain, '', $host);
-            
+
+            // Get subdomain part (e.g., futsal-mantap from futsal-mantap.smartpaymentplus.com)
+            $subdomain = substr($host, 0, strpos($host, $baseDomain) - 1);
+
             // Load tenant model if not already initialized
             if (!$this->tenantModel) {
                 $this->tenantModel = new \App\Models\MTenantModel();
             }
-            
-            // Get tenant by subdomain
+
+            // Get tenant by domain (stored in txtDomain)
             $tenant = $this->tenantModel->where('txtDomain', $subdomain)
-                                      ->where('bitActive', 1)
-                                      ->where('txtStatus', 'active')
-                                      ->first();
+                ->where('bitActive', 1)
+                ->where('txtStatus', 'active')
+                ->first();
             if ($tenant) {
                 return $tenant['intTenantID'];
             }
@@ -573,36 +575,36 @@ class BookingController extends BaseController
                 return $tenantId;
             }
         }
-        
+
         // 3. For tenant owners, get their tenant
         $userId = session()->get('userID');
         if (session()->get('roleID') == 2) {
             if (!$this->tenantModel) {
                 $this->tenantModel = new \App\Models\MTenantModel();
             }
-            
+
             $tenant = $this->tenantModel->where('intOwnerID', $userId)
-                                      ->where('bitActive', 1)
-                                      ->where('txtStatus', 'active')
-                                      ->first();
-            
+                ->where('bitActive', 1)
+                ->where('txtStatus', 'active')
+                ->first();
+
             if ($tenant) {
                 return $tenant['intTenantID'];
             }
         }
-        
+
         // 4. For customers or other users, get their default tenant
         if ($userId) {
             if (!$this->userModel) {
                 $this->userModel = new \App\Models\MUserModel();
             }
-            
+
             $user = $this->userModel->find($userId);
             if ($user && !empty($user['intDefaultTenantID'])) {
                 return $user['intDefaultTenantID'];
             }
         }
-        
+
         return null;
     }
 
@@ -612,15 +614,15 @@ class BookingController extends BaseController
     private function isOwnerOfTenant($serviceId)
     {
         $userId = session()->get('userID');
-        
+
         // $service = $this->serviceModel->find($serviceId);
         // if (!$service) {
         //     return false;
         // }
-        
+
         // $tenant = $this->tenantModel->find($service['tenant_id']);
         // return $tenant && $tenant['owner_id'] == $userId;
-        
+
         // For now, return true for demo
         return true;
     }
@@ -632,7 +634,7 @@ class BookingController extends BaseController
     {
         // $service = $this->serviceModel->find($serviceId);
         // return $service ? $service['tenant_id'] : null;
-        
+
         // For now, return dummy ID
         return 1;
     }
@@ -646,10 +648,10 @@ class BookingController extends BaseController
         $prefix = 'BK' . date('y');
         $random = str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
         $code = $prefix . $random;
-        
+
         // Check if the code exists
         // $existing = $this->bookingModel->where('booking_code', $code)->first();
-        
+
         // // If exists, regenerate until we get a unique one
         // while ($existing) {
         //     $random = str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
@@ -829,5 +831,17 @@ class BookingController extends BaseController
             $booking['booking_code'] = $booking['txtBookingCode'];
             return view('booking/refund', ['booking' => $booking]);
         }
+    }
+
+    public function tenant($id)
+    {
+        // Ambil data booking lengkap (join customer & service)
+        $bookings = $this->bookingModel->getTenantBookings($id);
+
+        return view('bookings/tenant', [
+            'bookings' => $bookings,
+            'tenantID' => $id,
+            'title' => 'Bookings for Tenant'
+        ]);
     }
 }

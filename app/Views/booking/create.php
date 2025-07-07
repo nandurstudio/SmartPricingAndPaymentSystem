@@ -80,23 +80,16 @@
                         <div class="mb-3">
                             <label for="service_id" class="form-label">Service <span class="text-danger">*</span></label>
                             <select class="form-select" id="service_id" name="service_id" required>
-                                <?php 
-                                if ((isset($tenants) && count($tenants) > 1 && !$isOnTenantSubdomain && $roleId == 1) && 
-                                    (!isset($_GET['tenant_id']) || empty($_GET['tenant_id']))) : 
-                                ?>
-                                    <option value="" selected disabled>Please select a tenant first</option>
-                                <?php elseif (empty($services)) : ?>
-                                    <option value="" selected disabled>No services available for this tenant</option>
-                                <?php else : ?>
-                                    <option value="" selected disabled>Select Service</option>
+                                <option value="" selected disabled>Select a service</option>
+                                <?php if (isset($services) && is_array($services)) : ?>
                                     <?php foreach ($services as $service) : ?>
-                                        <option value="<?= $service['intServiceID'] ?>" 
-                                                data-price="<?= $service['decPrice'] ?>" 
-                                                data-duration="<?= $service['intDuration'] ?>"
-                                                <?= (old('service_id') == $service['intServiceID'] || 
-                                                    (isset($_GET['service_id']) && $_GET['service_id'] == $service['intServiceID'])) ? 'selected' : '' ?>>
+                                        <option 
+                                            value="<?= $service['intServiceID'] ?>"
+                                            data-price="<?= $service['decPrice'] ?>"
+                                            data-duration="<?= $service['intDuration'] ?>"
+                                            <?= (old('service_id') == $service['intServiceID'] || 
+                                                (isset($_GET['service_id']) && $_GET['service_id'] == $service['intServiceID'])) ? 'selected' : '' ?>>
                                             <?= esc($service['txtName']) ?>
-                                            (<?= number_format($service['decPrice'], 2) ?> - <?= $service['intDuration'] ?> minutes)
                                         </option>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -250,4 +243,113 @@
 
 <!-- Add script tag at the bottom -->
 <script src="<?= base_url('assets/js/booking/booking.js') ?>"></script>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+$(document).ready(function() {
+    let serviceData = {};
+
+    // Function to load time slots
+    function loadTimeSlots() {
+        const serviceId = $('#service_id').val();
+        const date = $('#booking_date').val();
+        const timeSlotSelect = $('#time_slot');
+        
+        if (!serviceId || !date) {
+            timeSlotSelect.html('<option value="" selected disabled>Select date and service first</option>');
+            return;
+        }
+
+        // Show loading
+        timeSlotSelect.html('<option value="" selected disabled>Loading time slots...</option>');
+        
+        // Make API call to get available slots
+        $.get(`${baseUrl}/api/slots/available/${serviceId}`, { date: date })
+            .done(function(response) {
+                if (response.status === 'success' && response.data) {
+                    let slots = response.data;
+                    if (slots.length > 0) {
+                        timeSlotSelect.html('<option value="" selected disabled>Select a time slot</option>');
+                        slots.forEach(slot => {
+                            timeSlotSelect.append(`<option value="${slot.time}">${slot.formatted_time}</option>`);
+                        });
+                    } else {
+                        timeSlotSelect.html('<option value="" selected disabled>No slots available</option>');
+                    }
+                }
+            })
+            .fail(function(xhr) {
+                console.error('Error loading time slots:', xhr);
+                timeSlotSelect.html('<option value="" selected disabled>Error loading time slots</option>');
+            });
+    }
+
+    // Load service details when service is selected
+    $('#service_id').change(function() {
+        const serviceId = $(this).val();
+        if (serviceId) {
+            // Get service details from the selected option's data attributes
+            const selectedOption = $(this).find(':selected');
+            serviceData = {
+                price: selectedOption.data('price'),
+                duration: selectedOption.data('duration'),
+                name: selectedOption.text()
+            };
+            
+            // Update display
+            $('#service-price').text(formatPrice(serviceData.price));
+            $('#service-duration').text(formatDuration(serviceData.duration));
+            
+            // Load time slots
+            loadTimeSlots();
+        }
+    });
+
+    // Reload time slots when date changes
+    $('#booking_date').change(loadTimeSlots);
+
+    // Update selected time display when time slot changes
+    $('#time_slot').change(function() {
+        const selectedTime = $(this).find(':selected').text();
+        $('#selected-time').text(selectedTime !== 'Select a time slot' ? selectedTime : '-');
+    });
+
+    // Update selected date display when date changes
+    $('#booking_date').change(function() {
+        const selectedDate = $(this).val();
+        $('#selected-date').text(selectedDate ? formatDate(selectedDate) : '-');
+    });
+
+    // Helper function to format price
+    function formatPrice(price) {
+        return new Intl.NumberFormat('id-ID', { 
+            style: 'currency', 
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(price);
+    }
+
+    // Helper function to format duration
+    function formatDuration(minutes) {
+        if (minutes >= 60) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours} hour${hours > 1 ? 's' : ''} ${mins > 0 ? `${mins} min${mins > 1 ? 's' : ''}` : ''}`;
+        }
+        return `${minutes} min${minutes > 1 ? 's' : ''}`;
+    }
+
+    // Helper function to format date
+    function formatDate(dateStr) {
+        return new Date(dateStr).toLocaleDateString('id-ID', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    }
+});
+</script>
 <?= $this->endSection() ?>

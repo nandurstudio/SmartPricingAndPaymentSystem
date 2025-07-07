@@ -42,32 +42,75 @@ class TimeSlotController extends ResourceController
     public function getAvailableSlots($serviceId)
     {
         try {
+            // Enable error reporting for debugging
+            error_reporting(E_ALL);
+            ini_set('display_errors', 1);
+            
+            // Log input parameters
+            log_message('debug', 'getAvailableSlots called with serviceId: ' . $serviceId);
+            log_message('debug', 'Date parameter: ' . $this->request->getGet('date'));
+            
             // Validate service ID and date
             $date = $this->request->getGet('date');
             
             if (!$serviceId || !$date) {
-                return $this->failValidationErrors('Service ID and date are required');
+                return $this->respond([
+                    'status' => 'error',
+                    'message' => 'Service ID and date are required'
+                ]);
             }
 
-            // Get tenant from subdomain
-            $host = $_SERVER['HTTP_HOST'] ?? '';
-            $subdomain = explode('.', $host)[0];
+            // Get tenant from subdomain or parameter
+            $tenantId = null;
             
-            // Get tenant ID from subdomain
-            $tenant = $this->tenantModel->where('txtSubdomain', $subdomain)->first();
-            if (!$tenant) {
-                return $this->failNotFound('Invalid tenant domain');
+            // Check if we're on a tenant subdomain
+            $host = $_SERVER['HTTP_HOST'] ?? '';
+            $baseDomain = env('BASE_DOMAIN', 'smartpricingandpaymentsystem.localhost.com');
+            
+            if ($host && strpos($host, $baseDomain)) {
+                $subdomain = str_replace('.' . $baseDomain, '', $host);
+                $tenant = $this->tenantModel
+                    ->where('txtDomain', $subdomain)
+                    ->where('bitActive', 1)
+                    ->where('txtStatus', 'active')
+                    ->first();
+                    
+                if ($tenant) {
+                    $tenantId = $tenant['intTenantID'];
+                }
             }
+            
+            // If not on tenant domain or tenant not found, try to get service directly
+            try {
+                $serviceQuery = $this->serviceModel
+                    ->where('intServiceID', $serviceId)
+                    ->where('bitActive', 1);
+                    
+                // If we have a tenant ID, filter by it
+                if ($tenantId) {
+                    $serviceQuery = $serviceQuery->where('intTenantID', $tenantId);
+                }
+                
+                // Log the query for debugging
+                log_message('debug', 'Service query: ' . $serviceQuery->getCompiledSelect(false));
+                
+                $service = $serviceQuery->first();
+                
+                // Log service data
+                log_message('debug', 'Service found: ' . json_encode($service));
 
-            // Verify the service belongs to this tenant
-            $service = $this->serviceModel
-                ->where('intServiceID', $serviceId)
-                ->where('intTenantID', $tenant['intTenantID'])
-                ->where('bitActive', 1)
-                ->first();
-
-            if (!$service) {
-                return $this->failNotFound('Service not found');
+                if (!$service) {
+                    return $this->respond([
+                        'status' => 'error',
+                        'message' => 'Service not found'
+                    ]);
+                }
+            } catch (\Exception $e) {
+                log_message('error', 'Error querying service: ' . $e->getMessage());
+                return $this->respond([
+                    'status' => 'error',
+                    'message' => 'Error finding service: ' . $e->getMessage()
+                ]);
             }
 
             // Get day of week
@@ -83,7 +126,8 @@ class TimeSlotController extends ResourceController
             // If no schedule found for this day
             if (!$schedule) {
                 return $this->respond([
-                    'slots' => [],
+                    'status' => 'success',
+                    'data' => [],
                     'message' => 'No schedule available for this day'
                 ]);
             }
@@ -93,7 +137,8 @@ class TimeSlotController extends ResourceController
             if ($specialSchedule) {
                 if ($specialSchedule['bitIsClosed']) {
                     return $this->respond([
-                        'slots' => [],
+                        'status' => 'success',
+                        'data' => [],
                         'message' => 'Service is closed on this date'
                     ]);
                 }
@@ -144,7 +189,8 @@ class TimeSlotController extends ResourceController
             }
 
             return $this->respond([
-                'slots' => $slots,
+                'status' => 'success',
+                'data' => $slots,
                 'service' => [
                     'name' => $service['txtName'],
                     'duration' => $service['intDuration'],
